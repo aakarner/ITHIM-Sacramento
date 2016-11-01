@@ -1,9 +1,12 @@
+# Author: Alex Karner & Yizheng Wu
 # File: Process_CHTS_data.R
 # Purpose: Process the raw data from the 2010-2012 California Statewide Travel Survey.
 # Impute some missing values.
 # Create smaller files to be used as input for the Sacramento County ITHIM.
 
 # Library definitions
+library(survey)
+library(StatMatch)
 
 # Turn off scientific notation
 options(scipen=999)
@@ -44,8 +47,6 @@ persons$age[persons$age > 900] <- NA
 persons$educa[persons$educa > 7] <- NA
 persons$emply[persons$emply > 2] <- NA
 persons$wkstat[persons$wkstat > 97] <- NA
-
-
 
 
 
