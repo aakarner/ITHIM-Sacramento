@@ -1,3 +1,3 @@
 # ITHIM_Sacramento
 
-# Test
+# Application of ITHIM for Sacramento County
