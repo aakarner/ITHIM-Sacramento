@@ -1,8 +1,16 @@
 ############ ITHIM application for Sacramento County ##########
 
+#set your working directory
+setwd("~/Documents/02_Work/13_ITHIM/03_Data/01_GBD")
+
+# user input
+# the numerical matrix for the population proportion
+PopProp <- matrix(c(0.0347225,0.0332277,0.0708172,0.0677564,0.1104101,0.1078704,0.0977915,0.0988684,
+                    0.1001054,0.1060743,0.041988,0.0472405,0.0224061,0.0272632,0.0126027,0.0208556),
+                  byrow=TRUE, ncol = 2, dimnames = list(paste0("ageClass ",1:nAgeClass),c("M","F")))
+
 # function for creating total exposure matrix 
 # after inputing the population Mean Walking/Cycling Time (min per week) and coefficient of variation (cv)
-
 TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime,cv){
   # The population mean walking/cycling speed (mph)
   PopMeanWalkSpeed <- 3.0
@@ -11,11 +19,7 @@ TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime,cv){
   # Number of age categories
   nAgeclass<-8
   
-  # the numerical matrix for the population proportion
-  PopProp <- matrix(c(0.0347225,0.0332277,0.0708172,0.0677564,0.1104101,0.1078704,0.0977915,0.0988684,
-                      0.1001054,0.1060743,0.041988,0.0472405,0.0224061,0.0272632,0.0126027,0.0208556),
-                    byrow=TRUE, ncol = 2, dimnames = list(paste0("ageClass ",1:nAgeClass),c("M","F")))
-  
+
   # Numerical matrices for the relative walking time (relative to the value of "female 15-29") and the mean walking time 
   Rwt <- matrix(c(0.6918,0.7658,0.8026,0.5945,0.5787,1.0000,0.8794,0.7100,1.1115,1.2865,1.5270,0.8593,0.3089,0.7539,0.7601,0.1345),
                 byrow=TRUE, ncol = 2, dimnames = list(paste0("ageClass ",1:nAgeClass),c("M","F")))
@@ -97,9 +101,8 @@ TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime,cv){
   totalExposure <-ifelse(quintTotalTravelMET + nonTravelMET > 2.5, quintTotalTravelMET + nonTravelMET, 0.1)
   
   #return the matrix of total exposure
-  return(list(
+  return(
     totalExposure <- totalExposure
-    )
     )
 }
 
@@ -109,16 +112,16 @@ TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime,cv){
 BaselineTotalExpo <-TotalExposure(32.4,5.8,1.9216)
 ScenarioTotalExpo <-TotalExposure(87.2898,87.2898,1.7112)
 
-#==========================The following part is under construction...==============================
-
 #Create relative risks of physical activity  
 diseaseNames <- c("BreastCancer","ColonCancer","CVD","Dementia","Depression","Diabetes")
 nAgeClass <- 8
   
+#RR.lit <- exposure <- rep(list((matrix(1.0,nrow=nAgeClass*2,ncol=1,dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),"RR")))), length(diseaseNames))
+  
 RR.lit <- exposure <- rep(list((matrix(NA,nrow=nAgeClass,ncol=2,dimnames=list(paste0("agClass",1:nAgeClass),c("F","M"))))), length(diseaseNames))
-  
+
 names(RR.lit) <- names(exposure) <- diseaseNames
-  
+
 exposure[["BreastCancer"]][1:nAgeClass,"F"] <- 4.5
 RR.lit[["BreastCancer"]][1:nAgeClass,"F"] <- 0.944
   
@@ -153,22 +156,95 @@ RR.lit[["Depression"]][4:nAgeClass,1:2] <- 0.859615572255727
 # RR.lit[["HHD"]] <- RR.lit[["CVD"]]
   
 reshapeRR <- function(RR, nQuantiles = 5){
-  nAgeClass <- 8
-  list( M = matrix(RR[,"M"], nrow = nAgeClass, ncol = nQuantiles, dimnames = list(paste0("ageClass",1:nAgeClass), seq(0.1,0.9,by=0.2))),F = matrix(RR[,"F"], nrow = nAgeClass, ncol = nQuantiles, dimnames = list(paste0("ageClass",1:nAgeClass), seq(0.1,0.9,by=0.2))))
+  #nAgeClass <- 8
+  matrix(c(RR[,"M"],RR[,"F"]),nrow=nAgeClass*2,ncol=nQuantiles,dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),seq(0.1,0.9,by=0.2)))
+  #list( M = matrix(RR[,"M"], nrow = nAgeClass, ncol = nQuantiles, dimnames = list(paste0("ageClass",1:nAgeClass), seq(0.1,0.9,by=0.2))),F = matrix(RR[,"F"], nrow = nAgeClass, ncol = nQuantiles, dimnames = list(paste0("ageClass",1:nAgeClass), seq(0.1,0.9,by=0.2))))
 }
 
-
+#parameter of function
 k <- 0.5
 RR.PA <- mapply(function(x,y,k) x^(1/y)^k, RR.lit, exposure, 0.5, SIMPLIFY=FALSE)
 RR.PA <- lapply(RR.PA, reshapeRR, nQuantiles = 5)
 
-
 #Compute RR for an exposure of x MET
-MET2RR <- function(RR,MET){
-  mapply(FUN = function(x, y) x^(y^0.5), RR, MET, SIMPLIFY = FALSE)
-}
+RR.Baseline <- sapply(RR.PA, function(x) {x^(BaselineTotalExpo^0.5)}, simplify = FALSE)
+RR.Scenario <- sapply(RR.PA, function(x) {x^(ScenarioTotalExpo^0.5)}, simplify = FALSE)
 
-RR.Baseline <- lapply(RR.PA,MET2RR,BaselineTotalExpo)
+
+#Compute Ratio of DB relative to group 1
+RatioDB.Baseline <- lapply(RR.Baseline,function(x) x/x[,1])
+RatioDB.Scenario <- lapply(RR.Scenario,function(x) x/x[,1])
+sum.RatioDB.Baseline <-lapply(RatioDB.Baseline,rowSums)
+sum.RatioDB.Scenario <-lapply(RatioDB.Scenario,rowSums)
+
+#Compute New Burden and AF
+sum.RR.Baseline<-lapply(RR.Baseline,rowSums)
+sum.RR.Scenario<-lapply(RR.Scenario,rowSums)
+new.burden <- mapply(function(x,y) x/y,sum.RR.Scenario,sum.RR.Baseline,SIMPLIFY=FALSE)
+AF <- sapply(new.burden, function(x) 1-x, simplify=FALSE)
+
+#Read the gbd data
+gbd <- read.csv("gbd.csv")
+gbdList <- split(gbd,gbd$Disease)
+
+#Input the population
+allPop <- matrix (c(10319427,20969500,32953433,30432499,31666007,13930047,7426360,4084053,9881935,20056351,31774758,30600206,33005514,15323140,9169601,7152707), 
+                    byrow=TRUE, ncol = 1, nrow = nAgeClass*2, dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),"Population"))
+
+SacPop <- matrix (PopProp*2377554, byrow=TRUE, ncol = 1, nrow = nAgeClass*2, dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),"Population"))
+
+gbd.local <- sapply(gbdList, function(x){x$RR * x[,c(3:6)]/allPop*SacPop}, simplify = FALSE)
+
+#update the colon cancer data with the parameter "colon % of colorectal cancer Male 79% Female 81% "
+gbd.local$ColonCancer[c(1:8),] <- gbd.local$ColonCancer[c(1:8),]*0.7878193
+gbd.local$ColonCancer[c(9:16),] <- gbd.local$ColonCancer[c(9:16),]*0.814
+
+#Compute the health outcomes
+#Define a function for outputing health outcomes
+fun.outcome <- function(x,y){
+  x[,1] <- y
+  x[,c(2:5)] <- x[,c(2:5)]*y
+  return(x)}
+
+#Compute deaths per group
+dproj.scenario.firstCol <- mapply(function(x,y,z) x*y$deaths/z, new.burden,gbd.local,sum.RatioDB.Scenario,SIMPLIFY=FALSE)
+dproj.scenario <- mapply(fun.outcome,RatioDB.Scenario,dproj.scenario.firstCol,SIMPLIFY=FALSE)
+
+dproj.baseline.firstCol <- mapply(function(x,y) x$deaths/y, gbd.local,sum.RatioDB.Baseline,SIMPLIFY=FALSE)
+dproj.baseline <- mapply(fun.outcome,RatioDB.Baseline,dproj.baseline.firstCol,SIMPLIFY=FALSE)
+
+#Compute YLL per group
+yll.scenario.firstCol <- mapply(function(x,y,z) x*y$yll/z, new.burden,gbd.local,sum.RatioDB.Scenario,SIMPLIFY=FALSE)
+yll.scenario <- mapply(fun.outcome,RatioDB.Scenario,yll.scenario.firstCol,SIMPLIFY=FALSE)
+
+yll.baseline.firstCol <- mapply(function(x,y) x$yll/y, gbd.local,sum.RatioDB.Baseline,SIMPLIFY=FALSE)
+yll.baseline <- mapply(fun.outcome,RatioDB.Baseline,yll.baseline.firstCol,SIMPLIFY=FALSE)
+
+#Compute YLD per group
+yld.scenario.firstCol <- mapply(function(x,y,z) x*y$yld/z, new.burden,gbd.local,sum.RatioDB.Scenario,SIMPLIFY=FALSE)
+yld.scenario <- mapply(fun.outcome,RatioDB.Scenario,yld.scenario.firstCol,SIMPLIFY=FALSE)
+
+yld.baseline.firstCol <- mapply(function(x,y) x$yld/y, gbd.local,sum.RatioDB.Baseline,SIMPLIFY=FALSE)
+yld.baseline <- mapply(fun.outcome,RatioDB.Baseline,yld.baseline.firstCol,SIMPLIFY=FALSE)
+
+#Compute the ∆Burden, total ∆Burden, and the proportion
+delta.Burden <- rep(list((matrix(NA,nrow=nAgeClass*2,ncol=4,dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),c("∆Deaths","∆YLL","∆YLD","DALYS"))))), length(diseaseNames))
+names(delta.Burden) <- diseaseNames
+
+delta.Burden <- mapply(function (x,a,b,c,d,e,f) {
+  x[,1] <- rowSums(a)-rowSums(b) #deaths
+  x[,2] <- rowSums(c)-rowSums(d) #yll
+  x[,3] <- rowSums(e)-rowSums(f) #yld
+  x[,4] <- x[,2] + x[,3]         #dalys
+  return(x)
+  },delta.Burden, dproj.scenario,dproj.baseline,yll.scenario,yll.baseline,yld.scenario,yld.baseline, SIMPLIFY=FALSE)
+
+total.delta.Burden <- lapply(delta.Burden, colSums)
+total.gbd.local <- lapply(gbd.local,function(x){
+  ifelse(colSums(x)!=0,colSums(x),0.0001)
+})
+
+prop.delta.Burden <- mapply(function(x,y) x/y, total.delta.Burden,total.gbd.local,SIMPLIFY=FALSE)
 
 
 
