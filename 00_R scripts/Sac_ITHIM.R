@@ -1,5 +1,7 @@
 ############ ITHIM application for Sacramento County ##########
 
+##### Physical Activity Module #####
+
 #set your working directory
 setwd("~/Documents/02_Work/13_ITHIM/03_Data/01_GBD")
 
