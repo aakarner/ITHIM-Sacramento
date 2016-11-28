@@ -28,9 +28,11 @@ injury.baseline <- list()
 for (n in 1:(nInjuriedType*nRoadType)){
   injury.baseline[[n]] <-injury[((n-1)*nTrafficModeV+1):(nTrafficModeV*n),1:(nTrafficModeS)]
 }
+injury.baseline <- lapply(injury.baseline,function(x) {
+  row.names(x) <- ModeNames[1:8]
+  return (x)
+})
 names(injury.baseline) <- c("local.fatal","arterial.fatal","highway.fatal","local.serious","arterial.serious","highway.serious")
-#??????????rownames(injury.baseline) <- colnames(temp)[2:9]
-
 
 ##### Distribution of Person & Vehicle Distance by Road Types  #####
 
@@ -66,10 +68,10 @@ speed.safety <- 1.0
 other <- 1.0
 victim.safety <- 0.5
 
+# compute the list of scenario injury multiplier (i:row;j:col;k:element)
 scenario.multiplier <- rep(list((matrix(NA,nrow=nTrafficModeV,ncol=nTrafficModeS,dimnames=list(ModeNames[1:8],ModeNames)))), nRoadType)
 names(scenario.multiplier) <- RoadTypes
 
-# compute the list of scenario injury multiplier (i:row;j:col;k:element)
 for (k in 1:3) {
   # for first four traffic modes 
   for (j in 1:4) {
@@ -98,7 +100,32 @@ for (k in 1:3) {
   }
 }
 
+##### Scenario Injuries #####
+#compute the scenario injuries
+injury.scenario <- mapply(function(x,y) x*y,injury.baseline,c(scenario.multiplier,scenario.multiplier),SIMPLIFY=FALSE)
 
+##### Injuries results #####
+injury.result <- rep(list((matrix(NA,nrow=nTrafficModeV,ncol=nTrafficModeS,dimnames=list(ModeNames[1:8],ModeNames)))), 4)
+names(injury.result) <- c("baseline fatalities","baseline injuries","scenario fatalities","scenario injuries")
+
+injury.result[[1]] <- injury.baseline[[1]]+injury.baseline[[2]]+injury.baseline[[3]]
+injury.result[[2]] <- injury.baseline[[4]]+injury.baseline[[5]]+injury.baseline[[6]]
+injury.result[[3]] <- injury.scenario[[1]]+injury.scenario[[2]]+injury.scenario[[3]]
+injury.result[[4]] <- injury.scenario[[4]]+injury.scenario[[5]]+injury.scenario[[6]]
+
+injury.result <- lapply(injury.result,function(x) {
+  x[is.na(x)]=0 
+  return(x)})
+
+injury.RR <- rep(list((matrix(NA,nrow=nTrafficModeV+1,ncol=3,dimnames=list(c(ModeNames[1:8],"total"),c("baseline","scenario","RR"))))), 2)
+names(injury.RR) <- c("fatalities","serious injuries")
+
+for (i in 1:2) {
+  injury.RR[[i]][1:8,1] <- rowSums(injury.result[[i]])
+  injury.RR[[i]][1:8,2] <- rowSums(injury.result[[i+2]])
+  injury.RR[[i]][9,1:2] <- colSums(injury.RR[[i]][1:8,1:2])
+  injury.RR[[i]][,3] <- injury.RR[[i]][,2]/injury.RR[[i]][,1]
+}
 
 
 
