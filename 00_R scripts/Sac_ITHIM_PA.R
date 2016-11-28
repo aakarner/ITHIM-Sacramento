@@ -5,15 +5,18 @@
 #set your working directory
 setwd("~/Documents/02_Work/13_ITHIM/03_Data/01_GBD")
 
+# Prevent scientific notation
+options(scipen = 100)
+
 # Number of age categories
 nAgeClass <- 8
 
-# the numerical matrix for the population proportion
+# the numerical matrix for the population proportion for Sacramento Area (source: US Census/Finance Department)
 PopProp <- matrix(c(0.0347225,0.0332277,0.0708172,0.0677564,0.1104101,0.1078704,0.0977915,0.0988684,
                     0.1001054,0.1060743,0.041988,0.0472405,0.0224061,0.0272632,0.0126027,0.0208556),
                   byrow=TRUE, ncol = 2, dimnames = list(paste0("ageClass ",1:nAgeClass),c("M","F")))
 
-# paramter of Physical Activity Risk Function (power)  								
+# paramter of Physical Activity Risk Function (power)
 k<-0.5
 
 # disease names
@@ -25,29 +28,38 @@ diseaseNames <- c("BreastCancer","ColonCancer","CVD","Dementia","Depression","Di
 # after inputing the population Mean Walking/Cycling Time (min per week) and coefficient of variation (cv)
 TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime,cv){
   # The population mean walking/cycling speed (mph)
+  #"It is common practice in MPOs to assume average walk speed of 3 mph and bicycle speed of 12 mph" from ITHIM user's manual
   PopMeanWalkSpeed <- 3.0
   PopMeanCycleSpeed <- 12.0
  
-  # Numerical matrices for the relative walking time (relative to the value of "female 15-29") and the mean walking time 
-  Rwt <- matrix(c(0.6918,0.7658,0.8026,0.5945,0.5787,1.0000,0.8794,0.7100,1.1115,1.2865,1.5270,0.8593,0.3089,0.7539,0.7601,0.1345),
+  # Numerical matrices for the relative walking time (relative to the value of "female 15-29") and the mean walking time
+  # Source: CHTS2012 (Per capita mean daily travel time by mode)
+  Rwt <- matrix(c(0.691765864967213,0.765794004516797,0.802634743791863,0.594519282218009,0.578715235061722,1,0.879364363751129,0.710045320247432,
+                  1.11148506129633,1.28652087605075,1.52701768330513,0.859282643581087,0.308874659008649,0.753890471313944,0.760056707009139,0.134523145392676),
                 byrow=TRUE, ncol = 2, dimnames = list(paste0("ageClass ",1:nAgeClass),c("M","F")))
   meanWalkTime <- Rwt/PopProp/sum(PopProp*Rwt)*PopMeanWalkTime*PopProp
   
   # Numerical matrices for the relative cycling time (relative to the value of "female 15-29") and the mean cycling time 
-  Rct <- matrix(c(2.0208,1.7434,3.5787,2.3395,1.9431,1.0000,3.1866,2.7003,5.2019,0.6997,3.2352,0.2387,2.3141,0.5627,4.6880,0.0100),
+  # Source: CHTS2012 (Per capita mean daily travel time by mode)
+  Rct <- matrix(c(2.0207559685406,1.74340111762982,3.57867457039163,2.33951722461684,1.94306476105943,1,3.18660981906993,2.70027598636265,5.20188582849539,
+                  0.69968026687251,3.23521802546675,0.238691431378909,2.31339298409941,0.56267914609149,4.68803009254933,0.01),
                 byrow=TRUE, ncol = 2, dimnames = list(paste0("ageClass ",1:nAgeClass),c("M","F")))
   meanCycleTime <- Rct/PopProp/sum(PopProp*Rct)*PopMeanCycleTime*PopProp
-  
+    
   # Numerical matrices for the proportion of mean cycling time to total active transport time
   PropMeanCycleTime <- meanCycleTime/(meanWalkTime+meanCycleTime)
   
   # Numerical matrices for the relative walking speed (relative to the value of "female 15-29") and the mean walking speed
-  Rws <- matrix(c(1.0663,0.8753,1.0663,0.8753,1.0206,1.0002,1.0590,1.0338,1.0392,0.9474,1.0302,0.9330,0.9510,0.8969,0.9510,0.8969),
+  # Hard code in spreadsheet with a comment from James W "these will be fixed"
+  Rws <- matrix(c(1.06625104471452,0.875334472519019,1.06625104471452,0.875334472519019,1.02062318469296,1.0002107209991,1.05904664576375,1.03383124943604,
+                  1.03923454864912,0.947378462026757,1.03022904996066,0.932969664125209,0.950980661502144,0.89694766937134,0.950980661502144,0.89694766937134),
                 byrow=TRUE, ncol = 2, dimnames = list(paste0("ageClass ",1:nAgeClass),c("M","F")))
   meanWalkSpeed <- Rws/PopProp/sum(PopProp*Rws)*PopMeanWalkSpeed*PopProp
   
   # Numerical matrices for the relative cycling speed (relative to the value of "female 15-29") and the mean cycling speed
-  Rcs <- matrix(c(0.8474,0.8375,0.8920,0.9817,1.0721,0.9570,1.0735,0.9805,1.1565,0.9628,1.0631,0.9292,1.0293,0.8485,0.9023,0.8308),
+  # Hard code in spreadsheet with a comment from James W "these will be fixed"
+  Rcs <- matrix(c(0.84739474343726,0.837454446947191,0.892011198753201,0.981718474308937,1.07209968592556,0.956965508950191,1.07348727461944,0.98047195259287,
+                  1.15649519900625,0.96279225292112,1.0630716656428,0.929156295472355,1.02933865953429,0.848508758267482,0.902283291509392,0.830811808691337),
                 byrow=TRUE, ncol = 2, dimnames = list(paste0("ageClass",1:nAgeClass),c("M","F")))
   meanCycleSpeed <- Rcs/PopProp/sum(PopProp*Rcs)*PopMeanCycleSpeed*PopProp
   
@@ -96,7 +108,8 @@ TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime,cv){
   
   quintTotalTravelMET <- quintWalkMET+quintCycleMET
   
-  # Matrix of Non-travel METs  
+  # Matrix of Non-travel METs 
+  # source: CHIS2009 (Per capita weekly non-travel related physical activity expressed as metabolic equivalent tasks (kcal/kg body weight/hr of activity))
   nonTravelMET <- matrix (c(0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,53.9500,31.6833,61.1000,56.7500,41.0000,55.7000,52.4000,
                             55.7500,57.0000,49.2000,46.5500,53.2000,58.2250,42.2667,44.8000,20.5000,41.0000,20.5000,33.8250,30.7500,8.7500,22.7500,6.2500,
                             4.3750,0.0000,10.0000,5.0000,5.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,35.8750,
