@@ -1,0 +1,49 @@
+,walk,cycle,bus,car,HGV,LGV,mbike,elec bike,NOV,Road type,Injuried type
+walk,0.2597383,0,0.5194766,32.2075473,2.0779063,,0,,0,local,fatal
+cycle,0,0,0.2569603,6.6809687,1.0278413,,0,,0.5344225,local,fatal
+bus,0,0,0,0,0,,0,,0.7182952,local,fatal
+car,0,0,1.1526185,47.718405,8.9904241,,0,,62.8421696,local,fatal
+HGV,0,0,0,0,0.2291808,,0,,1.1971587,local,fatal
+LGV,,,,,,,,,,local,fatal
+mbike,0,0,0.4626858,13.1865466,0.9253717,,0.2313429,,10.1469406,local,fatal
+elec bike ,,,,,,,,,,local,fatal
+walk,0,0,0,1.5778116,0,,0,,0,arterial,fatal
+cycle,0,0,0,0.676205,0,,0,,0,arterial,fatal
+bus,0,0,0,0,0,,0,,0,arterial,fatal
+car,0,0,0,0.2254017,1.3524099,,0,,2.7048198,arterial,fatal
+HGV,0,0,0,0,0,,0,,0,arterial,fatal
+LGV,,,,,,,,,,arterial,fatal
+mbike,0,0,0,0.2254017,0.2254017,,0,,0.4508033,arterial,fatal
+elec bike ,,,,,,,,,,arterial,fatal
+walk,0,0,0,2.6257958,0.7877388,,0,,0,highway,fatal
+cycle,0,0,0,0.227569,0,,0,,0,highway,fatal
+bus,0,0,0,0,0,,0,,0,highway,fatal
+car,0,0,0,5.0065174,3.4135346,,0,,8.87519,highway,fatal
+HGV,0,0,0,0,0.227569,,0,,0.6827069,highway,fatal
+LGV,,,,,,,,,,highway,fatal
+mbike,0,0,0,0.9102759,0,,0,,0.9102759,highway,fatal
+elec bike ,,,,,,,,,,highway,fatal
+walk,0,0,1.6680434,94.2444527,2.7800724,,0.5560145,,0.2894106,local,serious
+cycle,0,0.2582705,0.516541,51.9123726,1.2913526,,1.2913526,,8.0902156,local,serious
+bus,0,0,0.2325388,0,0,,0,,0.9757684,local,serious
+car,0,0,1.8908965,202.5622899,16.7817066,,0,,190.0360682,local,serious
+HGV,0,0,0,0,3.2555427,,0,,1.4636526,local,serious
+LGV,,,,,,,,,,local,serious
+mbike,0,0,0.707222,73.7868306,3.0646287,,0,,57.3374117,local,serious
+elec bike ,,,,,,,,,,local,serious
+walk,0,0,0,1.3524099,0,,0,,0,arterial,serious
+cycle,0,0,0,1.5778116,0,,0,,0,arterial,serious
+bus,0,0,0.4508033,0,0,,0,,0,arterial,serious
+car,0,0,0.4571526,8.6859002,0.685729,,0,,6.400137,arterial,serious
+HGV,0,0,0,0,0,,0,,0.2254017,arterial,serious
+LGV,,,,,,,,,,arterial,serious
+mbike,0,0,0,1.5778116,0,,0,,2.2540165,arterial,serious
+elec bike ,,,,,,,,,,arterial,serious
+walk,0,0,0,1.763627,1.1757514,,0,,0,highway,serious
+cycle,0,0,0,0.6783181,0,,0,,0,highway,serious
+bus,0,0,1.1305302,0,0,,0,,0,highway,serious
+car,0,0,0.4540429,21.3400153,5.2214931,,0,,29.0587442,highway,serious
+HGV,0,0,0,0,0.226106,,0,,0.6783181,highway,serious
+LGV,,,,,,,,,,highway,serious
+mbike,0,0,0,5.5445131,0.6930641,,0.2310214,,4.1583848,highway,serious
+elec bike ,,,,,,,,,,highway,serious
