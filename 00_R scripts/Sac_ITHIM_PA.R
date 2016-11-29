@@ -133,6 +133,7 @@ create.PA.RR <- function(){
   
   names(RR.lit) <- names(exposure) <- diseaseNames
   
+  #physical 
   exposure[["BreastCancer"]][1:nAgeClass,"F"] <- 4.5
   RR.lit[["BreastCancer"]][1:nAgeClass,"F"] <- 0.944
   
@@ -184,15 +185,18 @@ computeLocalGBD <- function (){
   gbd <- read.csv("gbd.csv")
   gbdList <- split(gbd,gbd$Disease)
   
-  #Input the population
+  #Input the whole US population in 2010
+  #source: US Census 2010
   allPop <- matrix (c(10319427,20969500,32953433,30432499,31666007,13930047,7426360,4084053,9881935,20056351,31774758,30600206,33005514,15323140,9169601,7152707), 
                     byrow=TRUE, ncol = 1, nrow = nAgeClass*2, dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),"Population"))
-  
+  # the population in Sacramento area
+  # source: US Census 2010
   SacPop <- matrix (PopProp*2377554, byrow=TRUE, ncol = 1, nrow = nAgeClass*2, dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),"Population"))
   
   gbd.local <- sapply(gbdList, function(x){x$RR * x[,c(3:6)]/allPop*SacPop}, simplify = FALSE)
   
-  #update the colon cancer data with the parameter "colon % of colorectal cancer Male 79% Female 81% "
+  # update the colon cancer data with the parameter "colon % of colorectal cancer Male 79% Female 81% "
+  # The source of data is the CDPH Death Statistical Master file for the years 2009 to 2011.
   gbd.local$ColonCancer[c(1:8),] <- gbd.local$ColonCancer[c(1:8),]*0.7878193
   gbd.local$ColonCancer[c(9:16),] <- gbd.local$ColonCancer[c(9:16),]*0.814
   
@@ -203,8 +207,7 @@ computeLocalGBD <- function (){
 computeHealthOutcome <- function (RR.PA,BaselineTotalExpo,ScenarioTotalExpo,gbd.local){
   #Compute RR for an exposure of x MET
   RR.Baseline <- sapply(RR.PA, function(x) {x^(BaselineTotalExpo^k)}, simplify = FALSE)
-  RR.Scenario <- sapply(RR.PA, function(x) {x^(ScenarioTotalExpo^k)}, simplify = FALSE)
-  
+  RR.Scenario <- sapply(RR.PA, function(x) {x^(ScenarioTotalExpo^k)}, simplify = FALSE)  
   
   #Compute Ratio of DB relative to group 1
   RatioDB.Baseline <- lapply(RR.Baseline,function(x) x/x[,1])
