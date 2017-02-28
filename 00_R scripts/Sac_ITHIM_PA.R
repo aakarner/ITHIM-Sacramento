@@ -193,7 +193,9 @@ computeLocalGBD <- function (){
   
   # the population in Sacramento area
   # source: US Census 2010
-  SacPop <- matrix (PopProp*2377554, byrow=TRUE, ncol = 1, nrow = nAgeClass*2, dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),"Population"))
+  # in the spread version, 2377554 is used as the whole Sac population, which is not the right number. 
+  # Here I use the actual sum of population
+  SacPop <- matrix (PopProp*sum(Pop_Sac), byrow=TRUE, ncol = 1, nrow = nAgeClass*2, dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),"Population"))
   
   gbd.local <- sapply(gbdList, function(x){x$RR * x[,c(3:6)]/allPop*SacPop}, simplify = FALSE)
   
@@ -281,7 +283,7 @@ computeHealthOutcome <- function (RR.PA,BaselineTotalExpo,ScenarioTotalExpo,gbd.
 ############################calculation example#################################
 
 #Create the total exposure matrices by inputing parameters 
-#(mean walking time, mean cycling time, and cv)
+#(mean walking time(min per week), mean cycling time(min per week), and cv)
 BaselineTotalExpo <-TotalExposure(32.4,5.8,1.9216)
 ScenarioTotalExpo <-TotalExposure(87.2898,87.2898,1.7112)
 
@@ -293,9 +295,5 @@ gbd.local <- computeLocalGBD()
 
 #compute health outcomes
 HealthOutcome <- computeHealthOutcome(RR.PA,BaselineTotalExpo,ScenarioTotalExpo,gbd.local)
-
-
-
-
 
 
