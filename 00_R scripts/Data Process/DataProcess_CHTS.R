@@ -12,6 +12,7 @@ library(StatMatch)
 
 # Scientific notation is no fun 
 options(scipen = 100)
+set.seed(100)
 
 # Function definitions
 rbind.data.frame.NA <- function(...) {
@@ -31,7 +32,7 @@ rbind.data.frame.NA <- function(...) {
 }
 
 # Set your working directory
-setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/01_Data/00_CHTS2010-2012")
+setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/01_Data")
 
 # -----------------------------------
 # Data preparation
@@ -42,9 +43,9 @@ setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/01_Data/00_CHTS2010-2012")
 # See instructions here: http://www.nrel.gov/vehiclesandfuels/secure_transportation_data.html
 # Unzip and place all files in your working directory
 
-place <- read.csv("place.csv")
-persons <- read.csv("persons.csv")
-hhs <- read.csv("households.csv")
+place <- read.csv("00_CHTS2010-2012/place.csv")
+persons <- read.csv("00_CHTS2010-2012/persons.csv")
+hhs <- read.csv("00_CHTS2010-2012/households.csv")
 
 # Hot deck imputation of missing ages
 # According to the 2010-2012 California Household Travel Survey Final Report, hot deck imputation was used on 
