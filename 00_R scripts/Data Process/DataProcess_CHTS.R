@@ -10,9 +10,8 @@
 library(survey)
 library(StatMatch)
 
-# Scientific notation is no fun 
+# Prevent scientific notation
 options(scipen = 100)
-set.seed(100)
 
 # Function definitions
 rbind.data.frame.NA <- function(...) {
@@ -152,9 +151,7 @@ names(persons.t)[151] <- "age_imputed"
 names(persons.t)[6] <- "age"
 
 # Recode races into categories relevant for the HIA (1: non-Hispanic White / 2: others)
-non.hisp.white <- which(persons.t$hisp==2&persons.t$race1==1) # non-Hispanic White
-persons.t$race <- rep(2,nrow(persons.t))
-persons.t[non.hisp.white,152] <- 1 # non-Hispanic White
+persons.t$race <- ifelse(persons.t$hisp==2 & persons.t$race1==1,1,2)
 
 # Fields needed for the implementation:
 # HH: home county, tract, zip,income
@@ -276,60 +273,65 @@ persons.c$age8cat <-
 # Add a column of ones
 persons.c$ones <- rep(1, nrow(persons.c))
 
-# Create a data frame containing merged trip, household, and person data
-CA.trips.c <- merge(persons.c, hhs.c, by.x = "sampn", by.y = "sampno")
-CA.trips <- merge(CA.trips.c, place.c, by.x = "ID", by.y = "ID", all = TRUE)
-
 # Create a data frame containing merged household and person data
-# persons.hhs <- merge(persons.c, hhs.c, by.x = "sampn", by.y = "sampno")
-
-# We're only interested in trips
-# Remove table elements that don't represent trips
-sum(is.na(CA.trips$mode))
-CA.trips <- CA.trips[!is.na(CA.trips$exptcfperwgt), ]
+persons.hhs <- merge(persons.c, hhs.c, by.x = "sampn", by.y = "sampno")
 
 # Combing gender & race into one variable (gender.race)
 # 1, male, non-Hispanic white
 # 2, female, non-Hispanic white
 # 3, male, other races
 # 4, female, other races
-CA.trips$gender.race <-
-  ifelse(CA.trips$gend == 1 & CA.trips$race == 1,1,
-         ifelse(CA.trips$gend == 2 & CA.trips$race == 1,2,
-                ifelse(CA.trips$gend == 1 & CA.trips$race == 2,3,
-                       ifelse(CA.trips$gend == 2 & CA.trips$race == 2,4,99))))
+# 99, DK/RF 
+persons.hhs$gender.race <-
+  ifelse(persons.hhs$gend == 1 & persons.hhs$race == 1,1,
+         ifelse(persons.hhs$gend == 2 & persons.hhs$race == 1,2,
+                ifelse(persons.hhs$gend == 1 & persons.hhs$race == 2,3,
+                       ifelse(persons.hhs$gend == 2 & persons.hhs$race == 2,4,99))))
 
 # Combing gender & income into one variable (gender.inc)
-# 1, male, low income hh
-# 2, female, low income hh
+# 1, male, low income hh (incom group 1 + group 2; <$25,000)
+# 2, female, low income hh (incom group 1 + group 2; <$25,000)
 # 3, male, other income categories
 # 4, female, other income categories
-CA.trips$gender.inc <-
-  ifelse(CA.trips$gend == 1 & CA.trips$incom %in% c(1:2),1,
-         ifelse(CA.trips$gend == 2 & CA.trips$incom %in% c(1:2),2,
-                ifelse(CA.trips$gend == 1 & CA.trips$incom %in% c(3:10),3,
-                       ifelse(CA.trips$gend == 2 & CA.trips$incom %in% c(3:10),4,99))))
+# 5, DK/RF
+persons.hhs$gender.inc <-
+  ifelse(persons.hhs$gend == 1 & persons.hhs$incom %in% c(1:2),1,
+         ifelse(persons.hhs$gend == 2 & persons.hhs$incom %in% c(1:2),2,
+                ifelse(persons.hhs$gend == 1 & persons.hhs$incom %in% c(3:10),3,
+                       ifelse(persons.hhs$gend == 2 & persons.hhs$incom %in% c(3:10),4,99))))
+
+
+# Create a data frame containing merged trip, household, and person data
+# CA.trips.c <- merge(persons.c, hhs.c, by.x = "sampn", by.y = "sampno")
+CA.trips <- merge(persons.hhs, place.c, by.x = "ID", by.y = "ID", all = TRUE)
+
+# We're only interested in trips
+# Remove table elements that don't represent trips
+sum(is.na(CA.trips$mode))
+CA.trips <- CA.trips[!is.na(CA.trips$exptcfperwgt), ]
 
 # Create requisite complex survey objects
 CA.trips.svy <- svydesign(id = ~ID, weights = ~exptcfperwgt, data = CA.trips)
+CA.persons.svy <- svydesign(id = ~ID, weights = ~expperwgt, data = persons.hhs)
 
 # -----------------------------------
 # Analysis
 # -----------------------------------
 
 # Define geographic identifiers
-SJV.counties <- c(6107, 6047, 6039, 6019, 6077, 6031, 6029, 6099)
+# SJV.counties <- c(6107, 6047, 6039, 6019, 6077, 6031, 6029, 6099)
+SAC.counties <- c(6017,6061,6067,6101,6113,6115)
 
 # 2 genders, 12 mode categories, 8 age categories, 2 race categories, 2 income categories
 
 ##### by gender and race #####
 # Travel time by gender and race
 travel.times.by.race <- matrix(nrow = 96, ncol = 4)
-travel.times.err.by.race <- matrix(nrow = 96, ncol = 4)
+# travel.times.err.by.race <- matrix(nrow = 96, ncol = 4)
 
 # Travel diatane by gender and race
 travel.distance.by.race <- matrix(nrow = 96, ncol = 4)
-travel.distance.err.by.race <- matrix(nrow = 96, ncol = 4)
+# travel.distance.err.by.race <- matrix(nrow = 96, ncol = 4)
 
 for(i in 1:4) { # gender and race
   print(paste0("i is ", i))
@@ -337,26 +339,26 @@ for(i in 1:4) { # gender and race
     print(paste0("j is ", j))
     for (k in 1:8) { # age category
       time <- try(svytotal(~tripdur, subset(CA.trips.svy, 
-                                            gender.race == i & age8cat == k & ctfip %in% SJV.counties
+                                            gender.race == i & age8cat == k & ctfip %in% SAC.counties
                                             & mode_recode == levels(factor(CA.trips$mode_recode))[j]), 
                            na.rm = TRUE), silent = TRUE)
       # if there are no trips in this category, return 0, otherwise return the total trip duration by
       # age-sex category
       travel.times.by.race[k + 8 * (j - 1), i] <- 
         ifelse(class(time) == "try-error", 0, coef(time))
-      travel.times.err.by.race[k + 8 * (j - 1), i] <-
-        ifelse(class(time) == "try-error", 0, SE(time))
+      #travel.times.err.by.race[k + 8 * (j - 1), i] <-
+        #ifelse(class(time) == "try-error", 0, SE(time))
       
       dist <- try(svytotal(~tripdistance, subset(CA.trips.svy, 
-                                                 gender.race == i & age8cat == k & ctfip %in% SJV.counties & 
+                                                 gender.race == i & age8cat == k & ctfip %in% SAC.counties & 
                                                    mode_recode == levels(factor(CA.trips$mode_recode))[j]), 
                            na.rm = TRUE), silent = TRUE) 
       # if there are no trips in this category, return 0, otherwise return the total trip duration by
       # age-sex category
       travel.distance.by.race[k + 8 * (j - 1), i] <- 
         ifelse(class(dist) == "try-error", 0, coef(dist))
-      travel.distance.err.by.race[k + 8 * (j - 1), i] <-
-        ifelse(class(dist) == "try-error", 0, SE(dist))
+      #travel.distance.err.by.race[k + 8 * (j - 1), i] <-
+        #ifelse(class(dist) == "try-error", 0, SE(dist))
     }
   }
 }
@@ -364,11 +366,11 @@ for(i in 1:4) { # gender and race
 ##### by gender and income #####
 # Travel time by gender and income
 travel.times.by.inc <- matrix(nrow = 96, ncol = 4)
-travel.times.err.by.inc <- matrix(nrow = 96, ncol = 4)
+#travel.times.err.by.inc <- matrix(nrow = 96, ncol = 4)
 
 # Travel diatane by gender and income
 travel.distance.by.inc <- matrix(nrow = 96, ncol = 4)
-travel.distance.err.by.inc <- matrix(nrow = 96, ncol = 4)
+#travel.distance.err.by.inc <- matrix(nrow = 96, ncol = 4)
 
 for(i in 1:4) { # gender and inc
   print(paste0("i is ", i))
@@ -376,33 +378,41 @@ for(i in 1:4) { # gender and inc
     print(paste0("j is ", j))
     for (k in 1:8) { # age category
       time <- try(svytotal(~tripdur, subset(CA.trips.svy, 
-                                            gender.inc == i & age8cat == k & ctfip %in% SJV.counties
+                                            gender.inc == i & age8cat == k & ctfip %in% SAC.counties
                                             & mode_recode == levels(factor(CA.trips$mode_recode))[j]), 
                            na.rm = TRUE), silent = TRUE)
       # if there are no trips in this category, return 0, otherwise return the total trip duration by
       # age-sex category
       travel.times.by.inc[k + 8 * (j - 1), i] <- 
         ifelse(class(time) == "try-error", 0, coef(time))
-      travel.times.err.by.inc[k + 8 * (j - 1), i] <-
-        ifelse(class(time) == "try-error", 0, SE(time))
+      #travel.times.err.by.inc[k + 8 * (j - 1), i] <-
+        #ifelse(class(time) == "try-error", 0, SE(time))
       
       dist <- try(svytotal(~tripdistance, subset(CA.trips.svy, 
-                                                 gender.inc == i & age8cat == k & ctfip %in% SJV.counties & 
+                                                 gender.inc == i & age8cat == k & ctfip %in% SAC.counties & 
                                                    mode_recode == levels(factor(CA.trips$mode_recode))[j]), 
                            na.rm = TRUE), silent = TRUE) 
       # if there are no trips in this category, return 0, otherwise return the total trip duration by
       # age-sex category
       travel.distance.by.inc[k + 8 * (j - 1), i] <- 
         ifelse(class(dist) == "try-error", 0, coef(dist))
-      travel.distance.err.by.inc[k + 8 * (j - 1), i] <-
-        ifelse(class(dist) == "try-error", 0, SE(dist))
+      #travel.distance.err.by.inc[k + 8 * (j - 1), i] <-
+        #ifelse(class(dist) == "try-error", 0, SE(dist))
     }
   }
 }
 
+# Create a table of population counts for sac counties
+pop.age.gender.income <- svytable(~age8cat + gender.inc, subset(CA.persons.svy, ctfip %in% SAC.counties))
+pop.age.gender.race <- svytable(~age8cat + gender.race, subset(CA.persons.svy, ctfip %in% SAC.counties))
+
 # -----------------------------------
 # Output
 # -----------------------------------
+
+travel.distance.by.race
+travel.distance.by.inc
+
 
 
 
