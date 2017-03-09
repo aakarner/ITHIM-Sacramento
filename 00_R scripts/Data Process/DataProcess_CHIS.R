@@ -134,7 +134,7 @@ chis.2005$MET_hrwk_nt_pa <- chis.2005$MET_mod_hrs_wk + chis.2005$MET_vig_hrs_wk 
 chis.2005$race.cat <- ifelse(chis.2005$srh == "NO" & chis.2005$srw =="YES",1,2)
 
 # ak22_p -> Annual HH income ($)
-# currently, define 25,000$ as the benchmark for low income HH
+# currently, define <25,000$ as the benchmark for low income HH
 chis.2005$inc.cat <- ifelse(chis.2005$ak22_p>0 & chis.2005$ak22_p<25000,1,2)
  
 # -----------------------------------
