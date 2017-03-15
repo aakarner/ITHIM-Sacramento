@@ -18,7 +18,7 @@ InputPara <- function (Pop_Input,AT_Input,nonTravelMET_Input,gbd_Input){
   PopProp_List_byDemo <- mapply(function(x) x/sum(x),Pop_List_byDemo,SIMPLIFY = FALSE)
   
   # input the whole US population in 2010. source: US Census 2010
-  allPop <- matrix (c(Pop_Input[1:8,11],Pop_Input[1:8,12]), 
+  allPop <- matrix (c(Pop_Input_US[1:8,2],Pop_Input_US[1:8,3]), 
                     byrow=TRUE, ncol = 1, nrow = nAgeClass*2, dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),"Population"))
   
   # input the active transport data into each demo catrgories
@@ -211,15 +211,15 @@ create.PA.RR <- function(){
 computeLocalGBD <- function (death_List_target,TargetPop,InputPara){
   
   #obtain the gbd and the death data of U.S.
-  gbd_List_US <- split(InputPara$gbd_Input[,3:6],InputPara$gbd_Input$Disease)
-  death_List_US <- split(InputPara$gbd_Input[,3],InputPara$gbd_Input$Disease)
+  gbd_List_US <- split(gbd_Input_US[,3:6],gbd_Input_US$Disease)
+  death_List_US <- split(gbd_Input_US[,3],gbd_Input_US$Disease)
   
   # calculate the RR (the ratio of death numbers for target area with those for whole U.S.)
   RR_gbd <- rep(list(matrix(NA,ncol = 1,nrow = 2*nAgeClass,dimnames = list((c(paste0("maleAgeclass",1:nAgeClass),paste0("femaleAgeclass",1:nAgeClass))),"RR"))),length(diseaseNames))
   names(RR_gbd) <- diseaseNames
   
   RR_gbd <- mapply(function(x,y) (x/TargetPop)/(y/InputPara$allPop),death_List_target,death_List_US,SIMPLIFY = FALSE)
-  RR_gbd <- lapply(RR_gbd,function(x) replace(x,is.na(x),1.0))
+  RR_gbd <- lapply(RR_gbd,function(x) replace(x,is.na(x),1.0)) #replace NAs with 1.0
 
   # obtain the local gbd numbers  
   gbd.local <- mapply(function(x,y) x*y/InputPara$allPop*TargetPop,RR_gbd,gbd_List_US,SIMPLIFY = FALSE)
@@ -240,7 +240,7 @@ List_LocalGBD <- function(InputPara){
   
   # apply the function "computeLocalGBD" for calculating the local gbd data of all demographic groups
   for (i in 1:nDemoClass){
-    death_List_target <-  split(InputPara$gbd_Input[,i+7],InputPara$gbd_Input$Disease)
+    death_List_target <-  split(InputPara$gbd_Input[,i+2],InputPara$gbd_Input$Disease)
     TargetPop <- matrix (InputPara$PopProp_List_byDemo[[i]], byrow=TRUE, ncol = 1, nrow = nAgeClass*2, dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),"Population"))
     gbd.local <- computeLocalGBD(death_List_target,TargetPop,InputPara)
     LocalGBD_List_byDemo[[i]] <- gbd.local
@@ -341,21 +341,23 @@ raceGroupNames <- c("NHW","NHB","NHO","HO")
 incomeGroupNames <- c("Low","Medium","High","Other")
 
 # input the population (source: US Census/Finance Department)
-Pop_Input_byRace <- read.csv("01_Population_byRace_EA.csv")
-Pop_Input_byIncome <- read.csv("02_Population_byIncome_EA.csv")
+Pop_Input_US <- read.csv("01_Population_US_EA.csv")
+Pop_Input_byRace <- read.csv("02_Population_Local_byRace_EA.csv")
+Pop_Input_byIncome <- read.csv("03_Population_Local_byIncome_EA.csv")
 
 # input the parameters of active transport (include relative walking/cycling time and speed)
-AT_Input_byRace <- read.csv("03_ActiveTransport_byRace_EA.csv")
-AT_Input_byIncome <- read.csv("04_ActiveTransport_byIncome_EA.csv")
+AT_Input_byRace <- read.csv("04_ActiveTransport_byRace_EA.csv")
+AT_Input_byIncome <- read.csv("05_ActiveTransport_byIncome_EA.csv")
 
 # input the matrix of Non-travel METs 
 # source: CHIS2005 (Per capita weekly non-travel related physical activity expressed as metabolic equivalent tasks (kcal/kg body weight/hr of activity))
-nonTravelMET_Input_byRace <- read.csv("05_NonTravelMET_byRace_EA.csv")
-nonTravelMET_Input_byIncome <- read.csv("06_NonTravelMET_byIncome_EA.csv")
+nonTravelMET_Input_byRace <- read.csv("06_NonTravelMET_byRace_EA.csv")
+nonTravelMET_Input_byIncome <- read.csv("07_NonTravelMET_byIncome_EA.csv")
 
 #input the gbd data
-gbd_Input_byRace <- read.csv("07_GBD_byRace_EA.csv")
-gbd_Input_byIncome <- read.csv("08_GBD_byIncome_EA.csv")
+gbd_Input_US <- read.csv("08_GBD_US_EA.csv")
+gbd_Input_byRace <- read.csv("09_GBD_Local_byRace_EA.csv")
+gbd_Input_byIncome <- read.csv("10_GBD_Local_byIncome_EA.csv")
 
 # combine all inputs into a list object
 InputPara_byRace <- InputPara(Pop_Input_byRace,AT_Input_byRace,nonTravelMET_Input_byRace,gbd_Input_byRace)
@@ -366,10 +368,10 @@ InputPara_byIncome <- InputPara(Pop_Input_byIncome,AT_Input_byIncome,nonTravelME
 #Create the total exposure matrices by inputing parameters 
 #(mean walking time(min per week), mean cycling time(min per week), and cv)
 BaselineTotalExpo_byRace <- List_TotalExposure(32.4,5.8,1.9216,InputPara_byRace)
-ScenarioTotalExpo_byRace <- List_TotalExposure(64.8,17.5,1.8536,InputPara_byRace)
+ScenarioTotalExpo_byRace <- List_TotalExposure(62.9,3.0,1.8788,InputPara_byRace)
 
 BaselineTotalExpo_byIncome <- List_TotalExposure(32.4,5.8,1.9216,InputPara_byIncome)
-ScenarioTotalExpo_byIncome <- List_TotalExposure(64.8,17.5,1.8536,InputPara_byIncome)
+ScenarioTotalExpo_byIncome <- List_TotalExposure(62.9,3.0,1.8788,InputPara_byIncome)
 
 #compute the relative risks of Physical Activity (1MET)
 RR.PA <- create.PA.RR()
@@ -386,4 +388,5 @@ names(HealthOutcome_byRace) <- raceGroupNames
 HealthOutcome_byIncome <- 
   mapply(function(x,y,z) computeHealthOutcome(RR.PA,x,y,z),BaselineTotalExpo_byIncome,ScenarioTotalExpo_byIncome,LocalGBD_List_byIncome,SIMPLIFY = FALSE)
 names(HealthOutcome_byIncome) <- incomeGroupNames
+
 

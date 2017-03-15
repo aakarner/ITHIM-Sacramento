@@ -285,7 +285,7 @@ computeHealthOutcome <- function (RR.PA,BaselineTotalExpo,ScenarioTotalExpo,gbd.
 #Create the total exposure matrices by inputing parameters 
 #(mean walking time(min per week), mean cycling time(min per week), and cv)
 BaselineTotalExpo <-TotalExposure(32.4,5.8,1.9216)
-ScenarioTotalExpo <-TotalExposure(87.2898,87.2898,1.7112)
+ScenarioTotalExpo <-TotalExposure(60,20,1.7112)
 
 #compute the relative risks of Physical Activity (1MET)
 RR.PA <- create.PA.RR()
