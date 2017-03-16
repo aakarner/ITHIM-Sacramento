@@ -8,7 +8,7 @@ options(scipen = 100)
 
 ###################### Function Definition ##############################
 
-# function for inputing datasets (.csv)
+# function for inputing data sets (.csv)
 InputPara <- function (Pop_Input,AT_Input,nonTravelMET_Input,gbd_Input){
   # input the population and calculate the proportion of population into each demo categories
   Pop_List_byDemo <- rep(list((matrix(NA,nrow=nAgeClass,ncol=2,dimnames=list(paste0("agClass",1:nAgeClass),c("F","M"))))), nDemoClass)
@@ -30,10 +30,9 @@ InputPara <- function (Pop_Input,AT_Input,nonTravelMET_Input,gbd_Input){
   # input the non travel METs into each demo catrgories
   nonTravelMET_List_byDemo <- rep(list((matrix(NA,nrow=2*nAgeClass,ncol=5))), nDemoClass)
   for(i in 1:nDemoClass){
-    nonTravelMET_List_byDemo[[i]] <- as.matrix(nonTravelMET_Input[(18*i-17):(18*i-2),2:6])
+    nonTravelMET_List_byDemo[[i]] <- as.matrix(nonTravelMET_Input[(17*i-16):(17*i-1),2:6])
     dimnames(nonTravelMET_List_byDemo[[i]]) = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),seq(0.1,0.9,by=0.2))
   }
-  
   
   return(list(
     PopProp_List_byDemo=PopProp_List_byDemo,
@@ -123,7 +122,7 @@ TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime,cv, AT_Input, PopPro
   
   quintTotalTravelMET <- quintWalkMET+quintCycleMET
   
-  # Adding total AC MET-hours and non travel METs
+  # adding up total AC METs and non travel METs
   totalExposure <-ifelse(quintTotalTravelMET + nonTravelMET > 2.5, quintTotalTravelMET + nonTravelMET, 0.1)
   
   #return the matrix of total exposure
@@ -138,7 +137,7 @@ List_TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime,cv,InputPara){
   # Calculate the total exposure matrix for demographic categories
   TotalExposure_List_byDemo <- rep(list((matrix(NA,nrow=2*nAgeClass,ncol=5))), nDemoClass)
   
-  # apply the function of TotalExposure()
+  # apply the function of TotalExposure() for each demographic categories
   for(i in 1:nDemoClass){
     TotalExposure_List_byDemo[[i]] <- TotalExposure(
       PopMeanWalkTime, PopMeanCycleTime,cv,
@@ -151,7 +150,6 @@ List_TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime,cv,InputPara){
     TotalExposure_List_byDemo=TotalExposure_List_byDemo
   )
 }
-
 
 #function for computing relative risks of physical activity  
 create.PA.RR <- function(){
@@ -206,7 +204,6 @@ create.PA.RR <- function(){
   return(RR)
 }
 
-
 #function for computing local disease burden
 computeLocalGBD <- function (death_List_target,TargetPop,InputPara){
   
@@ -217,11 +214,10 @@ computeLocalGBD <- function (death_List_target,TargetPop,InputPara){
   # calculate the RR (the ratio of death numbers for target area with those for whole U.S.)
   RR_gbd <- rep(list(matrix(NA,ncol = 1,nrow = 2*nAgeClass,dimnames = list((c(paste0("maleAgeclass",1:nAgeClass),paste0("femaleAgeclass",1:nAgeClass))),"RR"))),length(diseaseNames))
   names(RR_gbd) <- diseaseNames
-  
   RR_gbd <- mapply(function(x,y) (x/TargetPop)/(y/InputPara$allPop),death_List_target,death_List_US,SIMPLIFY = FALSE)
   RR_gbd <- lapply(RR_gbd,function(x) replace(x,is.na(x),1.0)) #replace NAs with 1.0
 
-  # obtain the local gbd numbers  
+  # obtain the local gbd data  
   gbd.local <- mapply(function(x,y) x*y/InputPara$allPop*TargetPop,RR_gbd,gbd_List_US,SIMPLIFY = FALSE)
   
   # update the colon cancer data with the parameter "colon % of colorectal cancer Male 79% Female 81% "
@@ -232,13 +228,12 @@ computeLocalGBD <- function (death_List_target,TargetPop,InputPara){
   return(gbd.local)
 }
 
-
 #function for computing local disease burden by demographic groups
 List_LocalGBD <- function(InputPara){
   
   LocalGBD_List_byDemo <- rep(list(rep(list(matrix(NA,nrow=2*nAgeClass,ncol = 4)),length(diseaseNames))),nDemoClass)
   
-  # apply the function "computeLocalGBD" for calculating the local gbd data of all demographic groups
+  # apply the function "computeLocalGBD" for calculating the local gbd data for all demographic groups
   for (i in 1:nDemoClass){
     death_List_target <-  split(InputPara$gbd_Input[,i+2],InputPara$gbd_Input$Disease)
     TargetPop <- matrix (InputPara$PopProp_List_byDemo[[i]], byrow=TRUE, ncol = 1, nrow = nAgeClass*2, dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),"Population"))

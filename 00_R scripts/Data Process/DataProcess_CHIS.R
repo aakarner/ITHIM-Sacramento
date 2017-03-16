@@ -129,30 +129,45 @@ chis.2005$MET_hrwk_nt_pa <- chis.2005$MET_mod_hrs_wk + chis.2005$MET_vig_hrs_wk 
 
 # Adding variables about race/ethnicity and income
 # srh -> self-reported hispanic; srw -> self-reported white
+# sraa -> self-reported African American
 # 1: Non-Hispanic White
-# 2: Others
-chis.2005$race.cat <- ifelse(chis.2005$srh == "NO" & chis.2005$srw =="YES",1,2)
+# 2: Non-Hispanic Black
+# 3: Non-Hispanic Other Races
+# 4: Hispanic
+# 99: Other
+chis.2005$race.cat <- ifelse(chis.2005$srh == "NO" & chis.2005$srw =="YES",1,
+                             ifelse(chis.2005$srh == "NO" & chis.2005$sraa == "YES",2,
+                                    ifelse(chis.2005$srh == "NO",3,
+                                           ifelse(chis.2005$srh == "YES",4,99))))
+
 
 # ak22_p -> Annual HH income ($)
 # currently, define <25,000$ as the benchmark for low income HH
-chis.2005$inc.cat <- ifelse(chis.2005$ak22_p>0 & chis.2005$ak22_p<25000,1,2)
- 
+chis.2005$inc.cat <- ifelse(chis.2005$ak22_p>0 & chis.2005$ak22_p<25000,1,
+                            ifelse(chis.2005$ak22_p>25000 & chis.2005$ak22_p<50000,2,
+                                   ifelse(chis.2005$ak22_p>50000 & chis.2005$ak22_p<75000,3,
+                                          ifelse(chis.2005$ak22_p>75000 & chis.2005$ak22_p<300000,4,99))))
+
 # -----------------------------------
 # Output
 # -----------------------------------
+# define a function for shape the output file into the required format
+shape.output <- function(output){
+  output.matrix <- matrix(0,64,5,dimnames = 
+                            list(rep(c(paste0("maleAgeClass ",1:8),paste0("femaleAgeClass ",1:8)),4),c(1:5)) )
+  for (i in c(1:8)){
+    output.matrix[(8*i-5):(8*i),] <- output[(6*i-5):(6*i),4]
+  }
+  
+  return(
+    output.matrix=output.matrix
+  )
+}
 
-
-# Create a table of METS/week for non-work physical activity by age-sex-occupation categories
+# Create a table of median MET hours/week for non-work physical activity by age-sex-income category
 # Use as.data.frame.table() to coerce the 'by' object to a data frame
 # Ref: http://tolstoy.newcastle.edu.au/R/e8/help/09/11/6227.html
 
-# a.s.o.table <- as.data.frame.table(
-#   by(chis.2005, list(chis.2005$age8cat, chis.2005$srsex, chis.2005$occmain), 
-#      function(x) weighted.mean(x$MET_hrwk_nt_pa, x$rakedw0, na.rm = TRUE), simplify = TRUE))
-# 
-# names(a.s.o.table) <- c("age8cat", "gender", "occupation", "METS")
-
-# Create a table of median MET hours/week for non-work physical activity by age-sex-income category
 a.s.table.byInc <- as.data.frame.table(
   by(chis.2005, list(chis.2005$age8cat, chis.2005$srsex,chis.2005$inc.cat), 
      function(x) median(x$MET_hrwk_nt_pa, na.rm = TRUE), simplify = TRUE))
@@ -164,7 +179,23 @@ a.s.table.byRace <- as.data.frame.table(
      function(x) median(x$MET_hrwk_nt_pa, na.rm = TRUE), simplify = TRUE))
 names(a.s.table.byRace) <- c("age8cat", "gender","race/ethnicity", "METS_Median")
 
+# adjust the format
+output.byRace <- shape.output(a.s.table.byRace)
+output.byIncome <- shape.output(a.s.table.byInc)
 
+# out as .csv files 
+cuttingline <- matrix(" ",1,5)
 
+write.csv(rbind(
+  output.byRace[1:16,],cuttingline, #relative walking time
+  output.byRace[17:32,],cuttingline, # relative cycling time
+  output.byRace[33:48,],cuttingline, # relative walking speed
+  output.byRace[49:64,] # relative cycling speed
+),file = "04_Equity Analysis/test_nonMet_Race.csv")
 
-
+write.csv(rbind(
+  output.byIncome[1:16,],cuttingline, #relative walking time
+  output.byIncome[17:32,],cuttingline, # relative cycling time
+  output.byIncome[33:48,],cuttingline, # relative walking speed
+  output.byIncome[49:64,] # relative cycling speed
+),file = "04_Equity Analysis/test_nonMet_Income.csv")

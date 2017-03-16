@@ -2,7 +2,8 @@
 # File: DataProcess_CHTS_PART I.R
 
 # Purpose: Process the raw data from the 2010-2012 California Statewide Travel Survey.
-# Impute some missing values.
+# Impute some missing values
+# Divide data into groups by race/ethnicity and household income
 # Create smaller files to be used as input for ITHIM_EquityAnalysis. 
 
 library(survey)
@@ -175,9 +176,6 @@ hhs.c <- hhs[,names(hhs)%in%keep.hhs]
 # with(persons, write.csv(cbind(sampn, perno, ID, gend, age, age_imputed, ptrips, perwgt, expperwgt,race), "person_sm.csv", row.names = FALSE))
 # with(place, write.csv(cbind(sampn, plano, perno, mode, tripdistance, tripdur, tcf, tcfperwgt, exptcfperwgt), "trip_sm.csv", row.names = FALSE))
 
-
-# Purpose: Conduct further processing for the implementation. 
-
 # Remove the home anchor location	
 place.c <- place.c[place.c$plano>1,]
 
@@ -302,7 +300,11 @@ persons.hhs$gender.race <-
 # 2, female, low income hh (incom group 1 + group 2; <$25,000)
 # 3, male, other income categories
 # 4, female, other income categories
-# 5, DK/RF
+# 5,
+# 6,
+# 7,
+# 8,
+# 99, DK/RF
 persons.hhs$gender.inc <-
   ifelse(persons.hhs$gend == 1 & persons.hhs$incom %in% c(1:2),1,
          ifelse(persons.hhs$gend == 2 & persons.hhs$incom %in% c(1:2),2,
@@ -327,7 +329,8 @@ CA.trips <- CA.trips[!is.na(CA.trips$exptcfperwgt), ]
 CA.trips.svy <- svydesign(id = ~ID, weights = ~exptcfperwgt, data = CA.trips)
 CA.persons.svy <- svydesign(id = ~ID, weights = ~expperwgt, data = persons.hhs)
 
-# save the data
+# Save the complex survey objects to an .RData file
+# Just load this in the future instead of running the data preparation section of the script
 save(CA.trips.svy, CA.persons.svy, file = "00_CHTS2010-2012/Processed_CHTS_2010-2012.RData")
 
 
