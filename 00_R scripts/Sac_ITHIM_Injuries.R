@@ -3,7 +3,7 @@
 ##### Injury Module #####
 
 #set your working directory
-setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/01_Data")
+setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/01_Data/03_Sacramento Case")
 
 # Prevent scientific notation
 options(scipen = 100)

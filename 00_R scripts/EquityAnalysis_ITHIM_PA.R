@@ -1,4 +1,4 @@
-############ ITHIM application for Equity Analysis - Physical Activity Module ##########
+###################### ITHIM application for Equity Analysis - Physical Activity Module ######################
 
 #set your working directory
 setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/01_Data/04_Equity Analysis/")
