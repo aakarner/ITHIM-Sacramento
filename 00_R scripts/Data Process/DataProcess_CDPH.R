@@ -10,14 +10,15 @@
 library(foreign)
 
 # Set working drectory
-setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/01_Data")
+# since the CDPH file is larger than 100MB, we store it in local server.
+setwd("~/Documents/02_Work/13_ITHIM/03_Data/04_CDPH")
 
 # -----------------------------------
 # Data preparation
 # -----------------------------------
 
 # use read.spss() in package 'foreign' to input the .sav data
-cdph <- read.spss('02_CDPH/TEMPB.sav',to.data.frame = TRUE)
+cdph <- read.spss('TEMPB.sav',to.data.frame = TRUE)
 
 # define the required areas and year of datasets
 local.counties <- c("010") #Fresno (validation purpose)
@@ -70,4 +71,4 @@ dimnames(local.gdb.race) = list(dieaseNamesList,paste0("deaths_",raceGroupNames)
 
 Col2 <- matrix(rep(c(paste0("maleAgeClass ",1:8),paste0("femaleAgeClass ",1:8)),6),96,1)
 
-write.csv(cbind(Col2,local.gdb.race),file = "04_Equity Analysis/test_local gbd.csv")
+write.csv(cbind(Col2,local.gdb.race),file = "test_local gbd.csv")

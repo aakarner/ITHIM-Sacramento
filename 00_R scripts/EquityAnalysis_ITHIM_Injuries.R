@@ -11,17 +11,16 @@ options(scipen = 100)
 # data source: Transportation Injury Mapping System (TIMS by US Berkeley)
 # 5-year annual average number of road traffic injuries
 
-# build a list to store the baseline injury data sets for different races
-injury.list <- rep(list(matrix(NA,36,6)),4)
-temp.NHW <- read.csv("11_baseline injury/injury baseline_NHW.csv")
-injury.list[[1]] <- temp.NHW[,2:7]
-temp.NHB <- read.csv("11_baseline injury/injury baseline_NHB.csv")
-injury.list[[2]] <- temp.NHB[,2:7]
-temp.NHO <- read.csv("11_baseline injury/injury baseline_NHO.csv")
-injury.list[[3]] <- temp.NHO[,2:7]
-temp.HO <- read.csv("11_baseline injury/injury baseline_HO.csv")
-injury.list[[4]] <- temp.HO[,2:7]
-
+# build a list to store the baseline injury data sets for all races
+injury.list <- rep(list(matrix(NA,36,7)),4)
+temp.NHW <- read.csv("11_baseline injury/injury baseline_NHW.csv") # non hispanic white
+injury.list[[1]] <- temp.NHW[,2:8]
+temp.NHB <- read.csv("11_baseline injury/injury baseline_NHB.csv") # non hispanic black
+injury.list[[2]] <- temp.NHB[,2:8]
+temp.NHO <- read.csv("11_baseline injury/injury baseline_NHO.csv") # non hispanic other races
+injury.list[[3]] <- temp.NHO[,2:8]
+temp.HO <- read.csv("11_baseline injury/injury baseline_HO.csv")   # hispanic 
+injury.list[[4]] <- temp.HO[,2:8]
 names(injury.list)<- c('NHW','NHB','NHO','HO')
 
 # input the person & vehicle distance matrix
@@ -35,9 +34,9 @@ names(person.vehicle.distance_input.list)<- c('NHW','NHB','NHO','HO')
 
 # number of traffic modes, injuried types, and road types
 nTrafficModeV <- 6L #victim mode
-nTrafficModeS <- 6L #striking mode (include NOV)
+nTrafficModeS <- 7L #striking mode (include one-party)
 nInjuriedType <- 2L #fatal & serious
-ModeNames <- colnames(injury.list[[1]])
+ModeNames <- colnames(injury.list[[1]][,1:6])
 RoadTypes <- c("local","arterial","highway")
 nRoadType <- length(RoadTypes)
 
@@ -58,18 +57,18 @@ createBaselineInjury <- function(injury){
 }
 
 ##### Function of create the Distribution of Person & Vehicle Distance by Road Types  #####
-#create the sheet "Dist by road type" in ITHIM spreadsheet 
 
+#create the sheet "Dist by road type" in ITHIM spreadsheet 
 createScenarioInjuryMultiplier <- function(person.vehicle.distance_input){
+  
+  ### for baseline ###
   # person distance for all modes (miles per day)
   # source: CHTS2012 & NHTS2009
-
-  ### for baseline
   t.person.distance.baseline <- person.vehicle.distance_input[1:6,1]
   
   # matrix of distance (person) distribution by road types and modes for baseline (%)
   # data source: for walk and bike, hard coded estimate; for other modes, CHTS2012
-  percent.person.baseline <- matrix(NA,nrow=nTrafficModeV,ncol=3,dimnames=list(ModeNames[1:6],c("local","arterial","highway")))
+  percent.person.baseline <- matrix(NA,nrow=6,ncol=3,dimnames=list(ModeNames,c("local","arterial","highway")))
   percent.person.baseline[,1]<-person.vehicle.distance_input[8:13,1]
   percent.person.baseline[,2]<-person.vehicle.distance_input[15:20,1]
   percent.person.baseline[,3]<-person.vehicle.distance_input[22:27,1]
@@ -81,14 +80,14 @@ createScenarioInjuryMultiplier <- function(person.vehicle.distance_input){
   # source: hard coded estimate & CHTS2012
   occ.baseline <- person.vehicle.distance_input[29:34,1]
   
-  ### for scenario
+  ### for scenario ###
   # person distance (person) for all road types and all modes (miles per day)
   # data source: MTC Travel Model One
   t.person.distance.scenario <- person.vehicle.distance_input[1:6,3]
   
   # matrix of distance (person) distribution by road types and modes for scenario (%)
   # data source: for walk and bike, hard coded estimate; for other modes, MTC Travel Model One
-  percent.person.scenario <- matrix(NA,nrow=nTrafficModeV,ncol=3,dimnames=list(ModeNames[1:6],c("local","arterial","highway")))
+  percent.person.scenario <- matrix(NA,nrow=6,ncol=3,dimnames=list(ModeNames,c("local","arterial","highway")))
   percent.person.scenario[,1] <- person.vehicle.distance_input[8:13,3]
   percent.person.scenario[,2] <- person.vehicle.distance_input[15:20,3]
   percent.person.scenario[,3] <- person.vehicle.distance_input[22:27,3]
@@ -120,16 +119,20 @@ createScenarioInjuryMultiplier <- function(person.vehicle.distance_input){
   victim.safety <- 0.5
   
   # compute the list of scenario injury multiplier (i:row;j:col;k:road type)
-  scenario.multiplier <- rep(list((matrix(NA,nrow=nTrafficModeV,ncol=nTrafficModeS,dimnames=list(ModeNames[1:6],ModeNames)))), nRoadType)
+  scenario.multiplier <- rep(list((matrix(NA,nrow=nTrafficModeV,ncol=nTrafficModeS,dimnames=list(ModeNames,c(ModeNames,'one.party'))))), nRoadType)
   names(scenario.multiplier) <- RoadTypes
   
-  # using different calculation method for diffrent combinations of striking and victim modes
+  # using different calculation method for different party numbers (1vs2)
   for (k in 1:3){ #road type
-    for (j in 1:6){ #striking vehicle mode
-      for (i in 1:6){ #victim vehicle mode
+    for (i in 1:6){ #victim vehicle mode
+      # for one party collisions
+      scenario.multiplier[[k]][i,7]<- 
+        (dist$distance.scenario.person[i,k]/dist$distance.baseline.person[i,k])^victim.safety*speed.safety*other
+      
+      for (j in 1:6){ #striking vehicle mode
         scenario.multiplier[[k]][i,j] <- 
           (dist$distance.scenario.person[i,k]/dist$distance.baseline.person[i,k])^victim.safety*(dist$distance.scenario.vehicle[j,k]/dist$distance.baseline.vehicle[j,k])^str.veh.safety.RR*speed.safety*other
-      }
+        }
     }
   }
   return(scenario.multiplier)
@@ -137,8 +140,9 @@ createScenarioInjuryMultiplier <- function(person.vehicle.distance_input){
 }
 
 ##### Scenario Injuries #####
-#compute the scenario injuries
+#compute the scenario injuries (the product of baseline injury and scenario multiplier)
 computeScenarioInjury <- function(injury.baseline,scenario.multiplier){
+  
   injury.scenario <- mapply(function(x,y) x*y,injury.baseline,c(scenario.multiplier,scenario.multiplier),SIMPLIFY=FALSE)
   
   return(injury.scenario)
@@ -147,7 +151,7 @@ computeScenarioInjury <- function(injury.baseline,scenario.multiplier){
 ##### Injuries results #####
 
 createInjuryResults <- function(injury.baseline,injury.scenario){
-  injury.number <- rep(list((matrix(NA,nrow=nTrafficModeV,ncol=nTrafficModeS,dimnames=list(ModeNames[1:6],ModeNames)))), 4)
+  injury.number <- rep(list((matrix(NA,nrow=nTrafficModeV,ncol=nTrafficModeS,dimnames=list(ModeNames,c(ModeNames,'one.party'))))), 4)
   names(injury.number) <- c("baseline fatalities","baseline injuries","scenario fatalities","scenario injuries")
   
   #computing the total injury number
