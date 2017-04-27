@@ -11,7 +11,7 @@ options(scipen = 100)
 # function for inputing data sets (.csv)
 InputPara <- function (Pop_Input,AT_Input,nonTravelMET_Input,gbd_Input){
   # input the population and calculate the proportion of population into each demo categories
-  Pop_List_byDemo <- rep(list((matrix(NA,nrow=nAgeClass,ncol=2,dimnames=list(paste0("agClass",1:nAgeClass),c("F","M"))))), nDemoClass)
+  Pop_List_byDemo <- rep(list((matrix(NA,nrow=nAgeClass,ncol=2, nDemoClass))))
   for(i in 1:nDemoClass){
     Pop_List_byDemo[[i]] <- as.matrix(Pop_Input[1:nAgeClass,(2*i):(2*i+1)])
   }

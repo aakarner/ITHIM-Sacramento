@@ -1,7 +1,7 @@
 # Author: Alex Karner and Yizheng Wu
 # File: DataProcess_CHTS_PART I.R
 
-# Purpose: Process the raw data from the 2010-2012 California Statewide Travel Survey.
+# Purpose: Process the raw data from the 2010-2012 California Household Travel Survey.
 # Impute some missing values
 # Divide data into groups by race/ethnicity and household income
 # Create smaller files to be used as input for ITHIM_EquityAnalysis. 
