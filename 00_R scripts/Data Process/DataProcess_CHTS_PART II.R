@@ -83,6 +83,8 @@ ActiveTravelDataOutput <- function(Demo,CountyCode){
   walk.distance.byDemo <- travel.distance.by.demo[c(89:96),]/pop.age.gender.demo[,c(1:8)]
   cycle.time.byDemo <- travel.times.by.demo[c(25:32),]/pop.age.gender.demo[,c(1:8)]
   cycle.distance.byDemo <- travel.distance.by.demo[c(25:32),]/pop.age.gender.demo[,c(1:8)]
+  pop.age.gender.demo <- pop.age.gender.demo[,c(1:8)]
+  
   
   # compute the relative values
   re.walk.time.byDemo <- CalRelativeMatrix(walk.time.byDemo)
@@ -100,6 +102,11 @@ ActiveTravelDataOutput <- function(Demo,CountyCode){
   re.walk.speed.byDemo <- CalRelativeMatrix(walk.speed.byDemo)
   re.cycle.speed.byDemo <- CalRelativeMatrix(cycle.speed.byDemo)
   
+  # add dimnames
+  temp.gender <- rep(c("male","female"),4)
+  dimname <- list(c(paste0("ageCat",1:8)),paste0(temp.gender,".Demo.",rep(1:4,each=2)))
+  dimnames(re.walk.time.byDemo)<-dimnames(re.cycle.time.byDemo)<-
+  dimnames(re.walk.speed.byDemo)<-dimnames(re.cycle.speed.byDemo)<-dimnames(pop.age.gender.demo)<-dimname
   
   return(list(
     travel.distance.by.demo = travel.distance.by.demo,
@@ -119,26 +126,27 @@ ActiveTravelDataOutput <- function(Demo,CountyCode){
 SJV.counties <- c(6107, 6047, 6039, 6019, 6077, 6031, 6029, 6099)
 SAC.counties <- c(6017,6061,6067,6101,6113,6115)
 
-Travel.Output.byRace.Sac <- ActiveTravelDataOutput("Race",SJV.counties)
-Travel.Output.byIncome.Sac <- ActiveTravelDataOutput("Income",SJV.counties)
+Travel.Output.byRace <- ActiveTravelDataOutput("Race",SJV.counties)
+Travel.Output.byIncome <- ActiveTravelDataOutput("Income",SAC.counties)
+
 
 # Output the .csv files for active transport data and population
-cuttingline <- matrix(" ",1,8)
+cuttingline <- matrix(" ",1,9)
 
 write.csv(rbind(
-  Travel.Output.byRace.Sac$re.walk.time.byDemo,cuttingline, #relative walking time
-  Travel.Output.byRace.Sac$re.cycle.time.byDemo,cuttingline, # relative cycling time
-  Travel.Output.byRace.Sac$re.walk.speed.byDemo,cuttingline, # relative walking speed
-  Travel.Output.byRace.Sac$re.cycle.speed.byDemo # relative cycling speed
+  cbind(Travel.Output.byRace$re.walk.time.byDemo,c("relative.walk.time",rep("",7))),cuttingline, #relative walking time
+  cbind(Travel.Output.byRace$re.cycle.time.byDemo,c("relative.cycle.time",rep("",7))),cuttingline, # relative cycling time
+  cbind(Travel.Output.byRace$re.walk.speed.byDemo,c("relative.walk.speed",rep("",7))),cuttingline, # relative walking speed
+  cbind(Travel.Output.byRace$re.cycle.speed.byDemo,c("relative.cycle.speed",rep("",7))) # relative cycling speed
   ),file = "04_Equity Analysis/test_at_race.csv")
 
 write.csv(rbind(
-  Travel.Output.byIncome.Sac$re.walk.time.byDemo,cuttingline, #relative walking time
-  Travel.Output.byIncome.Sac$re.cycle.time.byDemo,cuttingline, # relative cycling time
-  Travel.Output.byIncome.Sac$re.walk.speed.byDemo,cuttingline, # relative walking speed
-  Travel.Output.byIncome.Sac$re.cycle.speed.byDemo # relative cycling speed
+  cbind(Travel.Output.byIncome$re.walk.time.byDemo,c("relative.walk.time",rep("",7))),cuttingline, #relative walking time
+  cbind(Travel.Output.byIncome$re.cycle.time.byDemo,c("relative.cycle.time",rep("",7))),cuttingline, # relative cycling time
+  cbind(Travel.Output.byIncome$re.walk.speed.byDemo,c("relative.walk.speed",rep("",7))),cuttingline, # relative walking speed
+  cbind(Travel.Output.byIncome$re.cycle.speed.byDemo,c("relative.cycle.time",rep("",7))) # relative cycling speed
 ),file = "04_Equity Analysis/test_at_income.csv")
 
-write.csv(Travel.Output.byRace.Sac$pop.age.gender.demo[,1:8],file = "04_Equity Analysis/test_pop_race.csv")
-write.csv(Travel.Output.byIncome.Sac$pop.age.gender.demo[,1:8],file = "04_Equity Analysis/test_pop_income.csv")
+write.csv(Travel.Output.byRace$pop.age.gender.demo,file = "04_Equity Analysis/test_pop_race.csv")
+write.csv(Travel.Output.byIncome$pop.age.gender.demo,file = "04_Equity Analysis/test_pop_income.csv")
 

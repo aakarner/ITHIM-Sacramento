@@ -43,12 +43,12 @@ recode.pop <- function(pop){
   # 7.
   # 8.
   pop$gender.inc<-
-    ifelse(pop$SEX==1&pop$HINC<=20000,1,
-           ifelse(pop$SEX==2&pop$HINC<=20000,2,
-                  ifelse(pop$SEX==1&pop$HINC<=50000,3,
-                         ifelse(pop$SEX==2&pop$HINC<=50000,4,
-                                ifelse(pop$SEX==1&pop$HINC<=70000,5,
-                                       ifelse(pop$SEX==2&pop$HINC<=70000,6,
+    ifelse(pop$SEX==1&pop$HINC<25000,1,
+           ifelse(pop$SEX==2&pop$HINC<25000,2,
+                  ifelse(pop$SEX==1&pop$HINC<75000,3,
+                         ifelse(pop$SEX==2&pop$HINC<75000,4,
+                                ifelse(pop$SEX==1&pop$HINC<200000,5,
+                                       ifelse(pop$SEX==2&pop$HINC<200000,6,
                                               ifelse(pop$SEX==1,7,8)))))))
   
   # add a column for combining household id and person id
@@ -114,6 +114,12 @@ ActiveTravelDataOutput <- function(pop,trip.pop){
   re.walk.speed.byDemo <- CalRelativeMatrix(walk.speed.byDemo)
   re.cycle.speed.byDemo <- CalRelativeMatrix(cycle.speed.byDemo)
   
+  # add dimnames
+  temp.gender <- rep(c("male","female"),4)
+  dimname <- list(c(paste0("ageCat",1:8)),paste0(temp.gender,".Demo.",rep(1:4,each=2)))
+  dimnames(re.walk.time.byDemo)<-dimnames(re.cycle.time.byDemo)<-
+    dimnames(re.walk.speed.byDemo)<-dimnames(re.cycle.speed.byDemo)<-dimnames(pop.age.gender.demo)<-dimname
+  
   return(list(
     travel.distance.by.demo = travel.distance.by.demo,
     travel.times.by.demo = travel.times.by.demo,
@@ -145,25 +151,34 @@ Travel.Output.byIncome <- ActiveTravelDataOutput(pop.2012,trip.pop.2012)
 
 
 # Output the .csv files for active transport data and population
-cuttingline <- matrix(" ",1,8)
+cuttingline <- matrix(" ",1,9)
+
+# write.csv(rbind(
+#   Travel.Output.byIncome$re.walk.time.byDemo,cuttingline, #relative walking time
+#   Travel.Output.byIncome$re.cycle.time.byDemo,cuttingline, # relative cycling time
+#   Travel.Output.byIncome$re.walk.speed.byDemo,cuttingline, # relative walking speed
+#   Travel.Output.byIncome$re.cycle.speed.byDemo # relative cycling speed
+# ),file = "test_ABM_by_income.csv")
+
 
 write.csv(rbind(
-  Travel.Output.byIncome$re.walk.time.byDemo,cuttingline, #relative walking time
-  Travel.Output.byIncome$re.cycle.time.byDemo,cuttingline, # relative cycling time
-  Travel.Output.byIncome$re.walk.speed.byDemo,cuttingline, # relative walking speed
-  Travel.Output.byIncome$re.cycle.speed.byDemo # relative cycling speed
+  cbind(Travel.Output.byIncome$re.walk.time.byDemo,c("relative.walk.time",rep("",7))),cuttingline, #relative walking time
+  cbind(Travel.Output.byIncome$re.cycle.time.byDemo,c("relative.cycle.time",rep("",7))),cuttingline, # relative cycling time
+  cbind(Travel.Output.byIncome$re.walk.speed.byDemo,c("relative.walk.speed",rep("",7))),cuttingline, # relative walking speed
+  cbind(Travel.Output.byIncome$re.cycle.speed.byDemo,c("relative.cycle.speed",rep("",7))) # relative cycling speed
 ),file = "test_ABM_by_income.csv")
+
 
 write.csv(Travel.Output.byIncome$pop.age.gender.demo[,1:8],
           file = "test_pop_income.csv")
 
-# test.population <- matrix(nrow = 8,ncol = 2)
-# for (i in 1:8){ #gender.income
-#   for (k in 1:2){ #age
-#     pop.temp <- nrow(pop.2012[which(pop.2012$SEX==k&pop.2012$ageID==i),])
-#     test.population[i,k]<-pop.temp
-#   }
-# }
+ # test.population <- matrix(nrow = 8,ncol = 2)
+ # for (i in 1:8){ #age
+ #   for (k in 1:2){ #gender
+ #     pop.temp <- nrow(pop.2012[which(pop.2012$SEX==k&pop.2012$ageID==i),])
+ #     test.population[i,k]<-pop.temp
+ #   }
+ # }
 
 
 

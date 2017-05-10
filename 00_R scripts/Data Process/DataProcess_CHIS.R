@@ -153,11 +153,13 @@ chis.2005$inc.cat <- ifelse(chis.2005$ak22_p>0 & chis.2005$ak22_p<25000,1,
 # -----------------------------------
 # define a function for shape the output file into the required format
 shape.output <- function(output){
-  output.matrix <- matrix(0,64,5,dimnames = 
-                            list(rep(c(paste0("maleAgeClass ",1:8),paste0("femaleAgeClass ",1:8)),4),c(1:5)) )
+  output.matrix <- matrix(0,64,6,dimnames = 
+                            list(rep(c(paste0("maleAgeClass ",1:8),paste0("femaleAgeClass ",1:8)),4),c(paste0("p",1:5),"Demo.Cat")) )
   for (i in c(1:8)){
-    output.matrix[(8*i-5):(8*i),] <- output[(6*i-5):(6*i),4]
+    output.matrix[(8*i-5):(8*i),1:5] <- output[(6*i-5):(6*i),4]
   }
+  
+  output.matrix[,6] <- c("cat1",rep(" ",15),"cat2",rep(" ",15),"cat3",rep(" ",15),"cat4",rep(" ",15))
   
   return(
     output.matrix=output.matrix
@@ -183,19 +185,20 @@ names(a.s.table.byRace) <- c("age8cat", "gender","race/ethnicity", "METS_Median"
 output.byRace <- shape.output(a.s.table.byRace)
 output.byIncome <- shape.output(a.s.table.byInc)
 
+
 # out as .csv files 
-cuttingline <- matrix(" ",1,5)
+cuttingline <- matrix(" ",1,6)
 
 write.csv(rbind(
-  output.byRace[1:16,],cuttingline, #relative walking time
-  output.byRace[17:32,],cuttingline, # relative cycling time
-  output.byRace[33:48,],cuttingline, # relative walking speed
-  output.byRace[49:64,] # relative cycling speed
+  output.byRace[1:16,],cuttingline, #NHW
+  output.byRace[17:32,],cuttingline, # NHB
+  output.byRace[33:48,],cuttingline, # NHO
+  output.byRace[49:64,] # HO
 ),file = "04_Equity Analysis/test_nonMet_Race.csv")
 
 write.csv(rbind(
-  output.byIncome[1:16,],cuttingline, #relative walking time
-  output.byIncome[17:32,],cuttingline, # relative cycling time
-  output.byIncome[33:48,],cuttingline, # relative walking speed
-  output.byIncome[49:64,] # relative cycling speed
+  output.byIncome[1:16,],cuttingline, #Low Income
+  output.byIncome[17:32,],cuttingline, # Median Income
+  output.byIncome[33:48,],cuttingline, # High Income
+  output.byIncome[49:64,] # Other
 ),file = "04_Equity Analysis/test_nonMet_Income.csv")

@@ -61,6 +61,15 @@ injury.party.2 <- merge(collision.party.2,party.c,by.x = 'CASEID',by.y = 'CASEID
 # 2: non-hispanic black
 # 3: non-hispanic other races
 # 4: hispanic
+
+# county ID
+# 1: EL DORADO
+# 2: PLACER
+# 3: SACRAMENTO
+# 4: SUTTER
+# 5: YOLO
+# 6: YUBA
+
 recode <- function(injury){
   injury$modeID <- ifelse(injury$VEHTYPE=='L',1,
                           ifelse(injury$VEHTYPE=='N',2,
@@ -78,18 +87,25 @@ recode <- function(injury){
                                  ifelse(injury$PRACE%in%c('O','A'),3,
                                         ifelse(injury$PRACE=='H',4,99))))
   
+  injury$countyID <- ifelse(injury$COUNTY=='EL DORADO',1,
+                            ifelse(injury$COUNTY=='PLACER',2,
+                                   ifelse(injury$COUNTY=='SACRAMENTO',3,
+                                          ifelse(injury$COUNTY=='SUTTER',4,
+                                                 ifelse(injury$COUNTY=='YOLO',5,
+                                                        ifelse(injury$COUNTY=='YUBA',6,99))))))
+  
   return(injury)
 }
 
 # function for searching the case ID of the combination of striking modes and victim modes on specific road type
-get.case.ID <- function(SV.ID,VV.ID,roadtype,raceID){
-  CASE.SV <- injury.party.2$CASEID[which(injury.party.2$ATFAULT=='Y'&injury.party.2$modeID==SV.ID&injury.party.2$roadtype==roadtype)]
-  CASE.VV <- injury.party.2$CASEID[which(injury.party.2$ATFAULT=='N'&injury.party.2$modeID==VV.ID&injury.party.2$roadtype==roadtype&injury.party.2$raceID==raceID)]
+get.case.ID <- function(SV.ID,VV.ID,roadtype,raceID,countyID){
+  CASE.SV <- injury.party.2$CASEID[which(injury.party.2$ATFAULT=='Y'&injury.party.2$modeID==SV.ID&injury.party.2$roadtype==roadtype&injury.party.2$countyID==countyID)]
+  CASE.VV <- injury.party.2$CASEID[which(injury.party.2$ATFAULT=='N'&injury.party.2$modeID==VV.ID&injury.party.2$roadtype==roadtype&injury.party.2$raceID==raceID&injury.party.2$countyID==countyID)]
   return(intersect(CASE.SV,CASE.VV))
 }
 
 # function of get injury matrix by race
-get.race.injury <- function(raceID){
+get.race.injury <- function(raceID,countyID){
   
   injury.list <-  vector('list',6)
   names(injury.list) <- c('local+fatal','arterial+fatal','highway+fatal','local+serious','arterial+serious','highway+serious')
@@ -99,12 +115,12 @@ get.race.injury <- function(raceID){
   #raceID<-1
   for(k in 1:3){ # road type
     for (i in 1:6){ #Victim mode
-      fatal.matrix.temp[i,7]<-sum(injury.party.1$KILLED[injury.party.1$modeID==i&injury.party.1$roadtype==k&injury.party.1$raceID==raceID])/5
-      serious.matrix.temp[i,7]<-sum(injury.party.1$SEVINJ[injury.party.1$modeID==i&injury.party.1$roadtype==k&injury.party.1$raceID==raceID])/5
+      fatal.matrix.temp[i,7]<-sum(injury.party.1$KILLED[injury.party.1$modeID==i&injury.party.1$roadtype==k&injury.party.1$raceID==raceID&injury.party.1$countyID==countyID])/5
+      serious.matrix.temp[i,7]<-sum(injury.party.1$SEVINJ[injury.party.1$modeID==i&injury.party.1$roadtype==k&injury.party.1$raceID==raceID&injury.party.1$countyID==countyID])/5
       
       for (j in 1:6){ #striking mode
-        fatal.matrix.temp[i,j]<-sum(collision.party.2[collision.party.2$CASEID%in%get.case.ID(j,i,k,raceID),3])/5 # annual average number
-        serious.matrix.temp[i,j]<-sum(collision.party.2[collision.party.2$CASEID%in%get.case.ID(j,i,k,raceID),5])/5 # annual average number
+        fatal.matrix.temp[i,j]<-sum(collision.party.2[collision.party.2$CASEID%in%get.case.ID(j,i,k,raceID,countyID),3])/5 # annual average number
+        serious.matrix.temp[i,j]<-sum(collision.party.2[collision.party.2$CASEID%in%get.case.ID(j,i,k,raceID,countyID),5])/5 # annual average number
       }
     }
     injury.list[[k]]<-fatal.matrix.temp
@@ -133,14 +149,15 @@ injury.party.1 <- recode(injury.party.1)
 injury.party.2 <- recode(injury.party.2)
 
 # output the injury matrix as the input of injury module
-output.NHW <- get.race.injury(1)
+output.NHW <- get.race.injury(raceID=1,countyID=1) #NHW+El Dorado
+output.NHW
 write.csv(output.NHW,file = "04_Equity Analysis/11_baseline injury/injury baseline_NHW.csv")
 
-output.NHB <- get.race.injury(2)
+output.NHB <- get.race.injury(2,1)
 write.csv(output.NHB,file = "04_Equity Analysis/11_baseline injury/injury baseline_NHB.csv")
 
-output.NHO <- get.race.injury(3)
+output.NHO <- get.race.injury(3,1)
 write.csv(output.NHO,file = "04_Equity Analysis/11_baseline injury/injury baseline_NHO.csv")
 
-output.HO <- get.race.injury(4)
+output.HO <- get.race.injury(4,1)
 write.csv(output.HO,file = "04_Equity Analysis/11_baseline injury/injury baseline_HO.csv")
