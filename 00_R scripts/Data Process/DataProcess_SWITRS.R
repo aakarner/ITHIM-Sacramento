@@ -99,8 +99,8 @@ recode <- function(injury){
 
 # function for searching the case ID of the combination of striking modes and victim modes on specific road type
 get.case.ID <- function(SV.ID,VV.ID,roadtype,raceID,countyID){
-  CASE.SV <- injury.party.2$CASEID[which(injury.party.2$ATFAULT=='Y'&injury.party.2$modeID==SV.ID&injury.party.2$roadtype==roadtype&injury.party.2$countyID==countyID)]
-  CASE.VV <- injury.party.2$CASEID[which(injury.party.2$ATFAULT=='N'&injury.party.2$modeID==VV.ID&injury.party.2$roadtype==roadtype&injury.party.2$raceID==raceID&injury.party.2$countyID==countyID)]
+  CASE.SV <- injury.party.2$CASEID[which(injury.party.2$ATFAULT=='Y'&injury.party.2$modeID==SV.ID&injury.party.2$roadtype==roadtype&injury.party.2$countyID%in%countyID)]
+  CASE.VV <- injury.party.2$CASEID[which(injury.party.2$ATFAULT=='N'&injury.party.2$modeID==VV.ID&injury.party.2$roadtype==roadtype&injury.party.2$raceID==raceID&injury.party.2$countyID%in%countyID)]
   return(intersect(CASE.SV,CASE.VV))
 }
 
@@ -115,8 +115,8 @@ get.race.injury <- function(raceID,countyID){
   #raceID<-1
   for(k in 1:3){ # road type
     for (i in 1:6){ #Victim mode
-      fatal.matrix.temp[i,7]<-sum(injury.party.1$KILLED[injury.party.1$modeID==i&injury.party.1$roadtype==k&injury.party.1$raceID==raceID&injury.party.1$countyID==countyID])/5
-      serious.matrix.temp[i,7]<-sum(injury.party.1$SEVINJ[injury.party.1$modeID==i&injury.party.1$roadtype==k&injury.party.1$raceID==raceID&injury.party.1$countyID==countyID])/5
+      fatal.matrix.temp[i,7]<-sum(injury.party.1$KILLED[injury.party.1$modeID==i&injury.party.1$roadtype==k&injury.party.1$raceID==raceID&injury.party.1$countyID%in%countyID])/5
+      serious.matrix.temp[i,7]<-sum(injury.party.1$SEVINJ[injury.party.1$modeID==i&injury.party.1$roadtype==k&injury.party.1$raceID==raceID&injury.party.1$countyID%in%countyID])/5
       
       for (j in 1:6){ #striking mode
         fatal.matrix.temp[i,j]<-sum(collision.party.2[collision.party.2$CASEID%in%get.case.ID(j,i,k,raceID,countyID),3])/5 # annual average number
@@ -149,7 +149,7 @@ injury.party.1 <- recode(injury.party.1)
 injury.party.2 <- recode(injury.party.2)
 
 # output the injury matrix as the input of injury module
-output.NHW <- get.race.injury(raceID=1,countyID=1) #NHW+El Dorado
+output.NHW <- get.race.injury(raceID=2,countyID=c(1,2,3,4,5,6)) #NHW
 output.NHW
 write.csv(output.NHW,file = "04_Equity Analysis/11_baseline injury/injury baseline_NHW.csv")
 

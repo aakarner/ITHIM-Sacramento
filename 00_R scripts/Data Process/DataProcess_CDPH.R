@@ -85,7 +85,5 @@ local.gdb.race
 
 Col2 <- matrix(rep(c(paste0("maleAgeClass ",1:8),paste0("femaleAgeClass ",1:8)),6),96,1)
 
-
-
 write.csv(cbind(Col2,local.gdb.race),file = "test_local gbd.csv")
 

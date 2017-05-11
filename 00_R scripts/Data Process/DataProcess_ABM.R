@@ -34,21 +34,21 @@ recode.pop <- function(pop){
                                               ifelse(pop$AGE<=79,7,8)))))))
  
   # recode ID for the combination of gender and income
-  # 1. male + income <= 20000
-  # 2. female + income <= 20000
-  # 3.
-  # 4.
-  # 5.
-  # 6.
-  # 7.
-  # 8.
+  # 1. male + income <= 25%
+  # 2. female + income <= 25%
+  # 3. male + income <= 50%
+  # 4. female + income <= 50%
+  # 5. male + income <= 75%
+  # 6. female + income <= 75%
+  # 7. male + income > 75%
+  # 8. female + income >75%
   pop$gender.inc<-
-    ifelse(pop$SEX==1&pop$HINC<25000,1,
-           ifelse(pop$SEX==2&pop$HINC<25000,2,
-                  ifelse(pop$SEX==1&pop$HINC<75000,3,
-                         ifelse(pop$SEX==2&pop$HINC<75000,4,
-                                ifelse(pop$SEX==1&pop$HINC<200000,5,
-                                       ifelse(pop$SEX==2&pop$HINC<200000,6,
+    ifelse(pop$SEX==1&pop$HINC<quantile(pop.2012$HINC)[2],1,
+           ifelse(pop$SEX==2&pop$HINC<quantile(pop.2012$HINC)[2],2,
+                  ifelse(pop$SEX==1&pop$HINC<quantile(pop.2012$HINC)[3],3,
+                         ifelse(pop$SEX==2&pop$HINC<quantile(pop.2012$HINC)[3],4,
+                                ifelse(pop$SEX==1&pop$HINC<quantile(pop.2012$HINC)[4],5,
+                                       ifelse(pop$SEX==2&pop$HINC<quantile(pop.2012$HINC)[4],6,
                                               ifelse(pop$SEX==1,7,8)))))))
   
   # add a column for combining household id and person id
@@ -57,6 +57,25 @@ recode.pop <- function(pop){
 
   
 }
+
+getTAZ <- function(parc.input){
+  ELD.TAZ <- unique(parc.input$TAZ[which(substr(parc.2012$PIDSTR,1,3)=="ELD")])
+  PLA.TAZ <- unique(parc.input$TAZ[which(substr(parc.2012$PIDSTR,1,3)=="PLA")])
+  SAC.TAZ <- unique(parc.input$TAZ[which(substr(parc.2012$PIDSTR,1,3)=="SAC")])
+  SUT.TAZ <- unique(parc.input$TAZ[which(substr(parc.2012$PIDSTR,1,3)=="SUT")])
+  YOL.TAZ <- unique(parc.input$TAZ[which(substr(parc.2012$PIDSTR,1,3)=="YOL")])
+  YUB.TAZ <- unique(parc.input$TAZ[which(substr(parc.2012$PIDSTR,1,3)=="YUB")])
+  
+  return(list(
+    ELD.TAZ = ELD.TAZ,
+    PLA.TAZ = PLA.TAZ,
+    SAC.TAZ = SAC.TAZ,
+    SUT.TAZ = SUT.TAZ,
+    YOL.TAZ = YOL.TAZ,
+    YUB.TAZ = YUB.TAZ
+  ))
+}
+
 
 prepTripPop <- function(pop,triptable){
   # compute the mean travel time and travel distance per capita by mode
@@ -73,20 +92,25 @@ prepTripPop <- function(pop,triptable){
   return(trip.pop)
 }
 
-ActiveTravelDataOutput <- function(pop,trip.pop){
+ActiveTravelDataOutput <- function(pop,trip.pop,TAZ,countyID){
   travel.times.by.demo <-travel.distance.by.demo <- matrix(nrow = 72, ncol = 8)
   pop.age.gender.demo <- matrix(nrow=8,ncol = 8)
   
+  taz.selected<-NULL
+  for(i in 1:length(countyID)){
+    taz.selected <- c(taz.selected,TAZ[[i]])
+  }
+  
   for (i in 1:8){ #gender.income
     for (j in 1:8){ #age
-      pop.temp <- nrow(pop[which(pop$gender.inc==i&pop$ageID==j),])
+      pop.temp <- nrow(pop[which(pop$gender.inc==i&pop$ageID==j&pop$HHTAZ%in%taz.selected),])
       pop.age.gender.demo[j,i]<-pop.temp
       
       for (k in 1:9){ #mode
-        time.temp <- sum(trip.pop$TIME[which(trip.pop$ageID==j&trip.pop$gender.inc==i&trip.pop$MODE==k)])
+        time.temp <- sum(trip.pop$TIME[which(trip.pop$ageID==j&trip.pop$gender.inc==i&trip.pop$MODE==k&trip.pop$HHTAZ%in%taz.selected)])
         travel.times.by.demo[j + 8 * (k - 1), i] <- time.temp
         
-        distance.temp <- sum(trip.pop$DISTANCE[which(trip.pop$ageID==j&trip.pop$gender.inc==i&trip.pop$MODE==k)])
+        distance.temp <- sum(trip.pop$DISTANCE[which(trip.pop$ageID==j&trip.pop$gender.inc==i&trip.pop$MODE==k&trip.pop$HHTAZ%in%taz.selected)])
         travel.distance.by.demo[j + 8 * (k - 1), i] <- distance.temp
       }
     }
@@ -132,7 +156,6 @@ ActiveTravelDataOutput <- function(pop,trip.pop){
   
 }
 
-
 # -----------------------------------
 # Data Processing
 # -----------------------------------
@@ -140,15 +163,23 @@ ActiveTravelDataOutput <- function(pop,trip.pop){
 # use read.dbf() in package 'foreign' to input the .dbf data
 triptable.2012 <- read.dbf('trip_2012.dbf')
 pop.2012 <- read.dbf('2012_pop_parc_AM1/2012_pop.dbf')
-head(triptable.2012)
-head(pop.2012)
+parc.2012 <- read.dbf('2012_pop_parc_AM1/2012_parc.dbf')
+#head(triptable.2012)
+#head(pop.2012)
+#head(parc.2012)
 
+#recode the variables in population matrix
 pop.2012 <- recode.pop(pop.2012)
 
+#obtain the taz number and county information
+taz <- getTAZ(parc.2012)
+
+#merge pop and trip data sets
 trip.pop.2012 <- prepTripPop(pop.2012,triptable.2012)
 
-Travel.Output.byIncome <- ActiveTravelDataOutput(pop.2012,trip.pop.2012)
-
+# output the active transport information
+#countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
+Travel.Output.byIncome <- ActiveTravelDataOutput(pop.2012,trip.pop.2012,taz,countyID = c(1,2,3,4,5,6))
 
 # Output the .csv files for active transport data and population
 cuttingline <- matrix(" ",1,9)
