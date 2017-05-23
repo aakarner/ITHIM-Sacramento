@@ -163,9 +163,10 @@ ActiveTravelDataOutput <- function(pop,trip.pop,TAZ,countyID){
 # use read.dbf() in package 'foreign' to input the .dbf data
 triptable.2012 <- read.dbf('trip_2012.dbf')
 pop.2012 <- read.dbf('2012_pop_parc_AM1/2012_pop.dbf')
+
 parc.2012 <- read.dbf('2012_pop_parc_AM1/2012_parc.dbf')
 #head(triptable.2012)
-#head(pop.2012)
+head(pop.2012)
 #head(parc.2012)
 
 #recode the variables in population matrix

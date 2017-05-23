@@ -11,7 +11,7 @@ options(scipen = 100)
 setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/01_Data")
 
 # load the data processed by part I
-load("00_CHTS2010-2012/Processed_CHTS_2010-2012.RData")
+load("00_CHTS2010-2012/TestInc_Processed_CHTS_2010-2012.RData")
 
 #################################### Function Definition ######################################
 

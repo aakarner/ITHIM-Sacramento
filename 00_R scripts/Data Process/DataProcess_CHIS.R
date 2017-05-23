@@ -142,7 +142,7 @@ chis.2005$race.cat <- ifelse(chis.2005$srh == "NO" & chis.2005$srw =="YES",1,
 
 
 # ak22_p -> Annual HH income ($)
-# currently, define <25,000$ as the benchmark for low income HH
+# quartiles: 25%-25,000; 50%-50,000; 75%-95,000
 chis.2005$inc.cat <- ifelse(chis.2005$ak22_p>0 & chis.2005$ak22_p<25000,1,
                             ifelse(chis.2005$ak22_p>25000 & chis.2005$ak22_p<50000,2,
                                    ifelse(chis.2005$ak22_p>50000 & chis.2005$ak22_p<75000,3,

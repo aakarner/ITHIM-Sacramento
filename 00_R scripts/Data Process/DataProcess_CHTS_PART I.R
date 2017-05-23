@@ -306,14 +306,14 @@ persons.hhs$gender.race <-
 # 8,
 # 99, DK/RF
 persons.hhs$gender.inc <-
-  ifelse(persons.hhs$gend == 1 & persons.hhs$incom %in% c(1:2),1,
-         ifelse(persons.hhs$gend == 2 & persons.hhs$incom %in% c(1:2),2,
-                ifelse(persons.hhs$gend == 1 & persons.hhs$incom %in% c(3:5),3,
-                       ifelse(persons.hhs$gend == 2 & persons.hhs$incom %in% c(3:5),4,
-                              ifelse(persons.hhs$gend == 1 & persons.hhs$incom %in% c(6:8),5,
-                                     ifelse(persons.hhs$gend == 2 & persons.hhs$incom %in% c(6:8),6,
-                                            ifelse(persons.hhs$gend == 1 & persons.hhs$incom %in% c(9:10),7,
-                                                   ifelse(persons.hhs$gend == 2 & persons.hhs$incom %in% c(9:10),8,99))))))))
+  ifelse(persons.hhs$gend == 1 & persons.hhs$incom %in% c(1:3),1,
+         ifelse(persons.hhs$gend == 2 & persons.hhs$incom %in% c(1:3),2,
+                ifelse(persons.hhs$gend == 1 & persons.hhs$incom %in% c(4:5),3,
+                       ifelse(persons.hhs$gend == 2 & persons.hhs$incom %in% c(4:5),4,
+                              ifelse(persons.hhs$gend == 1 & persons.hhs$incom %in% c(6:7),5,
+                                     ifelse(persons.hhs$gend == 2 & persons.hhs$incom %in% c(6:7),6,
+                                            ifelse(persons.hhs$gend == 1 & persons.hhs$incom %in% c(8:10),7,
+                                                   ifelse(persons.hhs$gend == 2 & persons.hhs$incom %in% c(8:10),8,99))))))))
 
 
 # Create a data frame containing merged trip, household, and person data
@@ -328,10 +328,10 @@ CA.trips <- CA.trips[!is.na(CA.trips$exptcfperwgt), ]
 # Create requisite complex survey objects
 CA.trips.svy <- svydesign(id = ~ID, weights = ~exptcfperwgt, data = CA.trips)
 CA.persons.svy <- svydesign(id = ~ID, weights = ~expperwgt, data = persons.hhs)
-
+save(CA.trips.svy, CA.persons.svy, file = "00_CHTS2010-2012/TestInc_Processed_CHTS_2010-2012.RData")
 # Save the complex survey objects to an .RData file
 # Just load this in the future instead of running the data preparation section of the script
-save(CA.trips.svy, CA.persons.svy, file = "00_CHTS2010-2012/Processed_CHTS_2010-2012.RData")
+#save(CA.trips.svy, CA.persons.svy, file = "00_CHTS2010-2012/Processed_CHTS_2010-2012.RData")
 
 
 
