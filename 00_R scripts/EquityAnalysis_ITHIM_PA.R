@@ -1,15 +1,93 @@
 ###################### ITHIM application for Equity Analysis - Physical Activity Module ######################
 
 #set your working directory
-setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/01_Data/04_Equity Analysis/")
+setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/01_Data/06_Equity Analysis/")
 
 # Prevent scientific notation
 options(scipen = 100)
 
 ###################### Function Definition ##############################
+# function for reading .csv files by countyID
+read.csv.files <- function(countyID){
+  pop.file.names <- list.files(path = "01_Population")
+  
+  # input the population (source: US Census/Finance Department)
+  Pop_Input_byRace <- read.csv(paste0("01_Population/",pop.file.names[countyID*2]))
+  Pop_Input_byIncome <- read.csv(paste0("01_Population/",pop.file.names[countyID*2+1]))
+  
+  AT.file.names.baseline <- list.files(path = "02_ActiveTransport/01_ActiveTransport_Baseline_EA")
+  # input the parameters of active transport of baseline (include relative walking/cycling time and speed)
+  AT_Input_byRace.baseline <- read.csv(paste0("02_ActiveTransport/01_ActiveTransport_Baseline_EA/",AT.file.names.baseline[countyID*2-1]))
+  AT_Input_byIncome.baseline <- read.csv(paste0("02_ActiveTransport/01_ActiveTransport_Baseline_EA/",AT.file.names.baseline[countyID*2]))
+  
+  AT.file.names.2020 <- list.files(path = "02_ActiveTransport/02_ActiveTransport_2020_EA")
+  # input the parameters of active transport of 2020 (include relative walking/cycling time and speed)
+  AT_Input_byRace.2020 <- read.csv(paste0("02_ActiveTransport/02_ActiveTransport_2020_EA/",AT.file.names.2020[countyID*2-1]))
+  AT_Input_byIncome.2020 <- read.csv(paste0("02_ActiveTransport/02_ActiveTransport_2020_EA/",AT.file.names.2020[countyID*2]))
+  
+  AT.file.names.2036 <- list.files(path = "02_ActiveTransport/03_ActiveTransport_2036_EA")
+  # input the parameters of active transport of 2036 (include relative walking/cycling time and speed)
+  AT_Input_byRace.2036 <- read.csv(paste0("02_ActiveTransport/03_ActiveTransport_2036_EA/",AT.file.names.2036[countyID*2-1]))
+  AT_Input_byIncome.2036 <- read.csv(paste0("02_ActiveTransport/03_ActiveTransport_2036_EA/",AT.file.names.2036[countyID*2]))
+  
+  # input the matrix of Non-travel METs 
+  # source: CHIS2005 (Per capita weekly non-travel related physical activity expressed as metabolic equivalent tasks (kcal/kg body weight/hr of activity))
+  nonTravelMET_Input_byRace <- read.csv("03_nonTravelMET/99_Test_NonTravelMET_byRace_EA.csv")
+  nonTravelMET_Input_byIncome <- read.csv("03_nonTravelMET/99_Test_NonTravelMET_byIncome_EA.csv")
+  
+  gbd.file.names <- list.files(path = "04_GBD")
+  #input the gbd data
+  gbd_Input_byRace <- read.csv(paste0("04_GBD/",gbd.file.names[countyID*2]))
+  gbd_Input_byIncome <- read.csv(paste0("04_GBD/",gbd.file.names[countyID*2+1]))
+  
+  # combine all inputs of baseline into a list object
+  InputPara_byRace <- InputPara(Pop_Input_byRace,nonTravelMET_Input_byRace,gbd_Input_byRace)
+  InputPara_byIncome <- InputPara(Pop_Input_byIncome,nonTravelMET_Input_byIncome,gbd_Input_byIncome)
+  
+  # # input the population (source: US Census/Finance Department)
+  # Pop_Input_US <- read.csv("01_Population/01_Population_US_EA.csv")
+  # Pop_Input_byRace <- read.csv("01_Population/99_Test_Population_Local_byRace_EA.csv")
+  # Pop_Input_byIncome <- read.csv("01_Population/99_Test_Population_Local_byIncome_EA.csv")
+  
+  # input the parameters of active transport (include relative walking/cycling time and speed)
+  #AT_Input_byRace.baseline <- read.csv("02_ActiveTransport/01_ActiveTransport_Baseline_EA/99_Test_ActiveTransport_byRace_Baseline_EA.csv")
+  #AT_Input_byIncome.baseline <- read.csv("02_ActiveTransport/01_ActiveTransport_Baseline_EA/99_Test_ActiveTransport_byIncome_Baseline_EA.csv")
+  
+  #AT_Input_byRace.2020 <- read.csv("02_ActiveTransport/02_ActiveTransport_2020_EA/99_Test_ActiveTransport_byRace_2020_EA.csv")
+  #AT_Input_byIncome.2020 <- read.csv("02_ActiveTransport/02_ActiveTransport_2020_EA/99_Test_ActiveTransport_byIncome_2020_EA.csv")
+  
+  #AT_Input_byRace.2036 <- read.csv("02_ActiveTransport/03_ActiveTransport_2036_EA/99_Test_ActiveTransport_byRace_2036_EA.csv")
+  #AT_Input_byIncome.2036 <- read.csv("02_ActiveTransport/03_ActiveTransport_2036_EA/99_Test_ActiveTransport_byIncome_2036_EA.csv")
+  
+  
+  #input the gbd data
+  #gbd_Input_US <- read.csv("04_GBD/99_Test_GBD_US_EA.csv")
+  #gbd_Input_byRace <- read.csv("04_GBD/99_Test_GBD_Local_byRace_EA.csv")
+  #gbd_Input_byIncome <- read.csv("04_GBD/99_Test_GBD_Local_byIncome_EA.csv")
+  
+  # combine all inputs of baseline into a list object
+  #InputPara_byRace <- InputPara(Pop_Input_byRace,nonTravelMET_Input_byRace,gbd_Input_byRace)
+  #InputPara_byIncome <- InputPara(Pop_Input_byIncome,nonTravelMET_Input_byIncome,gbd_Input_byIncome)
+  
+  
+  return(list(
+    InputPara_byRace = InputPara_byRace,
+    InputPara_byIncome = InputPara_byIncome,
+    
+    AT_Input_byRace.baseline = AT_Input_byRace.baseline,
+    AT_Input_byIncome.baseline = AT_Input_byIncome.baseline,
+    
+    AT_Input_byRace.2020 = AT_Input_byRace.2020,
+    AT_Input_byIncome.2020 = AT_Input_byIncome.2020,
+    
+    AT_Input_byRace.2036 = AT_Input_byRace.2036,
+    AT_Input_byIncome.2036 = AT_Input_byIncome.2036
+  ))
+  
+}
 
 # function for inputing data sets (.csv)
-InputPara <- function (Pop_Input,AT_Input,nonTravelMET_Input,gbd_Input){
+InputPara <- function (Pop_Input,nonTravelMET_Input,gbd_Input){
   # input the population and calculate the proportion of population into each demo categories
   Pop_List_byDemo <- rep(list((matrix(NA,nrow=nAgeClass,ncol=2, nDemoClass))))
   for(i in 1:nDemoClass){
@@ -21,11 +99,11 @@ InputPara <- function (Pop_Input,AT_Input,nonTravelMET_Input,gbd_Input){
   allPop <- matrix (c(Pop_Input_US[1:8,2],Pop_Input_US[1:8,3]), 
                     byrow=TRUE, ncol = 1, nrow = nAgeClass*2, dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),"Population"))
   
-  # input the active transport data into each demo catrgories
-  AT_List_byDemo <- rep(list((matrix(NA,nrow=nrow(AT_Input),ncol=2))), nDemoClass)
-  for(i in 1:nDemoClass){
-    AT_List_byDemo[[i]] <- as.matrix(AT_Input[1:nrow(AT_Input),(2*i):(2*i+1)])
-  }
+  # # input the active transport data into each demo catrgories
+  # AT_List_byDemo <- rep(list((matrix(NA,nrow=nrow(AT_Input),ncol=2))), nDemoClass)
+  # for(i in 1:nDemoClass){
+  #   AT_List_byDemo[[i]] <- as.matrix(AT_Input[1:nrow(AT_Input),(2*i):(2*i+1)])
+  # }
   
   # input the non travel METs into each demo catrgories
   nonTravelMET_List_byDemo <- rep(list((matrix(NA,nrow=2*nAgeClass,ncol=5))), nDemoClass)
@@ -37,7 +115,7 @@ InputPara <- function (Pop_Input,AT_Input,nonTravelMET_Input,gbd_Input){
   return(list(
     PopProp_List_byDemo=PopProp_List_byDemo,
     allPop=allPop,
-    AT_List_byDemo=AT_List_byDemo,
+    #AT_List_byDemo=AT_List_byDemo,
     nonTravelMET_List_byDemo=nonTravelMET_List_byDemo,
     gbd_Input = gbd_Input
   )
@@ -46,11 +124,12 @@ InputPara <- function (Pop_Input,AT_Input,nonTravelMET_Input,gbd_Input){
 
 # function for creating total exposure matrix 
 # after inputing the population Mean Walking/Cycling Time (min per week) and coefficient of variation (cv)
-TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime,cv, AT_Input, PopProp, nonTravelMET){
+TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime, AT_Input, PopProp, nonTravelMET){
   # The population mean walking/cycling speed (mph)
   #"It is common practice in MPOs to assume average walk speed of 3 mph and bicycle speed of 12 mph" from ITHIM user's manual
   PopMeanWalkSpeed <- 3.0
   PopMeanCycleSpeed <- 12.0
+  cv <- -0.0108*(PopMeanWalkTime+PopMeanCycleTime)/7+1.2682+0.7
   
   # Numerical matrices for the relative walking time (relative to the value of "female 15-29") and the mean walking time
   # Source: CHTS2012 (Per capita mean daily travel time by mode)
@@ -132,7 +211,13 @@ TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime,cv, AT_Input, PopPro
 }
 
 # function for creating total exposure matrix by demographic groups
-List_TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime,cv,InputPara){
+List_TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime,InputPara,AT_Input){
+  
+  # process the AT_input data into each demo catrgories
+  AT_List_byDemo <- rep(list((matrix(NA,nrow=nrow(AT_Input),ncol=2))), nDemoClass)
+  for(i in 1:nDemoClass){
+    AT_List_byDemo[[i]] <- as.matrix(AT_Input[1:nrow(AT_Input),(2*i):(2*i+1)])
+  }
   
   # Calculate the total exposure matrix for demographic categories
   TotalExposure_List_byDemo <- rep(list((matrix(NA,nrow=2*nAgeClass,ncol=5))), nDemoClass)
@@ -140,8 +225,8 @@ List_TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime,cv,InputPara){
   # apply the function of TotalExposure() for each demographic categories
   for(i in 1:nDemoClass){
     TotalExposure_List_byDemo[[i]] <- TotalExposure(
-      PopMeanWalkTime, PopMeanCycleTime,cv,
-      InputPara$AT_List_byDemo[[i]],
+      PopMeanWalkTime, PopMeanCycleTime,
+      AT_List_byDemo[[i]],
       InputPara$PopProp_List_byDemo[[i]],
       InputPara$nonTravelMET_List_byDemo[[i]])
   }
@@ -154,43 +239,14 @@ List_TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime,cv,InputPara){
 #function for computing relative risks of physical activity  
 create.PA.RR <- function(){
   
-  RR.lit <- exposure <- rep(list((matrix(NA,nrow=nAgeClass,ncol=2,dimnames=list(paste0("agClass",1:nAgeClass),c("F","M"))))), length(diseaseNames))
+  RR.lit <- exposure <- matrix(NA,nrow=nAgeClass,ncol=2,dimnames=list(paste0("agClass",1:nAgeClass),c("F","M")))
   
-  names(RR.lit) <- names(exposure) <- diseaseNames
+  # all cause mortality (Woodcock)
+  exposure[1:nAgeClass,1:2] <- 11
+  RR.lit[1:nAgeClass,1:2] <- 0.81
   
-  #physical 
-  exposure[["BreastCancer"]][1:nAgeClass,"F"] <- 4.5
-  RR.lit[["BreastCancer"]][1:nAgeClass,"F"] <- 0.944
-  
-  exposure[["BreastCancer"]][1:nAgeClass,"M"] <- 1
-  RR.lit[["BreastCancer"]][1:nAgeClass,"M"] <- 1
-  
-  exposure[["ColonCancer"]][1:nAgeClass,"M"] <- 30.9
-  RR.lit[["ColonCancer"]][1:nAgeClass,"M"] <- 0.8
-  
-  exposure[["ColonCancer"]][1:nAgeClass,"F"] <- 30.1
-  RR.lit[["ColonCancer"]][1:nAgeClass,"F"] <- 0.86
-  
-  exposure[["CVD"]][1:nAgeClass,1:2] <- 7.5
-  RR.lit[["CVD"]][1:nAgeClass,1:2] <- 0.84
-  
-  exposure[["Dementia"]][1:nAgeClass,1:2] <- 31.5
-  RR.lit[["Dementia"]][1:nAgeClass,1:2] <- 0.72
-  
-  exposure[["Diabetes"]][1:nAgeClass,1:2] <- 10
-  RR.lit[["Diabetes"]][1:nAgeClass,1:2] <- 0.83
-  
-  exposure[["Depression"]][1:3,1:2] <- 11.25
-  RR.lit[["Depression"]][1:3,1:2] <- 0.927945490148335
-  
-  exposure[["Depression"]][4:nAgeClass,1:2] <- 11.25
-  RR.lit[["Depression"]][4:nAgeClass,1:2] <- 0.859615572255727
-  
-  # exposure[["Stroke"]] <- exposure[["CVD"]]
-  # RR.lit[["Stroke"]] <- RR.lit[["CVD"]]
-  #   
-  # exposure[["HHD"]] <- exposure[["CVD"]]
-  # RR.lit[["HHD"]] <- RR.lit[["CVD"]]
+  #compute RR matrix
+  RR <- RR.lit^(1/exposure)^k
   
   #reshape RR matrix
   reshapeRR <- function(RR, nQuantiles = 5){
@@ -198,32 +254,94 @@ create.PA.RR <- function(){
     #list( M = matrix(RR[,"M"], nrow = nAgeClass, ncol = nQuantiles, dimnames = list(paste0("ageClass",1:nAgeClass), seq(0.1,0.9,by=0.2))),F = matrix(RR[,"F"], nrow = nAgeClass, ncol = nQuantiles, dimnames = list(paste0("ageClass",1:nAgeClass), seq(0.1,0.9,by=0.2))))
   }
   
-  #compute RR matrix
-  RR <- mapply(function(x,y,z) x^(1/y)^z, RR.lit, exposure, k, SIMPLIFY=FALSE)
-  RR <- lapply(RR, reshapeRR, nQuantiles = 5)
+  RR <- reshapeRR(RR,nQuantiles = 5)
+  
   return(RR)
+  
+  # RR.lit <- exposure <- rep(list((matrix(NA,nrow=nAgeClass,ncol=2,dimnames=list(paste0("agClass",1:nAgeClass),c("F","M"))))), length(diseaseNames))
+  # 
+  # names(RR.lit) <- names(exposure) <- diseaseNames
+  # 
+  # #physical
+  # exposure[["BreastCancer"]][1:nAgeClass,"F"] <- 4.5
+  # RR.lit[["BreastCancer"]][1:nAgeClass,"F"] <- 0.944
+  # 
+  # exposure[["BreastCancer"]][1:nAgeClass,"M"] <- 1
+  # RR.lit[["BreastCancer"]][1:nAgeClass,"M"] <- 1
+  # 
+  # exposure[["ColonCancer"]][1:nAgeClass,"M"] <- 30.9
+  # RR.lit[["ColonCancer"]][1:nAgeClass,"M"] <- 0.8
+  # 
+  # exposure[["ColonCancer"]][1:nAgeClass,"F"] <- 30.1
+  # RR.lit[["ColonCancer"]][1:nAgeClass,"F"] <- 0.86
+  # 
+  # exposure[["CVD"]][1:nAgeClass,1:2] <- 7.5
+  # RR.lit[["CVD"]][1:nAgeClass,1:2] <- 0.84
+  # 
+  # exposure[["Dementia"]][1:nAgeClass,1:2] <- 31.5
+  # RR.lit[["Dementia"]][1:nAgeClass,1:2] <- 0.72
+  # 
+  # exposure[["Diabetes"]][1:nAgeClass,1:2] <- 10
+  # RR.lit[["Diabetes"]][1:nAgeClass,1:2] <- 0.83
+  # 
+  # exposure[["Depression"]][1:3,1:2] <- 11.25
+  # RR.lit[["Depression"]][1:3,1:2] <- 0.927945490148335
+  # 
+  # exposure[["Depression"]][4:nAgeClass,1:2] <- 11.25
+  # RR.lit[["Depression"]][4:nAgeClass,1:2] <- 0.859615572255727
+  # 
+  # # exposure[["Stroke"]] <- exposure[["CVD"]]
+  # # RR.lit[["Stroke"]] <- RR.lit[["CVD"]]
+  # #
+  # # exposure[["HHD"]] <- exposure[["CVD"]]
+  # # RR.lit[["HHD"]] <- RR.lit[["CVD"]]
+  # 
+  # #reshape RR matrix
+  # reshapeRR <- function(RR, nQuantiles = 5){
+  #   matrix(c(RR[,"M"],RR[,"F"]),nrow=nAgeClass*2,ncol=nQuantiles,dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),seq(0.1,0.9,by=0.2)))
+  #   #list( M = matrix(RR[,"M"], nrow = nAgeClass, ncol = nQuantiles, dimnames = list(paste0("ageClass",1:nAgeClass), seq(0.1,0.9,by=0.2))),F = matrix(RR[,"F"], nrow = nAgeClass, ncol = nQuantiles, dimnames = list(paste0("ageClass",1:nAgeClass), seq(0.1,0.9,by=0.2))))
+  # }
+  # 
+  # 
+  # #compute RR matrix
+  # RR <- mapply(function(x,y,z) x^(1/y)^z, RR.lit, exposure, k, SIMPLIFY=FALSE)
+  # RR <- lapply(RR, reshapeRR, nQuantiles = 5)
+  # return(RR)
 }
 
 #function for computing local disease burden
-computeLocalGBD <- function (death_List_target,TargetPop,InputPara){
+computeLocalGBD <- function (death_target,TargetPop,InputPara){
   
   #obtain the gbd and the death data of U.S.
-  gbd_List_US <- split(gbd_Input_US[,3:6],gbd_Input_US$Disease)
-  death_List_US <- split(gbd_Input_US[,3],gbd_Input_US$Disease)
+  gbd_US <- gbd_Input_US[,2:5]
+  death_US <- gbd_Input_US[,2]
   
   # calculate the RR (the ratio of death numbers for target area with those for whole U.S.)
-  RR_gbd <- rep(list(matrix(NA,ncol = 1,nrow = 2*nAgeClass,dimnames = list((c(paste0("maleAgeclass",1:nAgeClass),paste0("femaleAgeclass",1:nAgeClass))),"RR"))),length(diseaseNames))
-  names(RR_gbd) <- diseaseNames
-  RR_gbd <- mapply(function(x,y) (x/TargetPop)/(y/InputPara$allPop),death_List_target,death_List_US,SIMPLIFY = FALSE)
-  RR_gbd <- lapply(RR_gbd,function(x) replace(x,is.na(x),1.0)) #replace NAs with 1.0
-
-  # obtain the local gbd data  
-  gbd.local <- mapply(function(x,y) x*y/InputPara$allPop*TargetPop,RR_gbd,gbd_List_US,SIMPLIFY = FALSE)
+  RR_gbd <- matrix(NA,ncol = 1,nrow = 2*nAgeClass,dimnames = list((c(paste0("maleAgeclass",1:nAgeClass),paste0("femaleAgeclass",1:nAgeClass))),"RR"))
+  RR_gbd <- (death_target/TargetPop)/(death_US/InputPara$allPop)
+  RR_gbd <- replace(RR_gbd,is.na(RR_gbd),1.0)
   
-  # update the colon cancer data with the parameter "colon % of colorectal cancer Male 79% Female 81% "
-  # The source of data is the CDPH Death Statistical Master file for the years 2009 to 2011.
-  gbd.local$ColonCancer[c(1:8),] <- gbd.local$ColonCancer[c(1:8),]*0.7878193
-  gbd.local$ColonCancer[c(9:16),] <- gbd.local$ColonCancer[c(9:16),]*0.814
+  # obtain the local gbd data
+  gbd.local<-RR_gbd*gbd_US/InputPara$allPop*TargetPop
+  
+  
+  # #obtain the gbd and the death data of U.S.
+  # gbd_List_US <- split(gbd_Input_US[,3:6],gbd_Input_US$Disease)
+  # death_List_US <- split(gbd_Input_US[,3],gbd_Input_US$Disease)
+  # 
+  # # calculate the RR (the ratio of death numbers for target area with those for whole U.S.)
+  # RR_gbd <- rep(list(matrix(NA,ncol = 1,nrow = 2*nAgeClass,dimnames = list((c(paste0("maleAgeclass",1:nAgeClass),paste0("femaleAgeclass",1:nAgeClass))),"RR"))),length(diseaseNames))
+  # names(RR_gbd) <- diseaseNames
+  # RR_gbd <- mapply(function(x,y) (x/TargetPop)/(y/InputPara$allPop),death_List_target,death_List_US,SIMPLIFY = FALSE)
+  # RR_gbd <- lapply(RR_gbd,function(x) replace(x,is.na(x),1.0)) #replace NAs with 1.0
+  # 
+  # # obtain the local gbd data  
+  # gbd.local <- mapply(function(x,y) x*y/InputPara$allPop*TargetPop,RR_gbd,gbd_List_US,SIMPLIFY = FALSE)
+  # 
+  # # update the colon cancer data with the parameter "colon % of colorectal cancer Male 79% Female 81% "
+  # # The source of data is the CDPH Death Statistical Master file for the years 2009 to 2011.
+  # gbd.local$ColonCancer[c(1:8),] <- gbd.local$ColonCancer[c(1:8),]*0.7878193
+  # gbd.local$ColonCancer[c(9:16),] <- gbd.local$ColonCancer[c(9:16),]*0.814
   
   return(gbd.local)
 }
@@ -231,91 +349,170 @@ computeLocalGBD <- function (death_List_target,TargetPop,InputPara){
 #function for computing local disease burden by demographic groups
 List_LocalGBD <- function(InputPara){
   
-  LocalGBD_List_byDemo <- rep(list(rep(list(matrix(NA,nrow=2*nAgeClass,ncol = 4)),length(diseaseNames))),nDemoClass)
+  LocalGBD_List_byDemo <- rep(list(matrix(NA,nrow=2*nAgeClass,ncol = 4)),nDemoClass)
   
-  # apply the function "computeLocalGBD" for calculating the local gbd data for all demographic groups
   for (i in 1:nDemoClass){
-    death_List_target <-  split(InputPara$gbd_Input[,i+2],InputPara$gbd_Input$Disease)
+    death_target <- InputPara$gbd_Input[,i+1]
     TargetPop <- matrix (InputPara$PopProp_List_byDemo[[i]], byrow=TRUE, ncol = 1, nrow = nAgeClass*2, dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),"Population"))
-    gbd.local <- computeLocalGBD(death_List_target,TargetPop,InputPara)
+    gbd.local <- computeLocalGBD(death_target,TargetPop,InputPara)
     LocalGBD_List_byDemo[[i]] <- gbd.local
   }
   
   return(
     LocalGBD_List_byDemo=LocalGBD_List_byDemo)
+  
+  #LocalGBD_List_byDemo <- rep(list(rep(list(matrix(NA,nrow=2*nAgeClass,ncol = 4)),length(diseaseNames))),nDemoClass)
+  
+  # apply the function "computeLocalGBD" for calculating the local gbd data for all demographic groups
+  # for (i in 1:nDemoClass){
+  #   death_List_target <-  split(InputPara$gbd_Input[,i+2],InputPara$gbd_Input$Disease)
+  #   TargetPop <- matrix (InputPara$PopProp_List_byDemo[[i]], byrow=TRUE, ncol = 1, nrow = nAgeClass*2, dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),"Population"))
+  #   gbd.local <- computeLocalGBD(death_List_target,TargetPop,InputPara)
+  #   LocalGBD_List_byDemo[[i]] <- gbd.local
+  # }
+  
+  
 }
 
 #function for computing health outcome
 computeHealthOutcome <- function (RR.PA,BaselineTotalExpo,ScenarioTotalExpo,gbd.local){
+  #BaselineTotalExpo <- BaselineTotalExpo_byRace[[1]]
+  #ScenarioTotalExpo <- ScenarioTotalExpo_byRace.2020[[1]]
+  #gbd.local <- LocalGBD_List_byRace[[1]]
+  
   #Compute RR for an exposure of x MET
-  RR.Baseline <- sapply(RR.PA, function(x) {x^(BaselineTotalExpo^k)}, simplify = FALSE)
-  RR.Scenario <- sapply(RR.PA, function(x) {x^(ScenarioTotalExpo^k)}, simplify = FALSE)  
+  RR.Baseline <- RR.PA^(BaselineTotalExpo^k)
+  RR.Scenario <- RR.PA^(ScenarioTotalExpo^k)
   
   #Compute Ratio of DB relative to group 1
-  RatioDB.Baseline <- lapply(RR.Baseline,function(x) x/x[,1])
-  RatioDB.Scenario <- lapply(RR.Scenario,function(x) x/x[,1])
-  sum.RatioDB.Baseline <-lapply(RatioDB.Baseline,rowSums)
-  sum.RatioDB.Scenario <-lapply(RatioDB.Scenario,rowSums)
+  RatioDB.Baseline <- RR.Baseline/RR.Baseline[,1]
+  RatioDB.Scenario <- RR.Scenario/RR.Scenario[,1]
+  sum.RatioDB.Baseline <- rowSums(RatioDB.Baseline)
+  sum.RatioDB.Scenario <- rowSums(RatioDB.Scenario)
   
   #Compute New Burden and AF
-  sum.RR.Baseline<-lapply(RR.Baseline,rowSums)
-  sum.RR.Scenario<-lapply(RR.Scenario,rowSums)
-  new.burden <- mapply(function(x,y) x/y,sum.RR.Scenario,sum.RR.Baseline,SIMPLIFY=FALSE)
-  AF <- sapply(new.burden, function(x) 1-x, simplify=FALSE)
+  new.burden <- rowSums(RR.Scenario)/rowSums(RR.Baseline)
+  AF <- 1-new.burden
   
   #Compute the health outcomes
   #Define a function for outputing health outcomes
   fun.outcome <- function(x,y){
-    x[,1] <- y
-    x[,c(2:5)] <- x[,c(2:5)]*y
-    return(x)}
+     x[,1] <- y
+     x[,c(2:5)] <- x[,c(2:5)]*y
+     return(x)}
   
   #Compute deaths per group
-  dproj.scenario.firstCol <- mapply(function(x,y,z) x*y$deaths/z, new.burden,gbd.local,sum.RatioDB.Scenario,SIMPLIFY=FALSE)
-  dproj.scenario <- mapply(fun.outcome,RatioDB.Scenario,dproj.scenario.firstCol,SIMPLIFY=FALSE)
+  dproj.scenario.firstCol <- new.burden*gbd.local$deaths/sum.RatioDB.Scenario
+  dproj.scenario <- fun.outcome(RatioDB.Scenario,dproj.scenario.firstCol)
   
-  dproj.baseline.firstCol <- mapply(function(x,y) x$deaths/y, gbd.local,sum.RatioDB.Baseline,SIMPLIFY=FALSE)
-  dproj.baseline <- mapply(fun.outcome,RatioDB.Baseline,dproj.baseline.firstCol,SIMPLIFY=FALSE)
+  dproj.baseline.firstCol <- gbd.local$deaths/sum.RatioDB.Baseline
+  dproj.baseline <- fun.outcome(RatioDB.Baseline,dproj.baseline.firstCol)
   
   #Compute YLL per group
-  yll.scenario.firstCol <- mapply(function(x,y,z) x*y$yll/z, new.burden,gbd.local,sum.RatioDB.Scenario,SIMPLIFY=FALSE)
-  yll.scenario <- mapply(fun.outcome,RatioDB.Scenario,yll.scenario.firstCol,SIMPLIFY=FALSE)
-  
-  yll.baseline.firstCol <- mapply(function(x,y) x$yll/y, gbd.local,sum.RatioDB.Baseline,SIMPLIFY=FALSE)
-  yll.baseline <- mapply(fun.outcome,RatioDB.Baseline,yll.baseline.firstCol,SIMPLIFY=FALSE)
-  
+  yll.scenario.firstCol <- new.burden*gbd.local$yll/sum.RatioDB.Scenario
+  yll.scenario <- fun.outcome(RatioDB.Scenario,yll.scenario.firstCol)
+
+  yll.baseline.firstCol <- gbd.local$yll/sum.RatioDB.Baseline
+  yll.baseline <- fun.outcome(RatioDB.Baseline,yll.baseline.firstCol)
+
   #Compute YLD per group
-  yld.scenario.firstCol <- mapply(function(x,y,z) x*y$yld/z, new.burden,gbd.local,sum.RatioDB.Scenario,SIMPLIFY=FALSE)
-  yld.scenario <- mapply(fun.outcome,RatioDB.Scenario,yld.scenario.firstCol,SIMPLIFY=FALSE)
+  yld.scenario.firstCol <- new.burden*gbd.local$yld/sum.RatioDB.Scenario
+  yld.scenario <- fun.outcome(RatioDB.Scenario,yld.scenario.firstCol)
   
-  yld.baseline.firstCol <- mapply(function(x,y) x$yld/y, gbd.local,sum.RatioDB.Baseline,SIMPLIFY=FALSE)
-  yld.baseline <- mapply(fun.outcome,RatioDB.Baseline,yld.baseline.firstCol,SIMPLIFY=FALSE)
+  yld.baseline.firstCol <- gbd.local$yld/sum.RatioDB.Baseline
+  yld.baseline <- fun.outcome(RatioDB.Baseline,yld.baseline.firstCol)
   
   #Compute the ∆Burden, total ∆Burden, and the proportion
-  delta.Burden <- rep(list((matrix(NA,nrow=nAgeClass*2,ncol=4,dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),c("∆Deaths","∆YLL","∆YLD","DALYS"))))), length(diseaseNames))
-  names(delta.Burden) <- diseaseNames
+  delta.Burden <- (matrix(NA,nrow=nAgeClass*2,ncol=4,dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),c("∆Deaths","∆YLL","∆YLD","DALYS"))))
   
-  delta.Burden <- mapply(function (x,a,b,c,d,e,f) {
-    x[,1] <- rowSums(a)-rowSums(b) #deaths
-    x[,2] <- rowSums(c)-rowSums(d) #yll
-    x[,3] <- rowSums(e)-rowSums(f) #yld
-    x[,4] <- x[,2] + x[,3]         #dalys
-    return(x)
-  },delta.Burden, dproj.scenario,dproj.baseline,yll.scenario,yll.baseline,yld.scenario,yld.baseline, SIMPLIFY=FALSE)
+  delta.Burden[,1] <- rowSums(dproj.scenario)-rowSums(dproj.baseline) #deaths
+  delta.Burden[,2] <- rowSums(yll.scenario)-rowSums(yll.baseline)     #yll
+  delta.Burden[,3] <- rowSums(yld.scenario)-rowSums(yld.baseline)     #yld
+  delta.Burden[,4] <- delta.Burden[,2]+delta.Burden[,3]               #dalys
   
-  total.delta.Burden <- lapply(delta.Burden, colSums)
-  total.gbd.local <- lapply(gbd.local,function(x){
-    ifelse(colSums(x)!=0,colSums(x),0.0001)
-  })
+  total.delta.Burden <- colSums(delta.Burden)
+  total.gbd.local <- ifelse(colSums(gbd.local)!=0,colSums(gbd.local),0.0001)
   
-  prop.delta.Burden <- mapply(function(x,y) x/y, total.delta.Burden,total.gbd.local,SIMPLIFY=FALSE)
+  prop.delta.Burden <- total.delta.Burden/total.gbd.local
   
   return(list(
     AF=AF,
     new.burden=new.burden,
     delta.Burden=delta.Burden,
     prop.delta.Burden= prop.delta.Burden
-    ))
+  ))
+  
+  # total.gbd.local <- lapply(gbd.local,function(x){
+  #   ifelse(colSums(x)!=0,colSums(x),0.0001)
+  # })
+  # 
+  # prop.delta.Burden <- mapply(function(x,y) x/y, total.delta.Burden,total.gbd.local,SIMPLIFY=FALSE)
+  
+  
+  # #Compute RR for an exposure of x MET
+  # RR.Baseline <- sapply(RR.PA, function(x) {x^(BaselineTotalExpo^k)}, simplify = FALSE)
+  # RR.Scenario <- sapply(RR.PA, function(x) {x^(ScenarioTotalExpo^k)}, simplify = FALSE)  
+  # 
+  # #Compute Ratio of DB relative to group 1
+  # RatioDB.Baseline <- lapply(RR.Baseline,function(x) x/x[,1])
+  # RatioDB.Scenario <- lapply(RR.Scenario,function(x) x/x[,1])
+  # sum.RatioDB.Baseline <-lapply(RatioDB.Baseline,rowSums)
+  # sum.RatioDB.Scenario <-lapply(RatioDB.Scenario,rowSums)
+  # 
+  # #Compute New Burden and AF
+  # sum.RR.Baseline<-lapply(RR.Baseline,rowSums)
+  # sum.RR.Scenario<-lapply(RR.Scenario,rowSums)
+  # new.burden <- mapply(function(x,y) x/y,sum.RR.Scenario,sum.RR.Baseline,SIMPLIFY=FALSE)
+  # AF <- sapply(new.burden, function(x) 1-x, simplify=FALSE)
+  # 
+  # #Compute the health outcomes
+  # #Define a function for outputing health outcomes
+  # fun.outcome <- function(x,y){
+  #   x[,1] <- y
+  #   x[,c(2:5)] <- x[,c(2:5)]*y
+  #   return(x)}
+  # 
+  # #Compute deaths per group
+  # dproj.scenario.firstCol <- mapply(function(x,y,z) x*y$deaths/z, new.burden,gbd.local,sum.RatioDB.Scenario,SIMPLIFY=FALSE)
+  # dproj.scenario <- mapply(fun.outcome,RatioDB.Scenario,dproj.scenario.firstCol,SIMPLIFY=FALSE)
+  # 
+  # dproj.baseline.firstCol <- mapply(function(x,y) x$deaths/y, gbd.local,sum.RatioDB.Baseline,SIMPLIFY=FALSE)
+  # dproj.baseline <- mapply(fun.outcome,RatioDB.Baseline,dproj.baseline.firstCol,SIMPLIFY=FALSE)
+  # 
+  # #Compute YLL per group
+  # yll.scenario.firstCol <- mapply(function(x,y,z) x*y$yll/z, new.burden,gbd.local,sum.RatioDB.Scenario,SIMPLIFY=FALSE)
+  # yll.scenario <- mapply(fun.outcome,RatioDB.Scenario,yll.scenario.firstCol,SIMPLIFY=FALSE)
+  # 
+  # yll.baseline.firstCol <- mapply(function(x,y) x$yll/y, gbd.local,sum.RatioDB.Baseline,SIMPLIFY=FALSE)
+  # yll.baseline <- mapply(fun.outcome,RatioDB.Baseline,yll.baseline.firstCol,SIMPLIFY=FALSE)
+  # 
+  # #Compute YLD per group
+  # yld.scenario.firstCol <- mapply(function(x,y,z) x*y$yld/z, new.burden,gbd.local,sum.RatioDB.Scenario,SIMPLIFY=FALSE)
+  # yld.scenario <- mapply(fun.outcome,RatioDB.Scenario,yld.scenario.firstCol,SIMPLIFY=FALSE)
+  # 
+  # yld.baseline.firstCol <- mapply(function(x,y) x$yld/y, gbd.local,sum.RatioDB.Baseline,SIMPLIFY=FALSE)
+  # yld.baseline <- mapply(fun.outcome,RatioDB.Baseline,yld.baseline.firstCol,SIMPLIFY=FALSE)
+  # 
+  # #Compute the ∆Burden, total ∆Burden, and the proportion
+  # delta.Burden <- rep(list((matrix(NA,nrow=nAgeClass*2,ncol=4,dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),c("∆Deaths","∆YLL","∆YLD","DALYS"))))), length(diseaseNames))
+  # names(delta.Burden) <- diseaseNames
+  # 
+  # delta.Burden <- mapply(function (x,a,b,c,d,e,f) {
+  #   x[,1] <- rowSums(a)-rowSums(b) #deaths
+  #   x[,2] <- rowSums(c)-rowSums(d) #yll
+  #   x[,3] <- rowSums(e)-rowSums(f) #yld
+  #   x[,4] <- x[,2] + x[,3]         #dalys
+  #   return(x)
+  # },delta.Burden, dproj.scenario,dproj.baseline,yll.scenario,yll.baseline,yld.scenario,yld.baseline, SIMPLIFY=FALSE)
+  # 
+  # total.delta.Burden <- lapply(delta.Burden, colSums)
+  # total.gbd.local <- lapply(gbd.local,function(x){
+  #   ifelse(colSums(x)!=0,colSums(x),0.0001)
+  # })
+  # 
+  # prop.delta.Burden <- mapply(function(x,y) x/y, total.delta.Burden,total.gbd.local,SIMPLIFY=FALSE)
+  
+  
 }
 
 
@@ -329,59 +526,44 @@ nRaceClass <- nIncomeClass <- nDemoClass <- 4L
 k<-0.5
 
 # disease names
-diseaseNames <- c("BreastCancer","ColonCancer","CVD","Dementia","Depression","Diabetes")
+#diseaseNames <- c("BreastCancer","ColonCancer","CVD","Dementia","Depression","Diabetes")
 
 # group names for race/ethnicity and income 
 raceGroupNames <- c("NHW","NHB","NHO","HO")
-incomeGroupNames <- c("Low","Medium","High","Other")
+incomeGroupNames <- c("Q1","Q2","Q3","Q4")
 
-# input the population (source: US Census/Finance Department)
-Pop_Input_US <- read.csv("01_Population_US_EA.csv")
-Pop_Input_byRace <- read.csv("02_Population_Local_byRace_EA.csv")
-Pop_Input_byIncome <- read.csv("03_Population_Local_byIncome_EA.csv")
-
-# input the parameters of active transport (include relative walking/cycling time and speed)
-AT_Input_byRace <- read.csv("04_ActiveTransport_byRace_EA.csv")
-AT_Input_byIncome <- read.csv("05_ActiveTransport_byIncome_EA.csv")
-
-# input the matrix of Non-travel METs 
-# source: CHIS2005 (Per capita weekly non-travel related physical activity expressed as metabolic equivalent tasks (kcal/kg body weight/hr of activity))
-nonTravelMET_Input_byRace <- read.csv("06_NonTravelMET_byRace_EA.csv")
-nonTravelMET_Input_byIncome <- read.csv("07_NonTravelMET_byIncome_EA.csv")
-
-#input the gbd data
-gbd_Input_US <- read.csv("08_GBD_US_EA.csv")
-gbd_Input_byRace <- read.csv("09_GBD_Local_byRace_EA.csv")
-gbd_Input_byIncome <- read.csv("10_GBD_Local_byIncome_EA.csv")
-
-# combine all inputs into a list object
-InputPara_byRace <- InputPara(Pop_Input_byRace,AT_Input_byRace,nonTravelMET_Input_byRace,gbd_Input_byRace)
-InputPara_byIncome <- InputPara(Pop_Input_byIncome,AT_Input_byIncome,nonTravelMET_Input_byIncome,gbd_Input_byIncome)
+Pop_Input_US <- read.csv("01_Population/01_Population_US_EA.csv")
+gbd_Input_US <- read.csv("04_GBD/99_Test_GBD_US_EA.csv")
 
 ###################### Calculation Example ##############################
+# reading the csv files after inputting countyID
+# countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
+All.InputPara <- read.csv.files(countyID = 1)
 
 #Create the total exposure matrices by inputing parameters 
 #(mean walking time(min per week), mean cycling time(min per week), and cv)
-BaselineTotalExpo_byRace <- List_TotalExposure(32.4,5.8,1.9216,InputPara_byRace)
-ScenarioTotalExpo_byRace <- List_TotalExposure(62.9,3.0,1.8788,InputPara_byRace)
+BaselineTotalExpo_byRace <- List_TotalExposure(32.4,5.8,All.InputPara$InputPara_byRace,All.InputPara$AT_Input_byRace.baseline)
+ScenarioTotalExpo_byRace.2020 <- List_TotalExposure(64.8,17.5,All.InputPara$InputPara_byRace,All.InputPara$AT_Input_byRace.2020)
+ScenarioTotalExpo_byRace.2036 <- List_TotalExposure(64.8,17.5,All.InputPara$InputPara_byRace,All.InputPara$AT_Input_byRace.2036)
 
-BaselineTotalExpo_byIncome <- List_TotalExposure(32.4,5.8,1.9216,InputPara_byIncome)
-ScenarioTotalExpo_byIncome <- List_TotalExposure(62.9,3.0,1.8788,InputPara_byIncome)
+BaselineTotalExpo_byIncome <- List_TotalExposure(32.4,5.8,All.InputPara$InputPara_byIncome,All.InputPara$AT_Input_byIncome.baseline)
+ScenarioTotalExpo_byIncome.2020 <- List_TotalExposure(62.9,3.0,All.InputPara$InputPara_byIncome,All.InputPara$AT_Input_byIncome.2020)
+ScenarioTotalExpo_byIncome.2036 <- List_TotalExposure(62.9,3.0,All.InputPara$InputPara_byIncome,All.InputPara$AT_Input_byIncome.2036)
 
 #compute the relative risks of Physical Activity (1MET)
 RR.PA <- create.PA.RR()
 
 #compute local disease burden, and create a list to store local gbd for all races
-LocalGBD_List_byRace <- List_LocalGBD(InputPara_byRace)
-LocalGBD_List_byIncome <- List_LocalGBD(InputPara_byIncome)
+LocalGBD_List_byRace <- List_LocalGBD(All.InputPara$InputPara_byRace)
+LocalGBD_List_byIncome <- List_LocalGBD(All.InputPara$InputPara_byIncome)
 
 #compute health outcomes
-HealthOutcome_byRace <- 
-  mapply(function(x,y,z) computeHealthOutcome(RR.PA,x,y,z),BaselineTotalExpo_byRace,ScenarioTotalExpo_byRace,LocalGBD_List_byRace,SIMPLIFY = FALSE)
-names(HealthOutcome_byRace) <- raceGroupNames
+HealthOutcome_byRace.2020 <- 
+  mapply(function(x,y,z) computeHealthOutcome(RR.PA,x,y,z),BaselineTotalExpo_byRace,ScenarioTotalExpo_byRace.2020,LocalGBD_List_byRace,SIMPLIFY = FALSE)
+names(HealthOutcome_byRace.2020) <- raceGroupNames
 
-HealthOutcome_byIncome <- 
-  mapply(function(x,y,z) computeHealthOutcome(RR.PA,x,y,z),BaselineTotalExpo_byIncome,ScenarioTotalExpo_byIncome,LocalGBD_List_byIncome,SIMPLIFY = FALSE)
-names(HealthOutcome_byIncome) <- incomeGroupNames
+HealthOutcome_byIncome.2020 <- 
+  mapply(function(x,y,z) computeHealthOutcome(RR.PA,x,y,z),BaselineTotalExpo_byIncome,ScenarioTotalExpo_byIncome.2020,LocalGBD_List_byIncome,SIMPLIFY = FALSE)
+names(HealthOutcome_byIncome.2020) <- incomeGroupNames
 
 

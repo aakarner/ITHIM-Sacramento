@@ -14,13 +14,22 @@ setwd("/Users/Yizheng/Documents/02_Work/13_ITHIM/03_Data/07_SacSim")
 # -----------------------------------
 # Function Definition
 # -----------------------------------
+# calculate the relative values (relative to the value of "female 15-29")
 CalRelativeMatrix <- function(x){
   for (i in 1:4){
-    ref <- x[3,2*i] #female in the category of 15~29 years old
-    x[,c((2*i-1):(2*i))] <- x[,c((2*i-1):(2*i))]/ref
+    # if the value in that cell equals to 0, we use a small number to avoid NA.
+    if (x[3,2*i]==0){
+      ref = 0.01
+      x[,c((2*i-1):(2*i))] <- x[,c((2*i-1):(2*i))]/ref
+      x[3,2*i] <- 1
+    }else{
+      ref <- x[3,2*i]
+      x[,c((2*i-1):(2*i))] <- x[,c((2*i-1):(2*i))]/ref
+    }
   }
   return(x)
 }
+
 
 recode.pop <- function(pop){
   # recode age category
@@ -43,47 +52,47 @@ recode.pop <- function(pop){
   # 7. male + income > 75%
   # 8. female + income >75%
   pop$gender.inc<-
-    ifelse(pop$SEX==1&pop$HINC<quantile(pop.2012$HINC)[2],1,
-           ifelse(pop$SEX==2&pop$HINC<quantile(pop.2012$HINC)[2],2,
-                  ifelse(pop$SEX==1&pop$HINC<quantile(pop.2012$HINC)[3],3,
-                         ifelse(pop$SEX==2&pop$HINC<quantile(pop.2012$HINC)[3],4,
-                                ifelse(pop$SEX==1&pop$HINC<quantile(pop.2012$HINC)[4],5,
-                                       ifelse(pop$SEX==2&pop$HINC<quantile(pop.2012$HINC)[4],6,
+    ifelse(pop$SEX==1&pop$HINC<quantile(pop$HINC)[2],1,
+           ifelse(pop$SEX==2&pop$HINC<quantile(pop$HINC)[2],2,
+                  ifelse(pop$SEX==1&pop$HINC<quantile(pop$HINC)[3],3,
+                         ifelse(pop$SEX==2&pop$HINC<quantile(pop$HINC)[3],4,
+                                ifelse(pop$SEX==1&pop$HINC<quantile(pop$HINC)[4],5,
+                                       ifelse(pop$SEX==2&pop$HINC<quantile(pop$HINC)[4],6,
                                               ifelse(pop$SEX==1,7,8)))))))
   
-  # add a column for combining household id and person id
+  # recode ID for the combination of gender and income
+  # 1. male + NHW
+  # 2. female + NHW
+  # 3. male + NHB
+  # 4. female + NHB
+  # 5. male + NHO
+  # 6. female + NHO
+  # 7. male + HO
+  # 8. female + HO
+  pop$gender.race<-
+    ifelse(pop$SEX==1&pop$raceID==1,1,
+           ifelse(pop$SEX==2&pop$raceID==1,2,
+                  ifelse(pop$SEX==1&pop$raceID==2,3,
+                         ifelse(pop$SEX==2&pop$raceID==2,4,
+                                ifelse(pop$SEX==1&pop$raceID==3,5,
+                                       ifelse(pop$SEX==2&pop$raceID==3,6,
+                                              ifelse(pop$SEX==1&pop$raceID==4,7,8)))))))
+  
+  # add a column "ID"  for combining household id and person id
   pop$ID <- paste0('h',pop$SERIALNO,'p',pop$PNUM)
   return(pop)
-
-  
 }
-
-getTAZ <- function(parc.input){
-  ELD.TAZ <- unique(parc.input$TAZ[which(substr(parc.2012$PIDSTR,1,3)=="ELD")])
-  PLA.TAZ <- unique(parc.input$TAZ[which(substr(parc.2012$PIDSTR,1,3)=="PLA")])
-  SAC.TAZ <- unique(parc.input$TAZ[which(substr(parc.2012$PIDSTR,1,3)=="SAC")])
-  SUT.TAZ <- unique(parc.input$TAZ[which(substr(parc.2012$PIDSTR,1,3)=="SUT")])
-  YOL.TAZ <- unique(parc.input$TAZ[which(substr(parc.2012$PIDSTR,1,3)=="YOL")])
-  YUB.TAZ <- unique(parc.input$TAZ[which(substr(parc.2012$PIDSTR,1,3)=="YUB")])
-  
-  return(list(
-    ELD.TAZ = ELD.TAZ,
-    PLA.TAZ = PLA.TAZ,
-    SAC.TAZ = SAC.TAZ,
-    SUT.TAZ = SUT.TAZ,
-    YOL.TAZ = YOL.TAZ,
-    YUB.TAZ = YUB.TAZ
-  ))
-}
-
 
 prepTripPop <- function(pop,triptable){
+  
   # compute the mean travel time and travel distance per capita by mode
   aggr.by.mode <- aggregate(triptable[,c("TRAVTIME","TRAVDIST")],list(triptable$SAMPN,triptable$PERSN,triptable$MODE),sum)
+  # rename the variables
   names(aggr.by.mode) <- c('SAMPN',"PERSN","MODE","TIME","DISTANCE")
+  # sort the data by SAMPN, PERSN, and MODE
   aggr.by.mode <- aggr.by.mode[order(aggr.by.mode$SAMPN,aggr.by.mode$PERSN,aggr.by.mode$MODE),]
   
-  # add a column for combining household id and person id
+  # add a column "ID" for combining household id and person id
   aggr.by.mode$ID <- paste0('h',aggr.by.mode$SAMPN,'p',aggr.by.mode$PERSN)
   
   # merge two data sets by ID
@@ -92,35 +101,61 @@ prepTripPop <- function(pop,triptable){
   return(trip.pop)
 }
 
-ActiveTravelDataOutput <- function(pop,trip.pop,TAZ,countyID){
-  travel.times.by.demo <-travel.distance.by.demo <- matrix(nrow = 72, ncol = 8)
-  pop.age.gender.demo <- matrix(nrow=8,ncol = 8)
+#compute the population mean walking and cycing time (min/week)
+pop.mean.at.time <- function(trip.pop,pop){
   
-  taz.selected<-NULL
-  for(i in 1:length(countyID)){
-    taz.selected <- c(taz.selected,TAZ[[i]])
+  Pop.AT.para <- matrix(NA,nrow = 6,ncol = 2,dimnames = list(paste0("county",c(1:6)),c("PopMeanWalkTime","PopMeanCycleTime"))) 
+  
+  for(i in 1:6){
+    #population mean walking time (min/day)
+    Pop.AT.para[i,1]=sum(trip.pop$TIME[which(trip.pop$MODE==9&trip.pop$countyID==i)])/length(which(pop$countyID==i))*7
+    Pop.AT.para[i,2]=sum(trip.pop$TIME[which(trip.pop$MODE==8&trip.pop$countyID==i)])/length(which(pop$countyID==i))*7
   }
   
-  for (i in 1:8){ #gender.income
+  return(Pop.AT.para)
+}
+
+
+# process the data and compute the active travel information
+ActiveTravelDataOutput <- function(pop,trip.pop,countyID,Demo){
+
+  # numeric matrix for travel time
+  travel.times.by.demo <-travel.distance.by.demo <- matrix(nrow = 72, ncol = 8)
+  
+  # numeric matrix for population distribution
+  pop.age.gender.demo <- matrix(nrow=8,ncol = 8)
+  
+  # set the demographic ID
+  demo.ID<- ifelse(Demo=="Race",demo.ID<- 35,
+                   ifelse(Demo=="Income", demo.ID <- 34,
+                          message("Please type 'Race' or 'Income'")))
+  
+  
+  for (i in 1:8){ #gender.demo
+    print(i)
     for (j in 1:8){ #age
-      pop.temp <- nrow(pop[which(pop$gender.inc==i&pop$ageID==j&pop$HHTAZ%in%taz.selected),])
+      print(j)
+     
+       # extract the population distribution
+      pop.temp <- nrow(pop[which(pop[demo.ID-6]==i&pop$ageID==j&pop$countyID%in%countyID),])
       pop.age.gender.demo[j,i]<-pop.temp
       
+      # compute the travel time and travel distance
       for (k in 1:9){ #mode
-        time.temp <- sum(trip.pop$TIME[which(trip.pop$ageID==j&trip.pop$gender.inc==i&trip.pop$MODE==k&trip.pop$HHTAZ%in%taz.selected)])
+        time.temp <- sum(trip.pop$TIME[which(trip.pop$ageID==j&trip.pop[demo.ID]==i&trip.pop$MODE==k&trip.pop$countyID%in%countyID)])
         travel.times.by.demo[j + 8 * (k - 1), i] <- time.temp
         
-        distance.temp <- sum(trip.pop$DISTANCE[which(trip.pop$ageID==j&trip.pop$gender.inc==i&trip.pop$MODE==k&trip.pop$HHTAZ%in%taz.selected)])
+        distance.temp <- sum(trip.pop$DISTANCE[which(trip.pop$ageID==j&trip.pop[demo.ID]==i&trip.pop$MODE==k&trip.pop$countyID%in%countyID)])
         travel.distance.by.demo[j + 8 * (k - 1), i] <- distance.temp
       }
     }
   }
   
-  # compute the travel time and distance per capita
-  walk.time.byDemo <- travel.times.by.demo[65:72,]/pop.age.gender.demo
-  walk.distance.byDemo <- travel.distance.by.demo[65:72,]/pop.age.gender.demo
-  cycle.time.byDemo <- travel.times.by.demo[57:64,]/pop.age.gender.demo
-  cycle.distance.byDemo <- travel.distance.by.demo[57:64,]/pop.age.gender.demo
+  # compute the travel time and distance per capita (if pop=0,then the output=0)
+  walk.time.byDemo <- ifelse(pop.age.gender.demo==0,0,travel.times.by.demo[65:72,]/pop.age.gender.demo)
+  walk.distance.byDemo <- ifelse(pop.age.gender.demo==0,0,travel.distance.by.demo[65:72,]/pop.age.gender.demo)
+  cycle.time.byDemo <- ifelse(pop.age.gender.demo==0,0,travel.times.by.demo[57:64,]/pop.age.gender.demo)
+  cycle.distance.byDemo <- ifelse(pop.age.gender.demo==0,0,travel.distance.by.demo[57:64,]/pop.age.gender.demo)
   
   # compute the relative values
   re.walk.time.byDemo <- CalRelativeMatrix(walk.time.byDemo)
@@ -140,7 +175,7 @@ ActiveTravelDataOutput <- function(pop,trip.pop,TAZ,countyID){
   
   # add dimnames
   temp.gender <- rep(c("male","female"),4)
-  dimname <- list(c(paste0("ageCat",1:8)),paste0(temp.gender,".Demo.",rep(1:4,each=2)))
+  dimname <- list(c(paste0("ageCat",1:8)),paste0(temp.gender,".Demogr.",rep(1:4,each=2)))
   dimnames(re.walk.time.byDemo)<-dimnames(re.cycle.time.byDemo)<-
     dimnames(re.walk.speed.byDemo)<-dimnames(re.cycle.speed.byDemo)<-dimnames(pop.age.gender.demo)<-dimname
   
@@ -162,47 +197,83 @@ ActiveTravelDataOutput <- function(pop,trip.pop,TAZ,countyID){
 
 # use read.dbf() in package 'foreign' to input the .dbf data
 triptable.2012 <- read.dbf('trip_2012.dbf')
-pop.2012 <- read.dbf('2012_pop_parc_AM1/2012_pop.dbf')
+triptable.2020 <- read.dbf('trip_2020_am1.dbf')
+triptable.2036 <- read.dbf('trip_2036.dbf')
 
-parc.2012 <- read.dbf('2012_pop_parc_AM1/2012_parc.dbf')
-#head(triptable.2012)
-head(pop.2012)
-#head(parc.2012)
+
+# load the processed syn pop
+load('pop.2012.cmplt')
+load('pop.2020.cmplt')
+load('pop.2036.cmplt')
 
 #recode the variables in population matrix
-pop.2012 <- recode.pop(pop.2012)
-
-#obtain the taz number and county information
-taz <- getTAZ(parc.2012)
+pop.2012 <- recode.pop(pop.2012.cmplt)
+pop.2020 <- recode.pop(pop.2020.cmplt[,-c(24:27)])
+pop.2036 <- recode.pop(pop.2036.cmplt)
 
 #merge pop and trip data sets
 trip.pop.2012 <- prepTripPop(pop.2012,triptable.2012)
+trip.pop.2020 <- prepTripPop(pop.2020,triptable.2020)
+trip.pop.2036 <- prepTripPop(pop.2036,triptable.2036)
+
+#output the mean pop mean walk time and cycle time
+# walk: mode = 9
+# cycle: mode = 8
+
+
+Pop.AT.para.2012 <- pop.mean.at.time(trip.pop.2012,pop.2012)
+Pop.AT.para.2020 <- pop.mean.at.time(trip.pop.2020,pop.2020)
+Pop.AT.para.2036 <- pop.mean.at.time(trip.pop.2036,pop.2036)
+
+cuttingline <- matrix("",1,3)
+
+write.csv(rbind(
+  cbind(Pop.AT.para.2012,c("2012",rep("",5))),cuttingline,
+  cbind(Pop.AT.para.2020,c("2020",rep("",5))),cuttingline, 
+  cbind(Pop.AT.para.2036,c("2036",rep("",5)))
+),file = "00_output/PopulationMeanATTime.csv")
 
 # output the active transport information
 #countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
-Travel.Output.byIncome <- ActiveTravelDataOutput(pop.2012,trip.pop.2012,taz,countyID = c(1,2,3,4,5,6))
+Travel.Output.byIncome.2012 <- ActiveTravelDataOutput(pop.2012,trip.pop.2012,1,"Income")
+Travel.Output.byRace.2012 <- ActiveTravelDataOutput(pop.2012,trip.pop.2012,1,"Race")
+
+Travel.Output.byIncome.2020 <- ActiveTravelDataOutput(pop.2020,trip.pop.2020,2,"Income")
+Travel.Output.byRace.2020 <- ActiveTravelDataOutput(pop.2020,trip.pop.2020,2,"Race")
+
+Travel.Output.byIncome.2036 <- ActiveTravelDataOutput(pop.2036,trip.pop.2036,6,"Income")
+Travel.Output.byRace.2036 <- ActiveTravelDataOutput(pop.2036,trip.pop.2036,6,"Race")
 
 # Output the .csv files for active transport data and population
 cuttingline <- matrix(" ",1,9)
 
-# write.csv(rbind(
-#   Travel.Output.byIncome$re.walk.time.byDemo,cuttingline, #relative walking time
-#   Travel.Output.byIncome$re.cycle.time.byDemo,cuttingline, # relative cycling time
-#   Travel.Output.byIncome$re.walk.speed.byDemo,cuttingline, # relative walking speed
-#   Travel.Output.byIncome$re.cycle.speed.byDemo # relative cycling speed
-# ),file = "test_ABM_by_income.csv")
-
-
+#active transport data by race
 write.csv(rbind(
-  cbind(Travel.Output.byIncome$re.walk.time.byDemo,c("relative.walk.time",rep("",7))),cuttingline, #relative walking time
-  cbind(Travel.Output.byIncome$re.cycle.time.byDemo,c("relative.cycle.time",rep("",7))),cuttingline, # relative cycling time
-  cbind(Travel.Output.byIncome$re.walk.speed.byDemo,c("relative.walk.speed",rep("",7))),cuttingline, # relative walking speed
-  cbind(Travel.Output.byIncome$re.cycle.speed.byDemo,c("relative.cycle.speed",rep("",7))) # relative cycling speed
-),file = "test_ABM_by_income.csv")
+  cbind(Travel.Output.byRace.2020$re.walk.time.byDemo,c("relative.walk.time",rep("",7))),cuttingline, #relative walking time
+  cbind(Travel.Output.byRace.2020$re.cycle.time.byDemo,c("relative.cycle.time",rep("",7))),cuttingline, # relative cycling time
+  cbind(Travel.Output.byRace.2020$re.walk.speed.byDemo,c("relative.walk.speed",rep("",7))),cuttingline, # relative walking speed
+  cbind(Travel.Output.byRace.2020$re.cycle.speed.byDemo,c("relative.cycle.speed",rep("",7))) # relative cycling speed
+),file = "00_output/PLA_ABM_by_race.2020.csv")
+
+# population data by race
+write.csv(Travel.Output.byRace.2020$pop.age.gender.demo[,1:8],
+          file = "00_output/PLA_pop_race.2020.csv")
 
 
-write.csv(Travel.Output.byIncome$pop.age.gender.demo[,1:8],
-          file = "test_pop_income.csv")
+#active transport data by income
+write.csv(rbind(
+  cbind(Travel.Output.byIncome.2020$re.walk.time.byDemo,c("relative.walk.time",rep("",7))),cuttingline, #relative walking time
+  cbind(Travel.Output.byIncome.2020$re.cycle.time.byDemo,c("relative.cycle.time",rep("",7))),cuttingline, # relative cycling time
+  cbind(Travel.Output.byIncome.2020$re.walk.speed.byDemo,c("relative.walk.speed",rep("",7))),cuttingline, # relative walking speed
+  cbind(Travel.Output.byIncome.2020$re.cycle.speed.byDemo,c("relative.cycle.speed",rep("",7))) # relative cycling speed
+),file = "00_output/PLA_by_income.2020.csv")
+
+# population data by income
+write.csv(Travel.Output.byIncome.2020$pop.age.gender.demo[,1:8],
+          file = "00_output/PLA_pop_income.2020.csv")
+
+
+
 
  # test.population <- matrix(nrow = 8,ncol = 2)
  # for (i in 1:8){ #age
@@ -213,6 +284,21 @@ write.csv(Travel.Output.byIncome$pop.age.gender.demo[,1:8],
  # }
 
 
-
-
+# trip.pop.2012$AC.MODE <- ifelse(trip.pop.2012$MODE%in%c(8,9),1,0)
+# aggr.by.mode <- aggregate(trip.pop.2012[,"TIME"],list(trip.pop.2012$ID,trip.pop.2012$AC.MODE),sum)
+# 
+# 
+# sum(trip.pop.2012$TIME[which(trip.pop.2012$MODE==9)])/nrow(pop.2012)
+# sum(trip.pop.2012$TIME[which(trip.pop.2012$MODE==8)])/nrow(pop.2012)
+# sum(trip.pop.2012.cv$TIME[which(trip.pop.2012.cv$MODE==99)])/nrow(pop.2012)
+# 
+# sd <- sd(c(trip.pop.2012.cv$TIME[which(trip.pop.2012.cv$MODE==99)],rep(0,nrow(pop.2012)-length(trip.pop.2012.cv$TIME[which(trip.pop.2012.cv$MODE==99)]))))
+# sd <- sd(c(trip.pop.2012$TIME[which(trip.pop.2012$MODE%in%c(8,9))],rep(0,(2*nrow(pop.2012)-length(trip.pop.2012$TIME[which(trip.pop.2012$MODE%in%c(8,9))])))))
+# sd/4.680896
+# 
+# sd(trip.pop.2012$TIME[which(trip.pop.2012$MODE==9)])
+#Pop.AC.para[i,3]=-0.0108*(Pop.AC.para[i,1]+Pop.AC.para[i,2])+1.2682+0.7
+#sd <- sd(c(trip.pop.2012.cv$TIME[which(trip.pop.2012.cv$MODE==99&trip.pop.2012.cv$countyID==i)],rep(0,(length(which(pop.2012$countyID==i))-length(trip.pop.2012.cv$TIME[which(trip.pop.2012.cv$MODE==99&trip.pop.2012$countyID==i)])))))
+#mean <- sum(trip.pop.2012.cv$TIME[which(trip.pop.2012.cv$MODE==99&trip.pop.2012.cv$countyID==i)])/length(which(pop.2012$countyID==i))
+#Pop.AC.para[i,3]=sd/mean
 

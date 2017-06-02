@@ -36,7 +36,7 @@ ActiveTravelDataOutput <- function(Demo,CountyCode){
   travel.distance.by.demo <- matrix(nrow = 96, ncol = 8)
   # travel.distance.err.by.race <- matrix(nrow = 96, ncol = 4)
   
-  # 
+  # set the demo ID
   demo.ID<- ifelse(Demo=="Race",demo.ID<- 20,
                    ifelse(Demo=="Income", demo.ID <- 21,
                           message("Please type 'Race' or 'Income'")))
