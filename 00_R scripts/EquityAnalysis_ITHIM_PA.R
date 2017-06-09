@@ -571,7 +571,7 @@ write.csv.func <- function(HealthOutcome){
     temp.sum <- matrix(colSums(HealthOutcome[[i]]$delta.Burden),1,nRaceClass)
     rownames(temp.prop) <- "proportion"
     rownames(temp.sum) <- "total"
-    temp<-rbind(temp,HealthOutcome[[1]]$delta.Burden,temp.sum,temp.prop,cutting.line)
+    temp<-rbind(temp,HealthOutcome[[i]]$delta.Burden,temp.sum,temp.prop,cutting.line)
   }
   
   return(temp)
@@ -600,7 +600,7 @@ gbd_Input_US <- read.csv("04_GBD/01_GBD_US_AllCause.csv")
 ###################### Calculation Example ##############################
 # reading the csv files after inputting countyID
 # countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
-All.InputPara <- read.csv.files(countyID = 6)
+All.InputPara <- read.csv.files(countyID = 1)
 
 #Create the total exposure matrices by inputing parameters 
 #(mean walking time(min per week), mean cycling time(min per week), and cv)
@@ -635,6 +635,40 @@ names(HealthOutcome_byRace.2036) <- raceGroupNames
 HealthOutcome_byIncome.2036 <- 
   mapply(function(x,y,z) computeHealthOutcome(RR.PA,x,y,z),BaselineTotalExpo_byIncome,ScenarioTotalExpo_byIncome.2036,LocalGBD_List_byIncome,SIMPLIFY = FALSE)
 names(HealthOutcome_byIncome.2036) <- incomeGroupNames
+
+####### compute age-normalized delta death
+computeAgeStdOutput <- function(All.InputPara_byDemo,HealthOutcome_byDemo){
+  US.pop <- All.InputPara_byDemo$allPop
+  local.pop <- sapply(All.InputPara_byDemo$Pop_List_byDemo,function(i) matrix(i,nrow = 16,ncol = 1))
+  delta.death <- cbind(HealthOutcome_byDemo[[1]]$delta.Burden[,1],HealthOutcome_byDemo[[2]]$delta.Burden[,1],HealthOutcome_byDemo[[3]]$delta.Burden[,1],HealthOutcome_byDemo[[4]]$delta.Burden[,1])
+  delta.DALYs <- cbind(HealthOutcome_byDemo[[1]]$delta.Burden[,4],HealthOutcome_byDemo[[2]]$delta.Burden[,4],HealthOutcome_byDemo[[3]]$delta.Burden[,4],HealthOutcome_byDemo[[4]]$delta.Burden[,4])
+  
+  death.rate <- replace(delta.death/local.pop*100000,is.na(delta.death/local.pop),0) 
+  DALYs.rate <- replace(delta.DALYs/local.pop*100000,is.na(delta.DALYs/local.pop),0) 
+  
+  age.std.death <- age.std.DALYs <- matrix(NA,1,4)
+  
+  for (i in 1:4){
+    age.std.death[1,i]=sum(death.rate[,i]*US.pop)/sum(US.pop)
+    age.std.DALYs[1,i]=sum(DALYs.rate[,i]*US.pop)/sum(US.pop)
+  }
+  
+  return(list(
+    age.std.death = age.std.death,
+    age.std.DALYs = age.std.DALYs
+  ))
+}
+
+
+
+a <- computeAgeStdOutput(All.InputPara$InputPara_byRace,HealthOutcome_byRace.2020)
+a$age.std.death
+
+a <- computeAgeStdOutput(All.InputPara$InputPara_byRace,HealthOutcome_byRace.2036)
+a$age.std.death
+
+
+
 
 # output
 write.csv(cbind(write.csv.func(HealthOutcome_byRace.2020),c("NHW",rep("",18),"NHB",rep("",18),"NHO",rep("",18),"HO",rep("",18))),file = "00_HealthOutcome/YUB.healthoutcome.byrace.2020.csv")

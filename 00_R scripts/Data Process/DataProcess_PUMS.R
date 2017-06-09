@@ -134,6 +134,17 @@ pums.h.p$raceID <- ifelse(pums.h.p$HISP==1&pums.h.p$RAC1P==1,1,
                                  ifelse(pums.h.p$HISP==1,3,
                                         ifelse(pums.h.p$HISP!=1,4,99))))
 
+#recode age and sex ID (age.sex.ID)
+pums.h.p$age.sex.ID <- ifelse(pums.h.p$AGEP<=4,1,
+                              ifelse(pums.h.p$AGEP<=14,2,
+                                     ifelse(pums.h.p$AGEP<=29,3,
+                                            ifelse(pums.h.p$AGEP<=44,4,
+                                                   ifelse(pums.h.p$AGEP<=59,5,
+                                                          ifelse(pums.h.p$AGEP<=69,6,
+                                                                 ifelse(pums.h.p$AGEP<=79,7,8
+                                                                        )))))))
+
+
 #recode educational level ID (eduID)
 # 1: 8th grade or less
 # 2: 9th through 12th grade
@@ -152,13 +163,23 @@ pums.h.p$eduID <- ifelse(pums.h.p$SCHL%in%c(1:11),1,
                                                      ifelse(pums.h.p$SCHL==21,6,
                                                             ifelse(pums.h.p$SCHL==22,7,
                                                                    ifelse(pums.h.p$SCHL%in%c(23,24),8,99))))))))
-
+pums.h.p$ones <- 1
 
 
 # recode hincID
 # get the quantiles for the household income in all six counties
 svy.pums <- svydesign(ids = ~1,weights = ~PWGTP,data = pums.h.p)
 inc.quan <- svyquantile(~HINCP,subset(svy.pums,countyID%in%c(1:5)&is.na(HINCP)==FALSE),c(0.25,0.5,0.75))
+
+population <- matrix(NA,nrow=8,ncol = 2)
+
+for (i in 1:2){
+  for (j in 1:8){
+    population[j,i] <- try(svytotal(~ones,subset(svy.pums,countyID==1&age.sex.ID==j&SEX==i&raceID==2),na.rm=TRUE),silent = TRUE)
+  }
+}
+
+
 
 # 1: household income < 25%
 # 2: household income 25-50%

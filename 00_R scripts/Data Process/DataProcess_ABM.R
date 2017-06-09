@@ -216,6 +216,7 @@ trip.pop.2012 <- prepTripPop(pop.2012,triptable.2012)
 trip.pop.2020 <- prepTripPop(pop.2020,triptable.2020)
 trip.pop.2036 <- prepTripPop(pop.2036,triptable.2036)
 
+
 #output the mean pop mean walk time and cycle time
 # walk: mode = 9
 # cycle: mode = 8
