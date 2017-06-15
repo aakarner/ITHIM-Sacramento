@@ -104,15 +104,28 @@ prepTripPop <- function(pop,triptable){
 #compute the population mean walking and cycing time (min/week)
 pop.mean.at.time <- function(trip.pop,pop){
   
-  Pop.AT.para <- matrix(NA,nrow = 6,ncol = 2,dimnames = list(paste0("county",c(1:6)),c("PopMeanWalkTime","PopMeanCycleTime"))) 
+  Pop.AT.para.byRace <- Pop.AT.para.byIncome <- matrix(NA,nrow = 6,ncol = 8,
+                        dimnames = list(paste0("county",c(1:6)),c("demogr1_walk","demogr1_cycle","demogr2_walk","demogr2_cycle","demogr3_walk","demogr3_cycle","demogr4_walk","demogr4_cycle"))) 
   
-  for(i in 1:6){
-    #population mean walking time (min/day)
-    Pop.AT.para[i,1]=sum(trip.pop$TIME[which(trip.pop$MODE==9&trip.pop$countyID==i)])/length(which(pop$countyID==i))*7
-    Pop.AT.para[i,2]=sum(trip.pop$TIME[which(trip.pop$MODE==8&trip.pop$countyID==i)])/length(which(pop$countyID==i))*7
-  }
+  for(i in 1:6){#county
+    
+    for (j in 1:4){#demographic group
+      #population mean walking time (min/day)
+      Pop.AT.para.byRace[i,j*2-1]=sum(trip.pop$TIME[which(trip.pop$MODE==9&trip.pop$countyID==i&trip.pop$raceID==j)])/length(which(pop$countyID==i&pop$raceID==j))*7
+      Pop.AT.para.byRace[i,2*j]=sum(trip.pop$TIME[which(trip.pop$MODE==8&trip.pop$countyID==i&trip.pop$raceID==j)])/length(which(pop$countyID==i&pop$raceID==j))*7
+      
+      Pop.AT.para.byIncome[i,j*2-1]=sum(trip.pop$TIME[which(trip.pop$MODE==9&trip.pop$countyID==i&trip.pop$hincID==j)])/length(which(pop$countyID==i&pop$hincID==j))*7
+      Pop.AT.para.byIncome[i,2*j]=sum(trip.pop$TIME[which(trip.pop$MODE==8&trip.pop$countyID==i&trip.pop$hincID==j)])/length(which(pop$countyID==i&pop$hincID==j))*7
+      
+      
+    }
+    
+ }
   
-  return(Pop.AT.para)
+  return(list(
+    Pop.AT.para.byRace=Pop.AT.para.byRace,
+    Pop.AT.para.byIncome=Pop.AT.para.byIncome
+  ))
 }
 
 
@@ -221,18 +234,23 @@ trip.pop.2036 <- prepTripPop(pop.2036,triptable.2036)
 # walk: mode = 9
 # cycle: mode = 8
 
-
 Pop.AT.para.2012 <- pop.mean.at.time(trip.pop.2012,pop.2012)
 Pop.AT.para.2020 <- pop.mean.at.time(trip.pop.2020,pop.2020)
 Pop.AT.para.2036 <- pop.mean.at.time(trip.pop.2036,pop.2036)
 
-cuttingline <- matrix("",1,3)
+cuttingline <- matrix("",1,9)
 
 write.csv(rbind(
-  cbind(Pop.AT.para.2012,c("2012",rep("",5))),cuttingline,
-  cbind(Pop.AT.para.2020,c("2020",rep("",5))),cuttingline, 
-  cbind(Pop.AT.para.2036,c("2036",rep("",5)))
-),file = "00_output/PopulationMeanATTime.csv")
+  cbind(Pop.AT.para.2012$Pop.AT.para.byRace,c("2012",rep("",5))),cuttingline,
+  cbind(Pop.AT.para.2020$Pop.AT.para.byRace,c("2020",rep("",5))),cuttingline, 
+  cbind(Pop.AT.para.2036$Pop.AT.para.byRace,c("2036",rep("",5)))
+),file = "00_output/PopulationMeanATTimebyRace.csv")
+
+write.csv(rbind(
+  cbind(Pop.AT.para.2012$Pop.AT.para.byIncome,c("2012",rep("",5))),cuttingline,
+  cbind(Pop.AT.para.2020$Pop.AT.para.byIncome,c("2020",rep("",5))),cuttingline, 
+  cbind(Pop.AT.para.2036$Pop.AT.para.byIncome,c("2036",rep("",5)))
+),file = "00_output/PopulationMeanATTimebyIncome.csv")
 
 # output the active transport information
 #countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB

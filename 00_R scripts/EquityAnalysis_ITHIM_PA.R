@@ -1,4 +1,5 @@
 ###################### ITHIM application for Equity Analysis - Physical Activity Module ######################
+library(ggplot2)
 
 #set your working directory
 setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/01_Data/06_Equity Analysis/")
@@ -30,13 +31,27 @@ read.csv.files <- function(countyID){
   AT_Input_byRace.2036 <- read.csv(paste0("02_ActiveTransport/03_ActiveTransport_2036_EA/",AT.file.names.2036[countyID*2-1]))
   AT_Input_byIncome.2036 <- read.csv(paste0("02_ActiveTransport/03_ActiveTransport_2036_EA/",AT.file.names.2036[countyID*2]))
   
-  # input the population mean cycling and walking time (min/week)
-  AT_Pop_MeanTime <- read.csv("02_ActiveTransport/PopulationMeanATTime.csv")
-  AT_Pop_List_MeanTime <- rep(list((matrix(NA,nrow=6,ncol=2))),3)
+  # input the population mean cycling and walking time by race (min/week)
+  #AT_Pop_MeanTime <- read.csv("02_ActiveTransport/PopulationMeanATTime.csv")
+  #AT_Pop_List_MeanTime <- rep(list((matrix(NA,nrow=6,ncol=2))),3)
+  #for(i in 1:3){
+    #AT_Pop_List_MeanTime[[i]] <- as.matrix(AT_Pop_MeanTime[((7*i-6):(7*i-1)),2:3])
+  #}
+  #names(AT_Pop_List_MeanTime) <- c("baseline",'2020','2036')
+  AT_Pop_MeanTimebyRace <- read.csv("02_ActiveTransport/test_PopulationMeanATTimebyRace.csv")
+  AT_Pop_List_MeanTimebyRace <- rep(list((matrix(NA,nrow=6,ncol=8))),3)
   for(i in 1:3){
-    AT_Pop_List_MeanTime[[i]] <- as.matrix(AT_Pop_MeanTime[((7*i-6):(7*i-1)),2:3])
+    AT_Pop_List_MeanTimebyRace[[i]] <- as.matrix(AT_Pop_MeanTimebyRace[((7*i-6):(7*i-1)),2:9])
   }
-  names(AT_Pop_List_MeanTime) <- c("baseline",'2020','2036')
+  names(AT_Pop_List_MeanTimebyRace) <- c("baseline",'2020','2036')
+  
+  # input the population mean cycling and walking time by income (min/week)
+  AT_Pop_MeanTimebyIncome <- read.csv("02_ActiveTransport/test_PopulationMeanATTimebyIncome.csv")
+  AT_Pop_List_MeanTimebyIncome <- rep(list((matrix(NA,nrow=6,ncol=8))),3)
+  for(i in 1:3){
+    AT_Pop_List_MeanTimebyIncome[[i]] <- as.matrix(AT_Pop_MeanTimebyIncome[((7*i-6):(7*i-1)),2:9])
+  }
+  names(AT_Pop_List_MeanTimebyIncome) <- c("baseline",'2020','2036')
   
   # input the matrix of Non-travel METs 
   # source: CHIS2005 (Per capita weekly non-travel related physical activity expressed as metabolic equivalent tasks (kcal/kg body weight/hr of activity))
@@ -91,14 +106,23 @@ read.csv.files <- function(countyID){
     AT_Input_byRace.2036 = AT_Input_byRace.2036,
     AT_Input_byIncome.2036 = AT_Input_byIncome.2036,
     
-    AT_Pop_MeanWalkTime.baseline = AT_Pop_List_MeanTime[[1]][countyID,1],
-    AT_Pop_MeanCycleTime.baseline = AT_Pop_List_MeanTime[[1]][countyID,2],
+    AT_Pop_MeanWalkTimebyRace.baseline = AT_Pop_List_MeanTimebyRace[[1]][countyID,c(1,3,5,7)],
+    AT_Pop_MeanCycleTimebyRace.baseline = AT_Pop_List_MeanTimebyRace[[1]][countyID,c(2,4,6,8)],
     
-    AT_Pop_MeanWalkTime.2020 = AT_Pop_List_MeanTime[[2]][countyID,1],
-    AT_Pop_MeanCycleTime.2020 = AT_Pop_List_MeanTime[[2]][countyID,2],
+    AT_Pop_MeanWalkTimebyRace.2020 = AT_Pop_List_MeanTimebyRace[[2]][countyID,c(1,3,5,7)],
+    AT_Pop_MeanCycleTimebyRace.2020 = AT_Pop_List_MeanTimebyRace[[2]][countyID,c(2,4,6,8)],
     
-    AT_Pop_MeanWalkTime.2036 = AT_Pop_List_MeanTime[[3]][countyID,1],
-    AT_Pop_MeanCycleTime.2036 = AT_Pop_List_MeanTime[[3]][countyID,2]
+    AT_Pop_MeanWalkTimebyRace.2036 = AT_Pop_List_MeanTimebyRace[[3]][countyID,c(1,3,5,7)],
+    AT_Pop_MeanCycleTimebyRace.2036 = AT_Pop_List_MeanTimebyRace[[3]][countyID,c(2,4,6,8)],
+    
+    AT_Pop_MeanWalkTimebyIncome.baseline = AT_Pop_List_MeanTimebyIncome[[1]][countyID,c(1,3,5,7)],
+    AT_Pop_MeanCycleTimebyIncome.baseline = AT_Pop_List_MeanTimebyIncome[[1]][countyID,c(2,4,6,8)],
+    
+    AT_Pop_MeanWalkTimebyIncome.2020 = AT_Pop_List_MeanTimebyIncome[[2]][countyID,c(1,3,5,7)],
+    AT_Pop_MeanCycleTimebyIncome.2020 = AT_Pop_List_MeanTimebyIncome[[2]][countyID,c(2,4,6,8)],
+    
+    AT_Pop_MeanWalkTimebyIncome.2036 = AT_Pop_List_MeanTimebyIncome[[3]][countyID,c(1,3,5,7)],
+    AT_Pop_MeanCycleTimebyIncome.2036 = AT_Pop_List_MeanTimebyIncome[[3]][countyID,c(2,4,6,8)]
   ))
   
 }
@@ -143,11 +167,11 @@ InputPara <- function (Pop_Input,nonTravelMET_Input,gbd_Input){
 # function for creating total exposure matrix 
 # after inputing the population Mean Walking/Cycling Time (min per week) and coefficient of variation (cv)
 TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime, AT_Input, PopProp, nonTravelMET){
-  ########Test
-  #PopMeanWalkTime = 15.26
-  #PopMeanCycleTime = 1.84
-  #AT_Input = AT_List_byDemo[[2]]
-  #PopProp = All.InputPara$InputPara_byRace$PopProp_List_byDemo[[2]]
+  #######Test
+  # PopMeanWalkTime = 36.46005
+  # PopMeanCycleTime = 3.397624
+  # AT_Input = AT_List_byDemo[[2]]
+  # PopProp = All.InputPara$InputPara_byIncome$PopProp_List_byDemo[[2]]
   
   # The population mean walking/cycling speed (mph)
   #"It is common practice in MPOs to assume average walk speed of 3 mph and bicycle speed of 12 mph" from ITHIM user's manual
@@ -247,12 +271,12 @@ TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime, AT_Input, PopProp, 
 }
 
 # function for creating total exposure matrix by demographic groups
-List_TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime,InputPara,AT_Input){
-  #test###
-  #PopMeanWalkTime = 15.26
-  #PopMeanCycleTime = 1.84
-  #AT_Input = All.InputPara$AT_Input_byRace.baseline
-  #InputPara = All.InputPara$InputPara_byRace
+List_TotalExposure <- function(df_PopMeanWalkTime, df_PopMeanCycleTime,InputPara,AT_Input){
+  # test###
+  # PopMeanWalkTime = 36.46005
+  # PopMeanCycleTime = 3.397624
+  # AT_Input = All.InputPara$AT_Input_byIncome.baseline
+  # InputPara = All.InputPara$InputPara_byIncome
   
   # process the AT_input data into each demo catrgories
   AT_List_byDemo <- rep(list((matrix(NA,nrow=nrow(AT_Input),ncol=2))), nDemoClass)
@@ -266,7 +290,7 @@ List_TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime,InputPara,AT_In
   # apply the function of TotalExposure() for each demographic categories
   for(i in 1:nDemoClass){
     TotalExposure_List_byDemo[[i]] <- TotalExposure(
-      PopMeanWalkTime, PopMeanCycleTime,
+      df_PopMeanWalkTime[i], df_PopMeanCycleTime[i],
       AT_List_byDemo[[i]],
       InputPara$PopProp_List_byDemo[[i]],
       InputPara$nonTravelMET_List_byDemo[[i]])
@@ -561,6 +585,146 @@ computeHealthOutcome <- function (RR.PA,BaselineTotalExpo,ScenarioTotalExpo,gbd.
   
 }
 
+output.HealthOutcome <- function(countyID){
+  # reading the csv files after inputting countyID
+  # countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
+  All.InputPara <- read.csv.files(countyID = countyID)
+  
+  #Create the total exposure matrices by inputing parameters 
+  #(mean walking time(min per week), mean cycling time(min per week))
+  BaselineTotalExpo_byRace <- List_TotalExposure(All.InputPara$AT_Pop_MeanWalkTimebyRace.baseline,All.InputPara$AT_Pop_MeanCycleTimebyRace.baseline,All.InputPara$InputPara_byRace,All.InputPara$AT_Input_byRace.baseline)
+  ScenarioTotalExpo_byRace.2020 <- List_TotalExposure(All.InputPara$AT_Pop_MeanWalkTimebyRace.2020,All.InputPara$AT_Pop_MeanCycleTimebyRace.2020,All.InputPara$InputPara_byRace,All.InputPara$AT_Input_byRace.2020)
+  ScenarioTotalExpo_byRace.2036 <- List_TotalExposure(All.InputPara$AT_Pop_MeanWalkTimebyRace.2036,All.InputPara$AT_Pop_MeanCycleTimebyRace.2036,All.InputPara$InputPara_byRace,All.InputPara$AT_Input_byRace.2036)
+  
+  BaselineTotalExpo_byIncome <- List_TotalExposure(All.InputPara$AT_Pop_MeanWalkTimebyIncome.baseline,All.InputPara$AT_Pop_MeanCycleTimebyIncome.baseline,All.InputPara$InputPara_byIncome,All.InputPara$AT_Input_byIncome.baseline)
+  ScenarioTotalExpo_byIncome.2020 <- List_TotalExposure(All.InputPara$AT_Pop_MeanWalkTimebyIncome.2020,All.InputPara$AT_Pop_MeanCycleTimebyIncome.2020,All.InputPara$InputPara_byIncome,All.InputPara$AT_Input_byIncome.2020)
+  ScenarioTotalExpo_byIncome.2036 <- List_TotalExposure(All.InputPara$AT_Pop_MeanWalkTimebyIncome.2036,All.InputPara$AT_Pop_MeanCycleTimebyIncome.2036,All.InputPara$InputPara_byIncome,All.InputPara$AT_Input_byIncome.2036)
+  
+  #compute the relative risks of Physical Activity (1MET)
+  RR.PA <- create.PA.RR()
+  
+  #compute local disease burden, and create a list to store local gbd for all races
+  LocalGBD_List_byRace <- List_LocalGBD(All.InputPara$InputPara_byRace)
+  LocalGBD_List_byIncome <- List_LocalGBD(All.InputPara$InputPara_byIncome)
+  
+  #compute health outcomes
+  HealthOutcome_byRace.2020 <- 
+    mapply(function(x,y,z) computeHealthOutcome(RR.PA,x,y,z),BaselineTotalExpo_byRace,ScenarioTotalExpo_byRace.2020,LocalGBD_List_byRace,SIMPLIFY = FALSE)
+  names(HealthOutcome_byRace.2020) <- raceGroupNames
+  
+  HealthOutcome_byIncome.2020 <- 
+    mapply(function(x,y,z) computeHealthOutcome(RR.PA,x,y,z),BaselineTotalExpo_byIncome,ScenarioTotalExpo_byIncome.2020,LocalGBD_List_byIncome,SIMPLIFY = FALSE)
+  names(HealthOutcome_byIncome.2020) <- incomeGroupNames
+  
+  HealthOutcome_byRace.2036 <- 
+    mapply(function(x,y,z) computeHealthOutcome(RR.PA,x,y,z),BaselineTotalExpo_byRace,ScenarioTotalExpo_byRace.2036,LocalGBD_List_byRace,SIMPLIFY = FALSE)
+  names(HealthOutcome_byRace.2036) <- raceGroupNames
+  
+  HealthOutcome_byIncome.2036 <- 
+    mapply(function(x,y,z) computeHealthOutcome(RR.PA,x,y,z),BaselineTotalExpo_byIncome,ScenarioTotalExpo_byIncome.2036,LocalGBD_List_byIncome,SIMPLIFY = FALSE)
+  names(HealthOutcome_byIncome.2036) <- incomeGroupNames
+  
+  return(list(
+    HealthOutcome_byRace.2020=HealthOutcome_byRace.2020,
+    HealthOutcome_byIncome.2020=HealthOutcome_byIncome.2020,
+    HealthOutcome_byRace.2036=HealthOutcome_byRace.2036,
+    HealthOutcome_byIncome.2036=HealthOutcome_byIncome.2036
+  ))
+  
+}
+
+#function for computing age-normalized health outcome
+computeAgeStdOutput <- function(All.InputPara_byDemo,HealthOutcome_byDemo){
+  US.pop <- All.InputPara_byDemo$allPop
+  local.pop <- sapply(All.InputPara_byDemo$Pop_List_byDemo,function(i) matrix(i,nrow = 16,ncol = 1))
+  delta.death <- cbind(HealthOutcome_byDemo[[1]]$delta.Burden[,1],HealthOutcome_byDemo[[2]]$delta.Burden[,1],HealthOutcome_byDemo[[3]]$delta.Burden[,1],HealthOutcome_byDemo[[4]]$delta.Burden[,1])
+  delta.DALYs <- cbind(HealthOutcome_byDemo[[1]]$delta.Burden[,4],HealthOutcome_byDemo[[2]]$delta.Burden[,4],HealthOutcome_byDemo[[3]]$delta.Burden[,4],HealthOutcome_byDemo[[4]]$delta.Burden[,4])
+  
+  death.rate <- replace(delta.death/local.pop*100000,is.na(delta.death/local.pop),0) 
+  DALYs.rate <- replace(delta.DALYs/local.pop*100000,is.na(delta.DALYs/local.pop),0) 
+  
+  age.std.death <- age.std.DALYs <- matrix(NA,1,4)
+  
+  for (i in 1:4){
+    age.std.death[1,i]=sum(death.rate[,i]*US.pop)/sum(US.pop)
+    age.std.DALYs[1,i]=sum(DALYs.rate[,i]*US.pop)/sum(US.pop)
+  }
+  
+  return(list(
+    age.std.death = age.std.death,
+    age.std.DALYs = age.std.DALYs
+  ))
+}
+
+AgeStdHealthOutcome <- function(countyID) {
+  
+  AgeStdDeath.matrix.race.2020 <- AgeStdDeath.matrix.race.2036 <-
+    matrix(NA,nrow = length(countyID),ncol = nDemoClass,dimnames = list(countyNames[countyID],raceGroupNames))
+  
+  AgeStdDeath.matrix.income.2020 <-AgeStdDeath.matrix.income.2036 <-
+    matrix(NA,nrow = length(countyID),ncol = nDemoClass,dimnames = list(countyNames[countyID],incomeGroupNames))
+  
+  AgeStdDALYs.matrix.race.2020 <- AgeStdDALYs.matrix.race.2036 <-
+    matrix(NA,nrow = length(countyID),ncol = nDemoClass,dimnames = list(countyNames[countyID],raceGroupNames))
+  
+  AgeStdDALYs.matrix.income.2020 <-AgeStdDALYs.matrix.income.2036 <-
+    matrix(NA,nrow = length(countyID),ncol = nDemoClass,dimnames = list(countyNames[countyID],incomeGroupNames))
+  
+  j=1
+  for (i in countyID){
+    HealthOutcome <- output.HealthOutcome(i)
+    All.InputPara <- read.csv.files(i)
+    
+    temp.race.2020 <- computeAgeStdOutput(All.InputPara$InputPara_byRace,HealthOutcome$HealthOutcome_byRace.2020)
+    temp.income.2020 <- computeAgeStdOutput(All.InputPara$InputPara_byIncome,HealthOutcome$HealthOutcome_byIncome.2020)
+    temp.race.2036 <- computeAgeStdOutput(All.InputPara$InputPara_byRace,HealthOutcome$HealthOutcome_byRace.2036)
+    temp.income.2036 <- computeAgeStdOutput(All.InputPara$InputPara_byIncome,HealthOutcome$HealthOutcome_byIncome.2036)
+    
+    AgeStdDeath.matrix.race.2020[j,] <- temp.race.2020$age.std.death
+    AgeStdDeath.matrix.race.2036[j,] <- temp.race.2036$age.std.death
+    AgeStdDeath.matrix.income.2020[j,] <- temp.income.2020$age.std.death
+    AgeStdDeath.matrix.income.2036[j,] <- temp.income.2036$age.std.death
+    
+    AgeStdDALYs.matrix.race.2020[j,] <- temp.race.2020$age.std.DALYs
+    AgeStdDALYs.matrix.race.2036[j,] <- temp.race.2036$age.std.DALYs
+    AgeStdDALYs.matrix.income.2020[j,] <- temp.income.2020$age.std.DALYs
+    AgeStdDALYs.matrix.income.2036[j,] <- temp.income.2036$age.std.DALYs
+    
+    j=j+1
+  }
+  
+  return(list(
+    AgeStdDeath.matrix.race.2020=AgeStdDeath.matrix.race.2020,
+    AgeStdDeath.matrix.race.2036=AgeStdDeath.matrix.race.2036,
+    AgeStdDeath.matrix.income.2020=AgeStdDeath.matrix.income.2020,
+    AgeStdDeath.matrix.income.2036=AgeStdDeath.matrix.income.2036,
+    
+    AgeStdDALYs.matrix.race.2020=AgeStdDALYs.matrix.race.2020,
+    AgeStdDALYs.matrix.race.2036=AgeStdDALYs.matrix.race.2036,
+    AgeStdDALYs.matrix.income.2020=AgeStdDALYs.matrix.income.2020,
+    AgeStdDALYs.matrix.income.2036=AgeStdDALYs.matrix.income.2036
+  ))
+  
+  
+}
+
+# race: demogrID = 1; income: demogrID=2
+DFforFigure <- function(OutcomeMatrix,demogrID){
+  
+  county <- rep(rownames(OutcomeMatrix),each=4)
+  raceGroup <- rep(raceGroupNames,nrow(OutcomeMatrix))
+  incomeGroup <- rep(incomeGroupNames,nrow(OutcomeMatrix))
+  
+  if (demogrID==1) demogrGroup = raceGroup else
+    demogrGroup = incomeGroup
+  
+  outcome <- as.data.frame(matrix(t(OutcomeMatrix),nDemoClass*nrow(OutcomeMatrix),1))
+  
+  df <- data.frame(County=county,DemogrGroup=demogrGroup,v =(-outcome))
+  
+  return(df=df)
+}
+
 #write the outcome into .csv files
 write.csv.func <- function(HealthOutcome){
   temp <- NULL
@@ -592,86 +756,59 @@ k<-0.5
 
 # group names for race/ethnicity and income 
 raceGroupNames <- c("NHW","NHB","NHO","HO")
-incomeGroupNames <- c("Q1","Q2","Q3","Q4")
+incomeGroupNames <- c("Quant1","Quant2","Quant3","Quant4")
+
+# county names
+countyNames <- c("ELD","PLA","SAC","SUT","YOL","YUB")
 
 Pop_Input_US <- read.csv("01_Population/01_Population_US_EA.csv")
 gbd_Input_US <- read.csv("04_GBD/01_GBD_US_AllCause.csv")
 
 ###################### Calculation Example ##############################
-# reading the csv files after inputting countyID
+
 # countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
-All.InputPara <- read.csv.files(countyID = 1)
+AgeStdOutcome <- AgeStdHealthOutcome(c(1:6))
 
-#Create the total exposure matrices by inputing parameters 
-#(mean walking time(min per week), mean cycling time(min per week), and cv)
-BaselineTotalExpo_byRace <- List_TotalExposure(All.InputPara$AT_Pop_MeanWalkTime.baseline,All.InputPara$AT_Pop_MeanCycleTime.baseline,All.InputPara$InputPara_byRace,All.InputPara$AT_Input_byRace.baseline)
-ScenarioTotalExpo_byRace.2020 <- List_TotalExposure(All.InputPara$AT_Pop_MeanWalkTime.2020,All.InputPara$AT_Pop_MeanCycleTime.2020,All.InputPara$InputPara_byRace,All.InputPara$AT_Input_byRace.2020)
-ScenarioTotalExpo_byRace.2036 <- List_TotalExposure(All.InputPara$AT_Pop_MeanWalkTime.2036,All.InputPara$AT_Pop_MeanCycleTime.2036,All.InputPara$InputPara_byRace,All.InputPara$AT_Input_byRace.2036)
+#Reduction in total deaths
+df.death.race.2020 <- DFforFigure(AgeStdOutcome$AgeStdDeath.matrix.race.2020,demogrID = 1)
+ggplot(data = df.death.race.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
+  geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Death Reduction Rate (per 100,000 population)')+
+  ggtitle("Reduction in total deaths by race/ethnicity (scenario 2020)")
 
-BaselineTotalExpo_byIncome <- List_TotalExposure(All.InputPara$AT_Pop_MeanWalkTime.baseline,All.InputPara$AT_Pop_MeanCycleTime.2020,All.InputPara$InputPara_byIncome,All.InputPara$AT_Input_byIncome.baseline)
-ScenarioTotalExpo_byIncome.2020 <- List_TotalExposure(All.InputPara$AT_Pop_MeanWalkTime.2020,All.InputPara$AT_Pop_MeanCycleTime.2020,All.InputPara$InputPara_byIncome,All.InputPara$AT_Input_byIncome.2020)
-ScenarioTotalExpo_byIncome.2036 <- List_TotalExposure(All.InputPara$AT_Pop_MeanWalkTime.2036,All.InputPara$AT_Pop_MeanCycleTime.2036,All.InputPara$InputPara_byIncome,All.InputPara$AT_Input_byIncome.2036)
+df.death.race.2036 <- DFforFigure(AgeStdOutcome$AgeStdDeath.matrix.race.2036,demogrID = 1)
+ggplot(data = df.death.race.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
+  geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Death Reduction Rate (per 100,000 population)')+
+  ggtitle("Reduction in total deaths by race/ethnicity (scenario 2036)")
 
-#compute the relative risks of Physical Activity (1MET)
-RR.PA <- create.PA.RR()
+df.death.income.2020 <- DFforFigure(AgeStdOutcome$AgeStdDeath.matrix.income.2020,demogrID = 2)
+ggplot(data = df.death.income.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
+  geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Death Reduction Rate (per 100,000 population)')+
+  ggtitle("Reduction in total deaths by household income (scenario 2020)")
 
-#compute local disease burden, and create a list to store local gbd for all races
-LocalGBD_List_byRace <- List_LocalGBD(All.InputPara$InputPara_byRace)
-LocalGBD_List_byIncome <- List_LocalGBD(All.InputPara$InputPara_byIncome)
+df.death.income.2036 <- DFforFigure(AgeStdOutcome$AgeStdDeath.matrix.income.2036,demogrID = 2)
+ggplot(data = df.death.income.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
+  geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Death Reduction Rate (per 100,000 population)')+
+  ggtitle("Reduction in total deaths by household income (scenario 2036)")
 
-#compute health outcomes
-HealthOutcome_byRace.2020 <- 
-  mapply(function(x,y,z) computeHealthOutcome(RR.PA,x,y,z),BaselineTotalExpo_byRace,ScenarioTotalExpo_byRace.2020,LocalGBD_List_byRace,SIMPLIFY = FALSE)
-names(HealthOutcome_byRace.2020) <- raceGroupNames
+#Reduction in total DALYs
+df.DALYs.race.2020 <- DFforFigure(AgeStdOutcome$AgeStdDALYs.matrix.race.2020,demogrID = 1)
+ggplot(data = df.DALYs.race.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
+  geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('DALYs Reduction Rate (per 100,000 population)')+
+  ggtitle("Reduction in total DALYs by race/ethnicity (scenario 2020)")
 
-HealthOutcome_byIncome.2020 <- 
-  mapply(function(x,y,z) computeHealthOutcome(RR.PA,x,y,z),BaselineTotalExpo_byIncome,ScenarioTotalExpo_byIncome.2020,LocalGBD_List_byIncome,SIMPLIFY = FALSE)
-names(HealthOutcome_byIncome.2020) <- incomeGroupNames
+df.DALYs.race.2036 <- DFforFigure(AgeStdOutcome$AgeStdDALYs.matrix.race.2036,demogrID = 1)
+ggplot(data = df.DALYs.race.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
+  geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('DALYs Reduction Rate (per 100,000 population)')+
+  ggtitle("Reduction in total DALYs by race/ethnicity (scenario 2036)")
 
-HealthOutcome_byRace.2036 <- 
-  mapply(function(x,y,z) computeHealthOutcome(RR.PA,x,y,z),BaselineTotalExpo_byRace,ScenarioTotalExpo_byRace.2036,LocalGBD_List_byRace,SIMPLIFY = FALSE)
-names(HealthOutcome_byRace.2036) <- raceGroupNames
+df.DALYs.income.2020 <- DFforFigure(AgeStdOutcome$AgeStdDALYs.matrix.income.2020,demogrID = 2)
+ggplot(data = df.DALYs.income.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
+  geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('DALYs Reduction Rate (per 100,000 population)')+
+  ggtitle("Reduction in total DALYs by household income (scenario 2020)")
 
-HealthOutcome_byIncome.2036 <- 
-  mapply(function(x,y,z) computeHealthOutcome(RR.PA,x,y,z),BaselineTotalExpo_byIncome,ScenarioTotalExpo_byIncome.2036,LocalGBD_List_byIncome,SIMPLIFY = FALSE)
-names(HealthOutcome_byIncome.2036) <- incomeGroupNames
-
-####### compute age-normalized delta death
-computeAgeStdOutput <- function(All.InputPara_byDemo,HealthOutcome_byDemo){
-  US.pop <- All.InputPara_byDemo$allPop
-  local.pop <- sapply(All.InputPara_byDemo$Pop_List_byDemo,function(i) matrix(i,nrow = 16,ncol = 1))
-  delta.death <- cbind(HealthOutcome_byDemo[[1]]$delta.Burden[,1],HealthOutcome_byDemo[[2]]$delta.Burden[,1],HealthOutcome_byDemo[[3]]$delta.Burden[,1],HealthOutcome_byDemo[[4]]$delta.Burden[,1])
-  delta.DALYs <- cbind(HealthOutcome_byDemo[[1]]$delta.Burden[,4],HealthOutcome_byDemo[[2]]$delta.Burden[,4],HealthOutcome_byDemo[[3]]$delta.Burden[,4],HealthOutcome_byDemo[[4]]$delta.Burden[,4])
-  
-  death.rate <- replace(delta.death/local.pop*100000,is.na(delta.death/local.pop),0) 
-  DALYs.rate <- replace(delta.DALYs/local.pop*100000,is.na(delta.DALYs/local.pop),0) 
-  
-  age.std.death <- age.std.DALYs <- matrix(NA,1,4)
-  
-  for (i in 1:4){
-    age.std.death[1,i]=sum(death.rate[,i]*US.pop)/sum(US.pop)
-    age.std.DALYs[1,i]=sum(DALYs.rate[,i]*US.pop)/sum(US.pop)
-  }
-  
-  return(list(
-    age.std.death = age.std.death,
-    age.std.DALYs = age.std.DALYs
-  ))
-}
+df.DALYs.income.2036 <- DFforFigure(AgeStdOutcome$AgeStdDALYs.matrix.income.2036,demogrID = 2)
+ggplot(data = df.DALYs.income.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
+  geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('DALYs Reduction Rate (per 100,000 population)')+
+  ggtitle("Reduction in total DALYs by household income (scenario 2036)")
 
 
-
-a <- computeAgeStdOutput(All.InputPara$InputPara_byRace,HealthOutcome_byRace.2020)
-a$age.std.death
-
-a <- computeAgeStdOutput(All.InputPara$InputPara_byRace,HealthOutcome_byRace.2036)
-a$age.std.death
-
-
-
-
-# output
-write.csv(cbind(write.csv.func(HealthOutcome_byRace.2020),c("NHW",rep("",18),"NHB",rep("",18),"NHO",rep("",18),"HO",rep("",18))),file = "00_HealthOutcome/YUB.healthoutcome.byrace.2020.csv")
-write.csv(cbind(write.csv.func(HealthOutcome_byRace.2036),c("NHW",rep("",18),"NHB",rep("",18),"NHO",rep("",18),"HO",rep("",18))),file = "00_HealthOutcome/YUB.healthoutcome.byrace.2036.csv")
-write.csv(cbind(write.csv.func(HealthOutcome_byIncome.2020),c("CatQ1",rep("",18),"CatQ2",rep("",18),"CatQ3",rep("",18),"CatQ4",rep("",18))),file = "00_HealthOutcome/YUB.healthoutcome.byincome.2020.csv")
-write.csv(cbind(write.csv.func(HealthOutcome_byIncome.2036),c("CatQ1",rep("",18),"CatQ2",rep("",18),"CatQ3",rep("",18),"CatQ4",rep("",18))),file = "00_HealthOutcome/YUB.healthoutcome.byincome.2036.csv")
