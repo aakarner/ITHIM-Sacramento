@@ -38,7 +38,7 @@ read.csv.files <- function(countyID){
     #AT_Pop_List_MeanTime[[i]] <- as.matrix(AT_Pop_MeanTime[((7*i-6):(7*i-1)),2:3])
   #}
   #names(AT_Pop_List_MeanTime) <- c("baseline",'2020','2036')
-  AT_Pop_MeanTimebyRace <- read.csv("02_ActiveTransport/test_PopulationMeanATTimebyRace.csv")
+  AT_Pop_MeanTimebyRace <- read.csv("02_ActiveTransport/PopulationMeanATTimebyRace.csv")
   AT_Pop_List_MeanTimebyRace <- rep(list((matrix(NA,nrow=6,ncol=8))),3)
   for(i in 1:3){
     AT_Pop_List_MeanTimebyRace[[i]] <- as.matrix(AT_Pop_MeanTimebyRace[((7*i-6):(7*i-1)),2:9])
@@ -46,7 +46,7 @@ read.csv.files <- function(countyID){
   names(AT_Pop_List_MeanTimebyRace) <- c("baseline",'2020','2036')
   
   # input the population mean cycling and walking time by income (min/week)
-  AT_Pop_MeanTimebyIncome <- read.csv("02_ActiveTransport/test_PopulationMeanATTimebyIncome.csv")
+  AT_Pop_MeanTimebyIncome <- read.csv("02_ActiveTransport/PopulationMeanATTimebyIncome.csv")
   AT_Pop_List_MeanTimebyIncome <- rep(list((matrix(NA,nrow=6,ncol=8))),3)
   for(i in 1:3){
     AT_Pop_List_MeanTimebyIncome[[i]] <- as.matrix(AT_Pop_MeanTimebyIncome[((7*i-6):(7*i-1)),2:9])
@@ -765,6 +765,17 @@ Pop_Input_US <- read.csv("01_Population/01_Population_US_EA.csv")
 gbd_Input_US <- read.csv("04_GBD/01_GBD_US_AllCause.csv")
 
 ###################### Calculation Example ##############################
+
+# #output as .csv file
+# write.csv(cbind(write.csv.func(HealthOutcome_byRace.2020),c('NHW',rep('',18),'NHB',rep('',18),'NHO',rep('',18),'HO',rep('',18))),
+#           file = '00_HealthOutcome/YUB.healthoutcome.byRace.2020.csv')
+# write.csv(cbind(write.csv.func(HealthOutcome_byRace.2036),c('NHW',rep('',18),'NHB',rep('',18),'NHO',rep('',18),'HO',rep('',18))),
+#           file = '00_HealthOutcome/YUB.healthoutcome.byRace.2036.csv')
+# write.csv(cbind(write.csv.func(HealthOutcome_byIncome.2020),c('catQ1',rep('',18),'catQ2',rep('',18),'catQ3',rep('',18),'catQ4',rep('',18))),
+#           file = '00_HealthOutcome/YUB.healthoutcome.byIncome.2020.csv')
+# write.csv(cbind(write.csv.func(HealthOutcome_byIncome.2036),c('catQ1',rep('',18),'catQ2',rep('',18),'catQ3',rep('',18),'catQ4',rep('',18))),
+#           file = '00_HealthOutcome/YUB.healthoutcome.byIncome.2036.csv')
+
 
 # countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
 AgeStdOutcome <- AgeStdHealthOutcome(c(1:6))
