@@ -128,6 +128,36 @@ pop.mean.at.time <- function(trip.pop,pop){
   ))
 }
 
+#compute VMT by traffic mode
+computeVMTbymode <- function(countyID,trip.pop,pop){
+  ModeNames <- c("bike","walk","motorcycle","car","bus","truck")
+  mode.vmt.byrace <- matrix(NA,nrow = 6,ncol = 4,dimnames = list(ModeNames,c("NHW","NHB","NHO","HO")))
+  for (i in 1:4){
+    pop.race <- length(which(pop$countyID==countyID&pop$raceID==i))
+    
+    #bike
+    mode.vmt.byrace[1,i] <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==8&trip.pop$countyID==countyID&trip.pop$raceID==i)])/pop.race
+    #walk
+    mode.vmt.byrace[2,i] <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==9&trip.pop$countyID==countyID&trip.pop$raceID==i)])/pop.race
+    
+    vmt <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==5&trip.pop$countyID==countyID&trip.pop$raceID==i)])/(3.5*pop.race)+sum(trip.pop$DISTANCE[which(trip.pop$MODE==6&trip.pop$countyID==countyID&trip.pop$raceID==i)])/(2*pop.race)+
+      sum(trip.pop$DISTANCE[which(trip.pop$MODE==7&trip.pop$countyID==countyID&trip.pop$raceID==i)])/(pop.race)
+    
+    #motorcycle
+    mode.vmt.byrace[3,i]<-vmt*0.02
+    
+    #car
+    mode.vmt.byrace[4,i]<-vmt*0.9
+    
+    #bus
+    mode.vmt.byrace[5,i]<-vmt*0.02
+    
+    #truck
+    mode.vmt.byrace[6,i]<-vmt*0.06
+    
+  }
+  return(mode.vmt.byrace)
+}
 
 # process the data and compute the active travel information
 ActiveTravelDataOutput <- function(pop,trip.pop,countyID,Demo){
@@ -213,7 +243,6 @@ triptable.2012 <- read.dbf('trip_2012.dbf')
 triptable.2020 <- read.dbf('trip_2020_am1.dbf')
 triptable.2036 <- read.dbf('trip_2036.dbf')
 
-
 # load the processed syn pop
 load('pop.2012.cmplt')
 load('pop.2020.cmplt')
@@ -229,6 +258,10 @@ trip.pop.2012 <- prepTripPop(pop.2012,triptable.2012)
 trip.pop.2020 <- prepTripPop(pop.2020,triptable.2020)
 trip.pop.2036 <- prepTripPop(pop.2036,triptable.2036)
 
+#compute VMT by traffic mode
+vmt.baseline <- lapply(c(1:6),function(x) computeVMTbymode(x,trip.pop.2012,pop.2012))
+vmt.2020 <- lapply(c(1:6),function(x) computeVMTbymode(x,trip.pop.2020,pop.2020))
+vmt.2036 <- lapply(c(1:6),function(x) computeVMTbymode(x,trip.pop.2036,pop.2036))
 
 #output the mean pop mean walk time and cycle time
 # walk: mode = 9

@@ -151,7 +151,7 @@ injury.party.1 <- recode(injury.party.1)
 injury.party.2 <- recode(injury.party.2)
 
 # output the injury matrix as the input of injury module
-output.NHW <- get.race.injury(raceID=1,countyID=6) #NHW
+output.NHW <- get.race.injury(raceID=1,countyID=1) #NHW
 write.csv(output.NHW,file = "06_Equity Analysis/05_baseline injury/YUB_01_injury baseline_NHW.csv")
 
 output.NHB <- get.race.injury(2,6)
