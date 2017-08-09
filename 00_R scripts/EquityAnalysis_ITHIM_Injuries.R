@@ -223,13 +223,13 @@ createInjuryResults <- function(injury.baseline,injury.scenario){
     injury.RR.2020[[i]][1:6,2] <- rowSums(injury.number.2020[[i+2]])
     injury.RR.2020[[i]][7,1:2] <- colSums(injury.RR.2020[[i]][1:6,1:2])
     injury.RR.2020[[i]][,3] <- injury.RR.2020[[i]][,2]/injury.RR.2020[[i]][,1]
-    injury.RR.2020[[i]][,3] <- replace(injury.RR.2020[[i]][,3],is.na(injury.RR.2020[[i]][,3]),0)
+    #injury.RR.2020[[i]][,3] <- replace(injury.RR.2020[[i]][,3],is.na(injury.RR.2020[[i]][,3]),1)
     
     injury.RR.2036[[i]][1:6,1] <- rowSums(injury.number.2036[[i]])
     injury.RR.2036[[i]][1:6,2] <- rowSums(injury.number.2036[[i+2]])
     injury.RR.2036[[i]][7,1:2] <- colSums(injury.RR.2036[[i]][1:6,1:2])
     injury.RR.2036[[i]][,3] <- injury.RR.2036[[i]][,2]/injury.RR.2036[[i]][,1]
-    injury.RR.2036[[i]][,3] <- replace(injury.RR.2036[[i]][,3],is.na(injury.RR.2036[[i]][,3]),0)
+    #injury.RR.2036[[i]][,3] <- replace(injury.RR.2036[[i]][,3],is.na(injury.RR.2036[[i]][,3]),1)
     
     
   }
@@ -242,20 +242,45 @@ createInjuryResults <- function(injury.baseline,injury.scenario){
     ))
 }
 
+output.result <- function(countyID){
+  # countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
+  injury.list <- input.csv(countyID = countyID)[[1]]
+  person.vehicle.distance_input.list <- input.csv(countyID = countyID)[[2]]
+  
+  #obtain the ITHIM sheet "Baseline injuries"
+  injury.baseline.byRace <-  lapply(injury.list,function(x) createBaselineInjury(x))
+  
+  #compute the "Scenario Injury Multiplier"
+  scenario.multiplier.byRace <- lapply(person.vehicle.distance_input.list,function(x) createScenarioInjuryMultiplier(x))
+  
+  #compute the scenario injuries
+  injury.scenario.byRace <- mapply(function(x,y) computeScenarioInjury(x,y),injury.baseline.byRace,scenario.multiplier.byRace,SIMPLIFY = FALSE)
+  
+  #Summarize the injury results
+  injury.result.byRace <- mapply(function(x,y) createInjuryResults(x,y),injury.baseline.byRace,injury.scenario.byRace,SIMPLIFY = FALSE)
+  
+  #format the output file  
+  cutting.line.col <- matrix(c('2020 fatal','2020 serious','2036 fatal','2036 serious',rep('',24)),7,4,byrow = TRUE)
+  NHW <- cbind(injury.result.byRace[[1]]$injury.RR.2020$fatalities,cutting.line.col[,1],injury.result.byRace[[1]]$injury.RR.2020$`serious injuries`,cutting.line.col[,2],
+               injury.result.byRace[[1]]$injury.RR.2036$fatalities,cutting.line.col[,3],injury.result.byRace[[1]]$injury.RR.2036$`serious injuries`,cutting.line.col[,4],matrix(c('NHW',rep('',6)),7,1))
+  NHB <- cbind(injury.result.byRace[[2]]$injury.RR.2020$fatalities,cutting.line.col[,1],injury.result.byRace[[2]]$injury.RR.2020$`serious injuries`,cutting.line.col[,2],
+               injury.result.byRace[[2]]$injury.RR.2036$fatalities,cutting.line.col[,3],injury.result.byRace[[2]]$injury.RR.2036$`serious injuries`,cutting.line.col[,4],matrix(c('NHB',rep('',6)),7,1))
+  NHO <- cbind(injury.result.byRace[[3]]$injury.RR.2020$fatalities,cutting.line.col[,1],injury.result.byRace[[3]]$injury.RR.2020$`serious injuries`,cutting.line.col[,2],
+               injury.result.byRace[[3]]$injury.RR.2036$fatalities,cutting.line.col[,3],injury.result.byRace[[3]]$injury.RR.2036$`serious injuries`,cutting.line.col[,4],matrix(c('NHO',rep('',6)),7,1))
+  HO <-  cbind(injury.result.byRace[[4]]$injury.RR.2020$fatalities,cutting.line.col[,1],injury.result.byRace[[4]]$injury.RR.2020$`serious injuries`,cutting.line.col[,2],
+               injury.result.byRace[[4]]$injury.RR.2036$fatalities,cutting.line.col[,3],injury.result.byRace[[4]]$injury.RR.2036$`serious injuries`,cutting.line.col[,4],matrix(c('HO',rep('',6)),7,1))
+  
+  cutting.line.row <- matrix('',1,17)
+  output <- rbind(NHW,cutting.line.row,NHB,cutting.line.row,NHO,cutting.line.row,HO)
+  
+  return(output)
+}
+
 ############################calculation example#################################
-# countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
-injury.list <- input.csv(countyID = 6)[[1]]
-person.vehicle.distance_input.list <- input.csv(countyID = 6)[[2]]
-
-#obtain the ITHIM sheet "Baseline injuries"
-injury.baseline.byRace <-  lapply(injury.list,function(x) createBaselineInjury(x))
-
-#compute the "Scenario Injury Multiplier"
-scenario.multiplier.byRace <- lapply(person.vehicle.distance_input.list,function(x) createScenarioInjuryMultiplier(x))
-
-#compute the scenario injuries
-injury.scenario.byRace <- mapply(function(x,y) computeScenarioInjury(x,y),injury.baseline.byRace,scenario.multiplier.byRace,SIMPLIFY = FALSE)
-
-#Summarize the injury results
-injury.result.byRace <- mapply(function(x,y) createInjuryResults(x,y),injury.baseline.byRace,injury.scenario.byRace,SIMPLIFY = FALSE)
+write.csv(output.result(countyID=1),file = '00_HealthOutcome/00_Injury/ELD.injuryresult.csv')
+write.csv(output.result(countyID=2),file = '00_HealthOutcome/00_Injury/PLA.injuryresult.csv')
+write.csv(output.result(countyID=3),file = '00_HealthOutcome/00_Injury/SAC.injuryresult.csv')
+write.csv(output.result(countyID=4),file = '00_HealthOutcome/00_Injury/SUT.injuryresult.csv')
+write.csv(output.result(countyID=5),file = '00_HealthOutcome/00_Injury/YOL.injuryresult.csv')
+write.csv(output.result(countyID=6),file = '00_HealthOutcome/00_Injury/YUB.injuryresult.csv')
 

@@ -30,6 +30,7 @@ keep.collision <- c('CASEID','COUNTY','PARTIES','KILLED','SEVINJ','CHPTYPE')
 collision.t <- collision.temp[,names(collision.temp)%in%keep.collision]
 collision.party.1 <- collision.t[which(collision.t$PARTIES==1),] #one party collisions
 collision.party.2 <- collision.t[which(collision.t$PARTIES==2),] #two parties collisions
+#collision.party.3 <- collision.t[which(collision.t$PARTIES==3),] #three parties collisions
 
 # keep the required variables in party
 keep.party <- c('CASEID','PARNUM','ATFAULT',"VEHTYPE",'PRACE')
@@ -151,14 +152,31 @@ injury.party.1 <- recode(injury.party.1)
 injury.party.2 <- recode(injury.party.2)
 
 # output the injury matrix as the input of injury module
-output.NHW <- get.race.injury(raceID=1,countyID=1) #NHW
-write.csv(output.NHW,file = "06_Equity Analysis/05_baseline injury/YUB_01_injury baseline_NHW.csv")
+output.NHW <- get.race.injury(raceID=1,countyID=6) #NHW
+#write.csv(output.NHW,file = "06_Equity Analysis/05_baseline injury/YUB_01_injury baseline_NHW.csv")
 
 output.NHB <- get.race.injury(2,6)
-write.csv(output.NHB,file = "06_Equity Analysis/05_baseline injury/YUB_02_injury baseline_NHB.csv")
+#write.csv(output.NHB,file = "06_Equity Analysis/05_baseline injury/YUB_02_injury baseline_NHB.csv")
 
 output.NHO <- get.race.injury(3,6)
-write.csv(output.NHO,file = "06_Equity Analysis/05_baseline injury/YUB_03_injury baseline_NHO.csv")
+#write.csv(output.NHO,file = "06_Equity Analysis/05_baseline injury/YUB_03_injury baseline_NHO.csv")
 
 output.HO <- get.race.injury(4,6)
-write.csv(output.HO,file = "06_Equity Analysis/05_baseline injury/YUB_04_injury baseline_HO.csv")
+#write.csv(output.HO,file = "06_Equity Analysis/05_baseline injury/YUB_04_injury baseline_HO.csv")
+
+#combine other three races (NHB+NHO+HO)
+matrix.other3 <- as.numeric(output.NHB[,1:7])+as.numeric(output.NHO[,1:7])+as.numeric(output.HO[,1:7])
+output.other3 <- matrix(matrix.other3,36,7)
+colnames(output.other3)<- c('bike','walk','motorcycle','car','bus','truck','one-party')
+rownames(output.other3)<- rep(c('bike','walk','motorcycle','car','bus','truck'),6)
+
+# add the road type and injury type in the .csv file
+output.other3.t <- cbind(output.other3,1)
+output.other3.t[1:6,8] <- "local fatal"
+output.other3.t[7:12,8] <- "arterial fatal"
+output.other3.t[13:18,8] <- "highway fatal"
+output.other3.t[19:24,8] <- "local serious"
+output.other3.t[25:30,8] <- "arterial serious"
+output.other3.t[31:36,8] <- "highway serious"
+write.csv(output.other3.t,file = "06_Equity Analysis/05_baseline injury/YUB_05_injury baseline_Other3.csv")
+

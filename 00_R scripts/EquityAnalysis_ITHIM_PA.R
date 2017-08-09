@@ -656,6 +656,57 @@ computeAgeStdOutput <- function(All.InputPara_byDemo,HealthOutcome_byDemo){
   ))
 }
 
+Reduction.output <- function(countyID=c(1:6)){
+  
+  Reduction.Death.matrix.race.2020 <- Reduction.Death.matrix.race.2036 <-
+    matrix(NA,nrow = length(countyID),ncol = nDemoClass,dimnames = list(countyNames[countyID],raceGroupNames))
+  
+  Reduction.DALYs.matrix.race.2020 <- Reduction.DALYs.matrix.race.2036 <-
+    matrix(NA,nrow = length(countyID),ncol = nDemoClass,dimnames = list(countyNames[countyID],raceGroupNames))
+  
+  Reduction.Death.matrix.income.2020 <- Reduction.Death.matrix.income.2036 <-
+    matrix(NA,nrow = length(countyID),ncol = nDemoClass,dimnames = list(countyNames[countyID],raceGroupNames))
+  
+  Reduction.DALYs.matrix.income.2020 <- Reduction.DALYs.matrix.income.2036 <-
+    matrix(NA,nrow = length(countyID),ncol = nDemoClass,dimnames = list(countyNames[countyID],raceGroupNames))
+  
+  
+  m=1
+  for(j in countyID){
+    temp <- output.HealthOutcome(j)
+    
+    for(i in 1:4){
+      Reduction.Death.matrix.race.2020[m,i]<-colSums(temp$HealthOutcome_byRace.2020[[i]]$delta.Burden)[1]
+      Reduction.DALYs.matrix.race.2020[m,i]<-colSums(temp$HealthOutcome_byRace.2020[[i]]$delta.Burden)[4]
+      Reduction.Death.matrix.race.2036[m,i]<-colSums(temp$HealthOutcome_byRace.2036[[i]]$delta.Burden)[1]
+      Reduction.DALYs.matrix.race.2036[m,i]<-colSums(temp$HealthOutcome_byRace.2036[[i]]$delta.Burden)[4]
+      
+      Reduction.Death.matrix.income.2020[m,i]<-colSums(temp$HealthOutcome_byIncome.2020[[i]]$delta.Burden)[1]
+      Reduction.DALYs.matrix.income.2020[m,i]<-colSums(temp$HealthOutcome_byIncome.2020[[i]]$delta.Burden)[4]
+      Reduction.Death.matrix.income.2036[m,i]<-colSums(temp$HealthOutcome_byIncome.2036[[i]]$delta.Burden)[1]
+      Reduction.DALYs.matrix.income.2036[m,i]<-colSums(temp$HealthOutcome_byIncome.2036[[i]]$delta.Burden)[4]
+      
+    }
+    m=m+1
+  }
+  
+  return(list(
+    Reduction.Death.matrix.race.2020=Reduction.Death.matrix.race.2020,
+    Reduction.DALYs.matrix.race.2020=Reduction.DALYs.matrix.race.2020,
+    
+    Reduction.Death.matrix.race.2036=Reduction.Death.matrix.race.2036,
+    Reduction.DALYs.matrix.race.2036=Reduction.DALYs.matrix.race.2036,
+    
+    Reduction.Death.matrix.income.2020=Reduction.Death.matrix.income.2020,
+    Reduction.DALYs.matrix.income.2020=Reduction.DALYs.matrix.income.2020,
+    
+    Reduction.Death.matrix.income.2036=Reduction.Death.matrix.income.2036,
+    Reduction.DALYs.matrix.income.2036=Reduction.DALYs.matrix.income.2036
+    
+    
+  ))
+}
+
 AgeStdHealthOutcome <- function(countyID) {
   
   AgeStdDeath.matrix.race.2020 <- AgeStdDeath.matrix.race.2036 <-
@@ -755,7 +806,7 @@ k<-0.5
 #diseaseNames <- c("BreastCancer","ColonCancer","CVD","Dementia","Depression","Diabetes")
 
 # group names for race/ethnicity and income 
-raceGroupNames <- c("NHW","NHB","NHO","HO")
+raceGroupNames <- c("1.NHW","2.NHB","3.NHO","4.HO")
 incomeGroupNames <- c("Quant1","Quant2","Quant3","Quant4")
 
 # county names
@@ -776,50 +827,88 @@ gbd_Input_US <- read.csv("04_GBD/01_GBD_US_AllCause.csv")
 # write.csv(cbind(write.csv.func(HealthOutcome_byIncome.2036),c('catQ1',rep('',18),'catQ2',rep('',18),'catQ3',rep('',18),'catQ4',rep('',18))),
 #           file = '00_HealthOutcome/YUB.healthoutcome.byIncome.2036.csv')
 
-
 # countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
+AbsReductionOutcome <- Reduction.output(c(1:6))
 AgeStdOutcome <- AgeStdHealthOutcome(c(1:6))
+
 
 #Reduction in total deaths
 df.death.race.2020 <- DFforFigure(AgeStdOutcome$AgeStdDeath.matrix.race.2020,demogrID = 1)
+df.reduction.death.race.2020 <- DFforFigure(AbsReductionOutcome$Reduction.Death.matrix.race.2020,demogrID = 1)
 ggplot(data = df.death.race.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
   geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Death Reduction Rate (per 100,000 population)')+
+  ggtitle("Age-std reduction in total deaths by race/ethnicity (scenario 2020)")
+ggplot(data = df.reduction.death.race.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
+  geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Total Death Reduction')+
   ggtitle("Reduction in total deaths by race/ethnicity (scenario 2020)")
 
+
 df.death.race.2036 <- DFforFigure(AgeStdOutcome$AgeStdDeath.matrix.race.2036,demogrID = 1)
+df.reduction.death.race.2036 <- DFforFigure(AbsReductionOutcome$Reduction.Death.matrix.race.2036,demogrID = 1)
 ggplot(data = df.death.race.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Death Reduction Rate (per 100,000 population)')+
+  ggtitle("Age-std reduction in total deaths by race/ethnicity (scenario 2036)")
+ggplot(data = df.reduction.death.race.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
+  geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Total Death Reduction')+
   ggtitle("Reduction in total deaths by race/ethnicity (scenario 2036)")
 
+
 df.death.income.2020 <- DFforFigure(AgeStdOutcome$AgeStdDeath.matrix.income.2020,demogrID = 2)
+df.reduction.death.income.2020 <- DFforFigure(AbsReductionOutcome$Reduction.Death.matrix.income.2020,demogrID = 2)
 ggplot(data = df.death.income.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Death Reduction Rate (per 100,000 population)')+
+  ggtitle("Age-std reduction in total deaths by household income (scenario 2020)")
+ggplot(data = df.reduction.death.income.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
+  geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Total Death Reduction')+
   ggtitle("Reduction in total deaths by household income (scenario 2020)")
 
+
 df.death.income.2036 <- DFforFigure(AgeStdOutcome$AgeStdDeath.matrix.income.2036,demogrID = 2)
+df.reduction.death.income.2036 <- DFforFigure(AbsReductionOutcome$Reduction.Death.matrix.income.2036,demogrID = 2)
 ggplot(data = df.death.income.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Death Reduction Rate (per 100,000 population)')+
+  ggtitle("Age-std reduction in total deaths by household income (scenario 2036)")
+ggplot(data = df.reduction.death.income.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
+  geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Total Death Reduction')+
   ggtitle("Reduction in total deaths by household income (scenario 2036)")
 
 #Reduction in total DALYs
 df.DALYs.race.2020 <- DFforFigure(AgeStdOutcome$AgeStdDALYs.matrix.race.2020,demogrID = 1)
+df.reduction.DALYs.race.2020 <- DFforFigure(AbsReductionOutcome$Reduction.DALYs.matrix.race.2020,demogrID = 1)
 ggplot(data = df.DALYs.race.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('DALYs Reduction Rate (per 100,000 population)')+
+  ggtitle("Age-std reduction in total DALYs by race/ethnicity (scenario 2020)")
+ggplot(data = df.reduction.DALYs.race.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
+  geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Total DALYs Reduction')+
   ggtitle("Reduction in total DALYs by race/ethnicity (scenario 2020)")
 
+
 df.DALYs.race.2036 <- DFforFigure(AgeStdOutcome$AgeStdDALYs.matrix.race.2036,demogrID = 1)
+df.reduction.DALYs.race.2036 <- DFforFigure(AbsReductionOutcome$Reduction.DALYs.matrix.race.2036,demogrID = 1)
 ggplot(data = df.DALYs.race.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('DALYs Reduction Rate (per 100,000 population)')+
+  ggtitle("Age-std reduction in total DALYs by race/ethnicity (scenario 2036)")
+ggplot(data = df.reduction.DALYs.race.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
+  geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Total DALYs Reduction')+
   ggtitle("Reduction in total DALYs by race/ethnicity (scenario 2036)")
 
 df.DALYs.income.2020 <- DFforFigure(AgeStdOutcome$AgeStdDALYs.matrix.income.2020,demogrID = 2)
+df.reduction.DALYs.income.2020 <- DFforFigure(AbsReductionOutcome$Reduction.DALYs.matrix.income.2020,demogrID = 2)
 ggplot(data = df.DALYs.income.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('DALYs Reduction Rate (per 100,000 population)')+
+  ggtitle("Age-std reduction in total DALYs by household income (scenario 2020)")
+ggplot(data = df.reduction.DALYs.income.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
+  geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Total DALYs Reduction')+
   ggtitle("Reduction in total DALYs by household income (scenario 2020)")
 
+
 df.DALYs.income.2036 <- DFforFigure(AgeStdOutcome$AgeStdDALYs.matrix.income.2036,demogrID = 2)
+df.reduction.DALYs.income.2036 <- DFforFigure(AbsReductionOutcome$Reduction.DALYs.matrix.income.2036,demogrID = 2)
 ggplot(data = df.DALYs.income.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('DALYs Reduction Rate (per 100,000 population)')+
+  ggtitle("Age-std reduction in total DALYs by household income (scenario 2036)")
+ggplot(data = df.reduction.DALYs.income.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
+  geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Total DALYs Reduction Rate')+
   ggtitle("Reduction in total DALYs by household income (scenario 2036)")
 
 

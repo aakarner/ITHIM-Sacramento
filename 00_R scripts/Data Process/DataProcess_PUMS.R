@@ -1,8 +1,8 @@
 # Author: Yizheng Wu
 # File: DataProcess_PUMS.R
 # Purpose: use the PUMS data to do the hot-deck imputation. 
-#          impute the race/ethnicity information for ABM synthetic population
-#          impute the income information for cdph 
+#          impute the race/ethnicity information for SACSIM synthetic population
+#          impute the income information for CDPH vital statistics
 
 setwd("/Users/Yizheng/Documents/02_Work/13_ITHIM/03_Data")
 
@@ -11,7 +11,8 @@ library(StatMatch)
 library(foreign)
 
 ##### function definition
-# extract the TAZ list for each county
+# in the output of SACSIM,the unit of location is TAZ
+# here we extract the TAZ list for each county in order to obtain the county-level data
 getTAZ <- function(parc.input){
   ELD.TAZ <- unique(parc.input$TAZ[which(substr(parc.input$PIDSTR,1,3)=="ELD")])
   PLA.TAZ <- unique(parc.input$TAZ[which(substr(parc.input$PIDSTR,1,3)=="PLA")])
@@ -32,7 +33,7 @@ getTAZ <- function(parc.input){
 
 # function of recode countyID and household income ID
 recode <- function(pop,taz){
-  #recode countyID (only 5 countyID since Sutter and Yuba are counted as one based on Puma No.)
+  #recode countyID (only 5 countyID since Sutter and Yuba are counted as one based on Puma No. in PUMS data)
   pop$countyID <- ifelse(pop$HHTAZ%in%taz$ELD.TAZ,1,
                          ifelse(pop$HHTAZ%in%taz$PLA.TAZ,2,
                                 ifelse(pop$HHTAZ%in%taz$SAC.TAZ,3,
@@ -48,7 +49,7 @@ recode <- function(pop,taz){
            ifelse(pop$HINC<=quantile(pop$HINC)[3],2,
                   ifelse(pop$HINC<=quantile(pop$HINC)[4],3,4)))
   
-  # rename the "age" in order to match it with PUMA 
+  # rename the variable "age" in order to match it with PUMA 
   names(pop)[16]<-"AGEP"
   
   return(pop)
@@ -62,12 +63,13 @@ hotdeck.imputation <- function(pop){
   # store the result
   pop.cmplt<-NULL
   
+  # 'for' loop to do the Hot-Deck imputation
   for (i in 1:5){ #countyID
-    print(i)
+    #print(i)
     for (j in 1:2){ #gender
-      print(j)
+      #print(j)
       for (k in 1:4){ #income
-        print(k)
+        #print(k)
         
         rnd <- RANDwNND.hotdeck(data.rec = pop[which(pop$countyID==i&pop$SEX==j&pop$hincID==k),],data.don = pums.h.p[which(pums.h.p$countyID==i&pums.h.p$SEX==j&pums.h.p$hincID==k),],weight.don = "PWGTP",match.vars = X.mtc)
         output.temp <- create.fused(data.rec = pop[which(pop$countyID==i&pop$SEX==j&pop$hincID==k),],data.don = pums.h.p[which(pums.h.p$countyID==i&pums.h.p$SEX==j&pums.h.p$hincID==k),],mtc.ids = rnd$mtc.ids,z.vars = "raceID")
@@ -90,7 +92,7 @@ update.countyID <- function(pop.cmplt,taz){
   return(pop.cmplt)
 }
 
-############### data process for SACOG ABM #####################
+############### data process for PUMS #####################
 # read the pums data
 # ss12hca.csv - 2012 housing record
 # ss12pca.csv - 2012 person record
@@ -108,7 +110,7 @@ pums.h.c <- pums.h[,names(pums.h)%in%keep.pums.h]
 pums.h.p <- merge(pums.p.c,pums.h.c,by.x = 'SERIALNO',by.y = 'SERIALNO')
 #head(pums.h.p)
 
-# puma no. for six counties
+# define puma no. for six counties
 # source: https://www.census.gov/geo/maps-data/maps/2010puma/st06_ca.html
 pumano.eld <- 1700         #countyID=1
 pumano.pla <- c(6101:6103) #countyID=2
@@ -144,7 +146,6 @@ pums.h.p$age.sex.ID <- ifelse(pums.h.p$AGEP<=4,1,
                                                                  ifelse(pums.h.p$AGEP<=79,7,8
                                                                         )))))))
 
-
 #recode educational level ID (eduID)
 # 1: 8th grade or less
 # 2: 9th through 12th grade
@@ -163,24 +164,15 @@ pums.h.p$eduID <- ifelse(pums.h.p$SCHL%in%c(1:11),1,
                                                      ifelse(pums.h.p$SCHL==21,6,
                                                             ifelse(pums.h.p$SCHL==22,7,
                                                                    ifelse(pums.h.p$SCHL%in%c(23,24),8,99))))))))
+# add a column of '1'
 pums.h.p$ones <- 1
-
 
 # recode hincID
 # get the quantiles for the household income in all six counties
 svy.pums <- svydesign(ids = ~1,weights = ~PWGTP,data = pums.h.p)
 inc.quan <- svyquantile(~HINCP,subset(svy.pums,countyID%in%c(1:5)&is.na(HINCP)==FALSE),c(0.25,0.5,0.75))
 
-population <- matrix(NA,nrow=8,ncol = 2)
-
-for (i in 1:2){
-  for (j in 1:8){
-    population[j,i] <- try(svytotal(~ones,subset(svy.pums,countyID==1&age.sex.ID==j&SEX==i&raceID==2),na.rm=TRUE),silent = TRUE)
-  }
-}
-
-
-
+# define the income group
 # 1: household income < 25%
 # 2: household income 25-50%
 # 3: household income 50-75%
@@ -189,7 +181,7 @@ pums.h.p$hincID <- ifelse(pums.h.p$HINCP<=inc.quan[1],1,
                           ifelse(pums.h.p$HINCP<=inc.quan[2],2,
                                  ifelse(pums.h.p$HINCP<=inc.quan[3],3,4)))
 
-############### data process for SACOG ABM #####################
+############### Imputation process for SACSIM #####################
 # read the data
 # pop - population
 # parc - parcel information 
@@ -223,12 +215,12 @@ pop.2020.cmplt <- update.countyID(pop.2020.cmplt,taz.2020)
 pop.2036.cmplt <- update.countyID(pop.2036.cmplt,taz.2036)
 
 # save the output
-save(pop.2012.cmplt,file = "pop.2012.cmplt.525")
+save(pop.2012.cmplt,file = "pop.2012.cmplt")
 save(pop.2020.cmplt,file = "pop.2020.cmplt")
 save(pop.2036.cmplt,file = "pop.2036.cmplt")
 
 
-############### data process for CDPH #####################
+############### imputation process for CDPH #####################
 cdph <- read.spss('04_CDPH/TEMPB.sav',to.data.frame = TRUE)
 
 #recode countyID (only 5 countyID since Sutter and Yuba are counted as one based on Puma No.)
@@ -238,6 +230,7 @@ cdph$countyID <- ifelse(cdph$county3=="009",1,
                                       ifelse(cdph$county3%in%c("051","058"),4,
                                              ifelse(cdph$county3=="057",5,99)))))
 
+# obtain the data for Sacramento region
 cdph.sac <- cdph[which(cdph$countyID%in%c(1,2,3,4,5)),]
 
 #recode raceID
@@ -263,7 +256,7 @@ cdph.sac$raceID <- ifelse(cdph.sac$hisp == "1" & cdph.sac$race1 == "10",1,
 # 9: unknown
 cdph.sac$eduID <- cdph.sac$educ
 
-# rename the "age" in order to match it with PUMA 
+# rename the variables "age" and "sex" in order to match it with PUMA 
 names(cdph.sac)[3]<-"AGEP"
 names(cdph.sac)[8]<-"SEX"
 
@@ -273,7 +266,7 @@ X.mtc <- c("AGEP","eduID","SEX","raceID")
 # store the result
 cdph.sac.cmplt <- NULL
 
-# for loop to apply hot deck imputation 
+# 'for' loop to apply hot deck imputation 
 for (i in 1:5){ # counties
   print(i)
   rnd <- RANDwNND.hotdeck(data.rec = cdph.sac[which(cdph.sac$countyID==i),],data.don = pums.h.p[which(pums.h.p$countyID==i&is.na(pums.h.p$hincID)==FALSE),],weight.don = "PWGTP",match.vars = X.mtc)
@@ -282,5 +275,14 @@ for (i in 1:5){ # counties
   cdph.sac.cmplt <- rbind(cdph.sac.cmplt,output.temp)
 }
 
-save(cdph.sac.cmplt,file = "cdph.sac.cmplt.531")
+# save the output
+save(cdph.sac.cmplt,file = "cdph.sac.cmplt")
 
+
+# population <- matrix(NA,nrow=8,ncol = 2)
+# 
+# for (i in 1:2){
+#   for (j in 1:8){
+#     population[j,i] <- try(svytotal(~ones,subset(svy.pums,countyID==1&age.sex.ID==j&SEX==i&raceID==2),na.rm=TRUE),silent = TRUE)
+#   }
+# }
