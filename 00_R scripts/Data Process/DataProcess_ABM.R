@@ -1,6 +1,7 @@
 # Author: Yizheng Wu
 # File: DataProcess_ABM.R
 # Purpose: Process data from SACSIM - an activity based model develped by SACOG.
+#          Obtain the active travel data for base year and future years
 
 # Library definitions
 library(foreign)
@@ -14,10 +15,10 @@ setwd("/Users/Yizheng/Documents/02_Work/13_ITHIM/03_Data/07_SacSim")
 # -----------------------------------
 # Function Definition
 # -----------------------------------
-# calculate the relative values (relative to the value of "female 15-29")
+# calculate the relative values (relative to the value of "female 15-29" according to ITHIM)
 CalRelativeMatrix <- function(x){
   for (i in 1:4){
-    # if the value in that cell equals to 0, we use a small number to avoid NA.
+    # if the value in the reference cell equals to 0, we use a small number(0.01) to avoid NA.
     if (x[3,2*i]==0){
       ref = 0.01
       x[,c((2*i-1):(2*i))] <- x[,c((2*i-1):(2*i))]/ref
@@ -30,6 +31,7 @@ CalRelativeMatrix <- function(x){
   return(x)
 }
 
+# recode the population data (adding the group ID of age, race, income)
 recode.pop <- function(pop){
   # recode age category
   pop$ageID <- 
@@ -82,6 +84,7 @@ recode.pop <- function(pop){
   return(pop)
 }
 
+# merge the datasets of population and trip
 prepTripPop <- function(pop,triptable){
   
   # compute the mean travel time and travel distance per capita by mode
@@ -103,19 +106,22 @@ prepTripPop <- function(pop,triptable){
 #compute the population mean walking and cycing time (min/week)
 pop.mean.at.time <- function(trip.pop,pop){
   
+  #numeric matrix for active travel data
   Pop.AT.para.byRace <- Pop.AT.para.byIncome <- matrix(NA,nrow = 6,ncol = 8,
                         dimnames = list(paste0("county",c(1:6)),c("demogr1_walk","demogr1_cycle","demogr2_walk","demogr2_cycle","demogr3_walk","demogr3_cycle","demogr4_walk","demogr4_cycle"))) 
   
-  for(i in 1:6){#county
+  for(i in 1:6){#county ID
     
     for (j in 1:4){#demographic group
-      #population mean walking time (min/day)
+      #population mean walking time (MODE=9) for each race group (unit: min/week)
       Pop.AT.para.byRace[i,j*2-1]=sum(trip.pop$TIME[which(trip.pop$MODE==9&trip.pop$countyID==i&trip.pop$raceID==j)])/length(which(pop$countyID==i&pop$raceID==j))*7
+      #population mean cycling time (MODE=8) for each race group (unit: min/week)
       Pop.AT.para.byRace[i,2*j]=sum(trip.pop$TIME[which(trip.pop$MODE==8&trip.pop$countyID==i&trip.pop$raceID==j)])/length(which(pop$countyID==i&pop$raceID==j))*7
       
+      #population mean walking time (MODE=9) for each income group (unit: min/week)
       Pop.AT.para.byIncome[i,j*2-1]=sum(trip.pop$TIME[which(trip.pop$MODE==9&trip.pop$countyID==i&trip.pop$hincID==j)])/length(which(pop$countyID==i&pop$hincID==j))*7
+      #population mean cycling time (MODE=8) for each income group (unit: min/week)
       Pop.AT.para.byIncome[i,2*j]=sum(trip.pop$TIME[which(trip.pop$MODE==8&trip.pop$countyID==i&trip.pop$hincID==j)])/length(which(pop$countyID==i&pop$hincID==j))*7
-      
       
     }
     
@@ -125,76 +131,6 @@ pop.mean.at.time <- function(trip.pop,pop){
     Pop.AT.para.byRace=Pop.AT.para.byRace,
     Pop.AT.para.byIncome=Pop.AT.para.byIncome
   ))
-}
-
-#compute VMT by traffic mode
-computeVMTbymode <- function(countyID,trip.pop,pop){
-  ModeNames <- c("bike","walk","motorcycle","car","bus","truck")
-  mode.vmt.byrace2 <- matrix(NA,nrow = 6,ncol = 2,dimnames = list(ModeNames,c("NHW","Other")))
-  
-  for (i in 1:2){
-    if (i==1){
-      pop.race <- length(which(pop$countyID==countyID&pop$raceID==i))
-
-      #bike
-      mode.vmt.byrace2[1,i] <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==8&trip.pop$countyID==countyID&trip.pop$raceID==i)])/pop.race
-      #walk
-      mode.vmt.byrace2[2,i] <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==9&trip.pop$countyID==countyID&trip.pop$raceID==i)])/pop.race
-
-      vmt <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==5&trip.pop$countyID==countyID&trip.pop$raceID==i)])/(3.5*pop.race)+sum(trip.pop$DISTANCE[which(trip.pop$MODE==6&trip.pop$countyID==countyID&trip.pop$raceID==i)])/(2*pop.race)+
-        sum(trip.pop$DISTANCE[which(trip.pop$MODE==7&trip.pop$countyID==countyID&trip.pop$raceID==i)])/(pop.race)
-    }else{
-      pop.race <- length(which(pop$countyID==countyID&pop$raceID%in%c(2:4)))
-      
-      #bike
-      mode.vmt.byrace2[1,i] <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==8&trip.pop$countyID==countyID&trip.pop$raceID%in%c(2:4))])/pop.race
-      #walk
-      mode.vmt.byrace2[2,i] <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==9&trip.pop$countyID==countyID&trip.pop$raceID%in%c(2:4))])/pop.race
-      
-      vmt <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==5&trip.pop$countyID==countyID&trip.pop$raceID%in%c(2:4))])/(3.5*pop.race)+sum(trip.pop$DISTANCE[which(trip.pop$MODE==6&trip.pop$countyID==countyID&trip.pop$raceID%in%c(2:4))])/(2*pop.race)+
-        sum(trip.pop$DISTANCE[which(trip.pop$MODE==7&trip.pop$countyID==countyID&trip.pop$raceID%in%c(2:4))])/(pop.race)
-    }
-    
-    #motorcycle
-    mode.vmt.byrace2[3,i]<-vmt*0.02
-
-    #car
-    mode.vmt.byrace2[4,i]<-vmt*0.9
-
-    #bus
-    mode.vmt.byrace2[5,i]<-vmt*0.02
-
-    #truck
-    mode.vmt.byrace2[6,i]<-vmt*0.06
-  }
-  
-  # mode.vmt.byrace <- matrix(NA,nrow = 6,ncol = 4,dimnames = list(ModeNames,c("NHW","NHB","NHO","HO")))
-  # for (i in 1:4){
-  #   pop.race <- length(which(pop$countyID==countyID&pop$raceID==i))
-  #   
-  #   #bike
-  #   mode.vmt.byrace[1,i] <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==8&trip.pop$countyID==countyID&trip.pop$raceID==i)])/pop.race
-  #   #walk
-  #   mode.vmt.byrace[2,i] <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==9&trip.pop$countyID==countyID&trip.pop$raceID==i)])/pop.race
-  #   
-  #   vmt <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==5&trip.pop$countyID==countyID&trip.pop$raceID==i)])/(3.5*pop.race)+sum(trip.pop$DISTANCE[which(trip.pop$MODE==6&trip.pop$countyID==countyID&trip.pop$raceID==i)])/(2*pop.race)+
-  #     sum(trip.pop$DISTANCE[which(trip.pop$MODE==7&trip.pop$countyID==countyID&trip.pop$raceID==i)])/(pop.race)
-  #   
-  #   #motorcycle
-  #   mode.vmt.byrace[3,i]<-vmt*0.02
-  #   
-  #   #car
-  #   mode.vmt.byrace[4,i]<-vmt*0.9
-  #   
-  #   #bus
-  #   mode.vmt.byrace[5,i]<-vmt*0.02
-  #   
-  #   #truck
-  #   mode.vmt.byrace[6,i]<-vmt*0.06
-  #   
-  # }
-  
-  return(mode.vmt.byrace2)
 }
 
 # process the data and compute the active travel information
@@ -272,6 +208,105 @@ ActiveTravelDataOutput <- function(pop,trip.pop,countyID,Demo){
   
 }
 
+# function of shaping the outout file
+format.output <- function(pop,trip.pop,demogr){
+  format.at <- NULL
+  format.pop <- NULL
+  
+  for (i in 1:6){ # countyID
+    # compute the active travel data
+    Travel.Output.byDemo <- ActiveTravelDataOutput(pop,trip.pop,countyID = i,demogr)
+    
+    format.at <- rbind(format.at,
+                       cbind(Travel.Output.byDemo$re.walk.time.byDemo,c("relative.walk.time",rep("",7))),cuttingline, #relative walking time
+                       cbind(Travel.Output.byDemo$re.cycle.time.byDemo,c("relative.cycle.time",rep("",7))),cuttingline, # relative cycling time
+                       cbind(Travel.Output.byDemo$re.walk.speed.byDemo,c("relative.walk.speed",rep("",7))),cuttingline, # relative walking speed
+                       cbind(Travel.Output.byDemo$re.cycle.speed.byDemo,c("relative.cycle.speed",rep("",7))),cuttingline # relative cycling speed
+    )
+    
+    # obtain the population 
+    format.pop <- rbind(format.pop,Travel.Output.byDemo$pop.age.gender.demo[,1:8],cuttingline[1:8])
+  }
+  # add a column for county names
+  col.countyname.at<-matrix(c('ELD',rep("",35),'PLA',rep("",35),'SAC',rep("",35),'SUT',rep("",35),'YOL',rep("",35),'YUB',rep("",35)),216,1)
+  col.countyname.pop<-matrix(c('ELD',rep("",8),'PLA',rep("",8),'SAC',rep("",8),'SUT',rep("",8),'YOL',rep("",8),'YUB',rep("",8)),54,1)
+  final.format.at <- cbind(format.at,col.countyname.at)
+  final.format.pop <- cbind(format.pop,col.countyname.pop)
+  
+  return(list(final.format.at = final.format.at,
+              final.format.pop = final.format.pop))
+}
+
+#compute VMT by traffic mode for injury module (need further discussion)
+computeVMTbymode <- function(countyID,trip.pop,pop){
+  ModeNames <- c("bike","walk","motorcycle","car","bus","truck")
+  mode.vmt.byrace2 <- matrix(NA,nrow = 6,ncol = 2,dimnames = list(ModeNames,c("NHW","Other")))
+  
+  for (i in 1:2){
+    if (i==1){
+      pop.race <- length(which(pop$countyID==countyID&pop$raceID==i))
+      
+      #bike
+      mode.vmt.byrace2[1,i] <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==8&trip.pop$countyID==countyID&trip.pop$raceID==i)])/pop.race
+      #walk
+      mode.vmt.byrace2[2,i] <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==9&trip.pop$countyID==countyID&trip.pop$raceID==i)])/pop.race
+      
+      vmt <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==5&trip.pop$countyID==countyID&trip.pop$raceID==i)])/(3.5*pop.race)+sum(trip.pop$DISTANCE[which(trip.pop$MODE==6&trip.pop$countyID==countyID&trip.pop$raceID==i)])/(2*pop.race)+
+        sum(trip.pop$DISTANCE[which(trip.pop$MODE==7&trip.pop$countyID==countyID&trip.pop$raceID==i)])/(pop.race)
+    }else{
+      pop.race <- length(which(pop$countyID==countyID&pop$raceID%in%c(2:4)))
+      
+      #bike
+      mode.vmt.byrace2[1,i] <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==8&trip.pop$countyID==countyID&trip.pop$raceID%in%c(2:4))])/pop.race
+      #walk
+      mode.vmt.byrace2[2,i] <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==9&trip.pop$countyID==countyID&trip.pop$raceID%in%c(2:4))])/pop.race
+      
+      vmt <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==5&trip.pop$countyID==countyID&trip.pop$raceID%in%c(2:4))])/(3.5*pop.race)+sum(trip.pop$DISTANCE[which(trip.pop$MODE==6&trip.pop$countyID==countyID&trip.pop$raceID%in%c(2:4))])/(2*pop.race)+
+        sum(trip.pop$DISTANCE[which(trip.pop$MODE==7&trip.pop$countyID==countyID&trip.pop$raceID%in%c(2:4))])/(pop.race)
+    }
+    
+    #motorcycle
+    mode.vmt.byrace2[3,i]<-vmt*0.02
+    
+    #car
+    mode.vmt.byrace2[4,i]<-vmt*0.9
+    
+    #bus
+    mode.vmt.byrace2[5,i]<-vmt*0.02
+    
+    #truck
+    mode.vmt.byrace2[6,i]<-vmt*0.06
+  }
+  
+  # mode.vmt.byrace <- matrix(NA,nrow = 6,ncol = 4,dimnames = list(ModeNames,c("NHW","NHB","NHO","HO")))
+  # for (i in 1:4){
+  #   pop.race <- length(which(pop$countyID==countyID&pop$raceID==i))
+  #   
+  #   #bike
+  #   mode.vmt.byrace[1,i] <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==8&trip.pop$countyID==countyID&trip.pop$raceID==i)])/pop.race
+  #   #walk
+  #   mode.vmt.byrace[2,i] <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==9&trip.pop$countyID==countyID&trip.pop$raceID==i)])/pop.race
+  #   
+  #   vmt <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==5&trip.pop$countyID==countyID&trip.pop$raceID==i)])/(3.5*pop.race)+sum(trip.pop$DISTANCE[which(trip.pop$MODE==6&trip.pop$countyID==countyID&trip.pop$raceID==i)])/(2*pop.race)+
+  #     sum(trip.pop$DISTANCE[which(trip.pop$MODE==7&trip.pop$countyID==countyID&trip.pop$raceID==i)])/(pop.race)
+  #   
+  #   #motorcycle
+  #   mode.vmt.byrace[3,i]<-vmt*0.02
+  #   
+  #   #car
+  #   mode.vmt.byrace[4,i]<-vmt*0.9
+  #   
+  #   #bus
+  #   mode.vmt.byrace[5,i]<-vmt*0.02
+  #   
+  #   #truck
+  #   mode.vmt.byrace[6,i]<-vmt*0.06
+  #   
+  # }
+  
+  return(mode.vmt.byrace2)
+}
+
 # -----------------------------------
 # Data Processing
 # -----------------------------------
@@ -281,14 +316,14 @@ triptable.2012 <- read.dbf('trip_2012.dbf')
 triptable.2020 <- read.dbf('trip_2020_am1.dbf')
 triptable.2036 <- read.dbf('trip_2036.dbf')
 
-# load the processed syn pop
+# load the processed syn pop (after hot-deck imputation)
 load('pop.2012.cmplt')
 load('pop.2020.cmplt')
 load('pop.2036.cmplt')
 
 #recode the variables in population matrix
 pop.2012 <- recode.pop(pop.2012.cmplt)
-pop.2020 <- recode.pop(pop.2020.cmplt[,-c(24:27)])
+pop.2020 <- recode.pop(pop.2020.cmplt[,-c(24:27)]) #delete three redundant columns
 pop.2036 <- recode.pop(pop.2036.cmplt)
 
 #merge pop and trip data sets
@@ -301,7 +336,7 @@ trip.pop.2036 <- prepTripPop(pop.2036,triptable.2036)
 #walkingtime <- sum(trip.pop.2036$TIME[which(trip.pop.2036$MODE==9)])/population*7
 #cyclingtime <- sum(trip.pop.2036$TIME[which(trip.pop.2036$MODE==8)])/population*7
 
-#compute VMT by traffic mode
+#compute VMT by traffic mode for injury module
 vmt.baseline <- lapply(c(1:6),function(x) computeVMTbymode(x,trip.pop.2012,pop.2012))
 vmt.2020 <- lapply(c(1:6),function(x) computeVMTbymode(x,trip.pop.2020,pop.2020))
 vmt.2036 <- lapply(c(1:6),function(x) computeVMTbymode(x,trip.pop.2036,pop.2036))
@@ -309,89 +344,116 @@ vmt.2036 <- lapply(c(1:6),function(x) computeVMTbymode(x,trip.pop.2036,pop.2036)
 #output the mean pop mean walk time and cycle time
 # walk: mode = 9
 # cycle: mode = 8
-
 Pop.AT.para.2012 <- pop.mean.at.time(trip.pop.2012,pop.2012)
 Pop.AT.para.2020 <- pop.mean.at.time(trip.pop.2020,pop.2020)
 Pop.AT.para.2036 <- pop.mean.at.time(trip.pop.2036,pop.2036)
 
 cuttingline <- matrix("",1,9)
 
+# save the output (population mean active travel time by race) into .csv files
 write.csv(rbind(
   cbind(Pop.AT.para.2012$Pop.AT.para.byRace,c("2012",rep("",5))),cuttingline,
   cbind(Pop.AT.para.2020$Pop.AT.para.byRace,c("2020",rep("",5))),cuttingline, 
   cbind(Pop.AT.para.2036$Pop.AT.para.byRace,c("2036",rep("",5)))
 ),file = "00_output/PopulationMeanATTimebyRace.csv")
 
+# save the output (population mean active travel time by income) into .csv files
 write.csv(rbind(
   cbind(Pop.AT.para.2012$Pop.AT.para.byIncome,c("2012",rep("",5))),cuttingline,
   cbind(Pop.AT.para.2020$Pop.AT.para.byIncome,c("2020",rep("",5))),cuttingline, 
   cbind(Pop.AT.para.2036$Pop.AT.para.byIncome,c("2036",rep("",5)))
 ),file = "00_output/PopulationMeanATTimebyIncome.csv")
 
-# output the active transport information
-#countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
-Travel.Output.byIncome.2012 <- ActiveTravelDataOutput(pop.2012,trip.pop.2012,1,"Income")
-Travel.Output.byRace.2012 <- ActiveTravelDataOutput(pop.2012,trip.pop.2012,1,"Race")
+# output the detail active transport information for each county and save them as .csv files
+Travel.Output.byRace.2012 <- format.output(pop.2012,trip.pop.2012,'Race')
+write.csv(Travel.Output.byRace.2012$final.format.at,file = '00_output/ActiveTransport_byRace.2012.csv')
+write.csv(Travel.Output.byRace.2012$final.format.pop,file = '00_output/Population_byRace.2012.csv')
 
-Travel.Output.byIncome.2020 <- ActiveTravelDataOutput(pop.2020,trip.pop.2020,2,"Income")
-Travel.Output.byRace.2020 <- ActiveTravelDataOutput(pop.2020,trip.pop.2020,2,"Race")
+Travel.Output.byRace.2020 <- format.output(pop.2020,trip.pop.2020,'Race')
+write.csv(Travel.Output.byRace.2020$final.format.at,file = '00_output/ActiveTransport_byRace.2020.csv')
+write.csv(Travel.Output.byRace.2020$final.format.pop,file = '00_output/Population_byRace.2020.csv')
 
-Travel.Output.byIncome.2036 <- ActiveTravelDataOutput(pop.2036,trip.pop.2036,6,"Income")
-Travel.Output.byRace.2036 <- ActiveTravelDataOutput(pop.2036,trip.pop.2036,6,"Race")
+Travel.Output.byRace.2036 <- format.output(pop.2036,trip.pop.2036,'Race')
+write.csv(Travel.Output.byRace.2036$final.format.at,file = '00_output/ActiveTransport_byRace.2036.csv')
+write.csv(Travel.Output.byRace.2036$final.format.pop,file = '00_output/Population_byRace.2036.csv')
 
-# Output the .csv files for active transport data and population
-cuttingline <- matrix(" ",1,9)
+Travel.Output.byIncome.2012 <- format.output(pop.2012,trip.pop.2012,'Income')
+write.csv(Travel.Output.byIncome.2012$final.format.at,file = '00_output/ActiveTransport_byIncome.2012.csv')
+write.csv(Travel.Output.byIncome.2012$final.format.pop,file = '00_output/Population_byIncome.2012.csv')
 
-#active transport data by race
-write.csv(rbind(
-  cbind(Travel.Output.byRace.2020$re.walk.time.byDemo,c("relative.walk.time",rep("",7))),cuttingline, #relative walking time
-  cbind(Travel.Output.byRace.2020$re.cycle.time.byDemo,c("relative.cycle.time",rep("",7))),cuttingline, # relative cycling time
-  cbind(Travel.Output.byRace.2020$re.walk.speed.byDemo,c("relative.walk.speed",rep("",7))),cuttingline, # relative walking speed
-  cbind(Travel.Output.byRace.2020$re.cycle.speed.byDemo,c("relative.cycle.speed",rep("",7))) # relative cycling speed
-),file = "00_output/PLA_ABM_by_race.2020.csv")
+Travel.Output.byIncome.2020 <- format.output(pop.2020,trip.pop.2020,'Income')
+write.csv(Travel.Output.byIncome.2020$final.format.at,file = '00_output/ActiveTransport_byIncome.2020.csv')
+write.csv(Travel.Output.byIncome.2020$final.format.pop,file = '00_output/Population_byIncome.2020.csv')
 
-# population data by race
-write.csv(Travel.Output.byRace.2020$pop.age.gender.demo[,1:8],
-          file = "00_output/PLA_pop_race.2020.csv")
+Travel.Output.byIncome.2036 <- format.output(pop.2036,trip.pop.2036,'Income')
+write.csv(Travel.Output.byIncome.2036$final.format.at,file = '00_output/ActiveTransport_byIncome.2036.csv')
+write.csv(Travel.Output.byIncome.2036$final.format.pop,file = '00_output/Population_byIncome.2036.csv')
 
 
-#active transport data by income
-write.csv(rbind(
-  cbind(Travel.Output.byIncome.2020$re.walk.time.byDemo,c("relative.walk.time",rep("",7))),cuttingline, #relative walking time
-  cbind(Travel.Output.byIncome.2020$re.cycle.time.byDemo,c("relative.cycle.time",rep("",7))),cuttingline, # relative cycling time
-  cbind(Travel.Output.byIncome.2020$re.walk.speed.byDemo,c("relative.walk.speed",rep("",7))),cuttingline, # relative walking speed
-  cbind(Travel.Output.byIncome.2020$re.cycle.speed.byDemo,c("relative.cycle.speed",rep("",7))) # relative cycling speed
-),file = "00_output/PLA_by_income.2020.csv")
+# 
+# 
+# Travel.Output.byRace.2012 <- ActiveTravelDataOutput(pop.2012,trip.pop.2012,countyID = 1,"Race")
+# 
+# Travel.Output.byIncome.2020 <- ActiveTravelDataOutput(pop.2020,trip.pop.2020,countyID = 1,"Income")
+# Travel.Output.byRace.2020 <- ActiveTravelDataOutput(pop.2020,trip.pop.2020,countyID = 1,"Race")
+# 
+# Travel.Output.byIncome.2036 <- ActiveTravelDataOutput(pop.2036,trip.pop.2036,countyID = 1,"Income")
+# Travel.Output.byRace.2036 <- ActiveTravelDataOutput(pop.2036,trip.pop.2036,countyID = 1,"Race")
+# 
+# # Output the .csv files for active transport data and population
+# cuttingline <- matrix(" ",1,9)
+# 
+# #save the active transport data by race
+# write.csv(rbind(
+#   cbind(Travel.Output.byRace.2012$re.walk.time.byDemo,c("relative.walk.time",rep("",7))),cuttingline, #relative walking time
+#   cbind(Travel.Output.byRace.2012$re.cycle.time.byDemo,c("relative.cycle.time",rep("",7))),cuttingline, # relative cycling time
+#   cbind(Travel.Output.byRace.2012$re.walk.speed.byDemo,c("relative.walk.speed",rep("",7))),cuttingline, # relative walking speed
+#   cbind(Travel.Output.byRace.2012$re.cycle.speed.byDemo,c("relative.cycle.speed",rep("",7))) # relative cycling speed
+# ),file = "00_output/ELD_ABM_by_race.2012.csv")
+# 
+# # population data by race
+# write.csv(Travel.Output.byRace.2012$pop.age.gender.demo[,1:8],
+#           file = "00_output/ELD_pop_race.2012.csv")
+# 
+# #active transport data by income
+# write.csv(rbind(
+#   cbind(Travel.Output.byIncome.2012$re.walk.time.byDemo,c("relative.walk.time",rep("",7))),cuttingline, #relative walking time
+#   cbind(Travel.Output.byIncome.2012$re.cycle.time.byDemo,c("relative.cycle.time",rep("",7))),cuttingline, # relative cycling time
+#   cbind(Travel.Output.byIncome.2012$re.walk.speed.byDemo,c("relative.walk.speed",rep("",7))),cuttingline, # relative walking speed
+#   cbind(Travel.Output.byIncome.2012$re.cycle.speed.byDemo,c("relative.cycle.speed",rep("",7))) # relative cycling speed
+# ),file = "00_output/ELD_by_income.2012.csv")
+# 
+# # population data by income
+# write.csv(Travel.Output.byIncome.2012$pop.age.gender.demo[,1:8],
+#           file = "00_output/ELD_pop_income.2012.csv")
 
-# population data by income
-write.csv(Travel.Output.byIncome.2020$pop.age.gender.demo[,1:8],
-          file = "00_output/PLA_pop_income.2020.csv")
 
-#for black group in all counties
 
-NHB.walk.time <- NHB.cycle.time <- matrix(NA,8,2)
-NHB.walk.speed <- NHB.cycle.speed <- matrix(NA,8,2)
-for(i in (1:8)){#age
-  for (j in (3:4)){#gender.demo
-    
-    pop.temp <- nrow(pop.2036[which(pop.2036$ageID==i&pop.2036$gender.race==j),])
-    
-    temp.time.walk <- sum(trip.pop.2036$TIME[which(trip.pop.2036$ageID==i&trip.pop.2036$gender.race==j&trip.pop.2036$MODE==9)])/pop.temp
-    NHB.walk.time[i,(j-2)]<-temp.time.walk
-    
-    temp.time.cycle <- sum(trip.pop.2036$TIME[which(trip.pop.2036$ageID==i&trip.pop.2036$gender.race==j&trip.pop.2036$MODE==8)])/pop.temp
-    NHB.cycle.time[i,(j-2)]<-temp.time.cycle
-    
-    temp.dis.walk <- sum(trip.pop.2036$DISTANCE[which(trip.pop.2036$ageID==i&trip.pop.2036$gender.race==j&trip.pop.2036$MODE==9)])/pop.temp
-    NHB.walk.speed[i,(j-2)]<-temp.dis.walk/(temp.time.walk/60)
-    
-    temp.dis.cycle <- sum(trip.pop.2036$DISTANCE[which(trip.pop.2036$ageID==i&trip.pop.2036$gender.race==j&trip.pop.2036$MODE==8)])/pop.temp
-    NHB.cycle.speed[i,(j-2)]<-temp.dis.cycle/(temp.time.cycle/60)
-    
-  }
-} 
-  
-pop.mean.attime.NHB <- sum(trip.pop.2036$TIME[which(trip.pop.2036$MODE==9&trip.pop.2036$raceID==2)])/length(which(pop.2036$raceID==2))*7
+
+# #Aggregation process for black race in all counties
+# NHB.walk.time <- NHB.cycle.time <- matrix(NA,8,2)
+# NHB.walk.speed <- NHB.cycle.speed <- matrix(NA,8,2)
+# for(i in (1:8)){#age
+#   for (j in (3:4)){#gender.demo
+#     
+#     pop.temp <- nrow(pop.2036[which(pop.2036$ageID==i&pop.2036$gender.race==j),])
+#     
+#     temp.time.walk <- sum(trip.pop.2036$TIME[which(trip.pop.2036$ageID==i&trip.pop.2036$gender.race==j&trip.pop.2036$MODE==9)])/pop.temp
+#     NHB.walk.time[i,(j-2)]<-temp.time.walk
+#     
+#     temp.time.cycle <- sum(trip.pop.2036$TIME[which(trip.pop.2036$ageID==i&trip.pop.2036$gender.race==j&trip.pop.2036$MODE==8)])/pop.temp
+#     NHB.cycle.time[i,(j-2)]<-temp.time.cycle
+#     
+#     temp.dis.walk <- sum(trip.pop.2036$DISTANCE[which(trip.pop.2036$ageID==i&trip.pop.2036$gender.race==j&trip.pop.2036$MODE==9)])/pop.temp
+#     NHB.walk.speed[i,(j-2)]<-temp.dis.walk/(temp.time.walk/60)
+#     
+#     temp.dis.cycle <- sum(trip.pop.2036$DISTANCE[which(trip.pop.2036$ageID==i&trip.pop.2036$gender.race==j&trip.pop.2036$MODE==8)])/pop.temp
+#     NHB.cycle.speed[i,(j-2)]<-temp.dis.cycle/(temp.time.cycle/60)
+#     
+#   }
+# } 
+#   
+# pop.mean.attime.NHB <- sum(trip.pop.2036$TIME[which(trip.pop.2036$MODE==9&trip.pop.2036$raceID==2)])/length(which(pop.2036$raceID==2))*7
 
 #sum(trip.pop.2012$TIME[which(trip.pop.2012$MODE==9&trip.pop.2012$raceID==2)])
 

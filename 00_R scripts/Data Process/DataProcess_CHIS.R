@@ -194,11 +194,11 @@ write.csv(rbind(
   output.byRace[17:32,],cuttingline, # NHB
   output.byRace[33:48,],cuttingline, # NHO
   output.byRace[49:64,] # HO
-),file = "06_Equity Analysis/test_nonMet_Race.csv")
+),file = "06_Equity Analysis/01_nonTravelMET_byRace.csv")
 
 write.csv(rbind(
   output.byIncome[1:16,],cuttingline, #Low Income
   output.byIncome[17:32,],cuttingline, # Median Income
   output.byIncome[33:48,],cuttingline, # High Income
   output.byIncome[49:64,] # Other
-),file = "06_Equity Analysis/test_nonMet_Income.csv")
+),file = "06_Equity Analysis/02_nonTravelMET_byIncome.csv")
