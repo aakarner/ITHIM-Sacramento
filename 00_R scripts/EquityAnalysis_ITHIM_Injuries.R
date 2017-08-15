@@ -10,7 +10,7 @@ options(scipen = 100)
 nTrafficModeV <- 6L #victim mode
 nTrafficModeS <- 7L #striking mode (include one-party)
 nInjuriedType <- 2L #fatal & serious
-ModeNames <- c("bike","walk","motorcycle","car","bus","truck")
+ModeNames <- c("walk","bike","motorcycle","car","bus","truck") # from "smallest" to "largest"
 RoadTypes <- c("local","arterial","highway")
 nRoadType <- length(RoadTypes)
 
