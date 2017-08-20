@@ -835,39 +835,24 @@ DFforFigure <- function(OutcomeMatrix.list,demogrID,countyID){
   return(df=df)
 }
 
-# DFforFigure <- function(OutcomeMatrix,demogrID){
-#   #test
-#   OutcomeMatrix <- RawReductionOutcome[[1]]
-#   demogrID <- 1
-#   #county names
-#   county <- rep(rownames(OutcomeMatrix),each=4)
-#   #race group names
-#   raceGroup <- rep(c("1.White",'2.Black','3.Hisp','4.Other'),nrow(OutcomeMatrix))
-#   #income group names
-#   incomeGroup <- rep(incomeGroupNames,nrow(OutcomeMatrix))
-#   
-#   if (demogrID==1) {
-#     demogrGroup = raceGroup
-#     #shape the outcome as data.frame
-#     outcome <- outcome.update<-as.data.frame(matrix(t(OutcomeMatrix),nDemoClass*nrow(OutcomeMatrix),1))
-#     for (i in 1:6){
-#       outcome.update[4*i-1,1]<-outcome[4*i,1]
-#       outcome.update[4*i,1]<-outcome[4*i-1,1]
-#     }
-#     
-#     df <- data.frame(County=county,DemogrGroup=demogrGroup,v =(-outcome.update))
-#     
-#   }else{
-#     demogrGroup = incomeGroup
-#     #shape the outcome as data.frame
-#     outcome <- as.data.frame(matrix(t(OutcomeMatrix),nDemoClass*nrow(OutcomeMatrix),1))
-#     df <- data.frame(County=county,DemogrGroup=demogrGroup,v =(-outcome))
-#     
-#     }
-#     
-#   return(df=df)
-# }
-
+#countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
+#dbID: 1-death,2-DALYs
+#yaxisID: 1-raw,2-age.std
+#demogrID: 1-race,2-income
+plot.shiny.app <- function(countyID,dbID,yaxisID,demogrID){
+  
+  if(yaxisID==1){
+    df.result <- DFforFigure(RawReductionOutcome[c((dbID*2+demogrID-2),(dbID*2+demogrID-1))],demogrID,countyID)
+    ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Health Burden Reduction')+
+      ggtitle("Reduction in health burden")
+  }else{
+    df.result <- DFforFigure(AgeStdReductionOutcome[c((dbID*2+demogrID-2),(dbID*2+demogrID-1))],demogrID,countyID)
+    ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Health Burden Reduction Rate (per 100,000 population)')+
+      ggtitle("Age-std reduction in health burden")
+  }
+}
 
 #write the outcome into .csv files
 write.csv.func <- function(HealthOutcome){
@@ -924,33 +909,57 @@ RawReductionOutcome <- Reduction.output(c(1:6))
 AgeStdReductionOutcome <- AgeStdHealthOutcome(c(1:6))
 
 ############################# Plots ############################################
-#countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
-#dbID: 1-death,2-DALYs
-#yaxisID: 1-raw,2-age.std
-#demogrID: 1-race,2-income
-plot.shiny.app <- function(countyID,dbID,yaxisID,demogrID){
-  
-  if(yaxisID==1){
-    df.result <- DFforFigure(RawReductionOutcome[c((dbID*2+demogrID-2),(dbID*2+demogrID-1))],demogrID,countyID)
-    ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
-      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Health Burden Reduction')+
-      ggtitle("Reduction in health burden")
-  }else{
-    df.result <- DFforFigure(AgeStdReductionOutcome[c((dbID*2+demogrID-2),(dbID*2+demogrID-1))],demogrID,countyID)
-    ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
-      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Health Burden Reduction Rate (per 100,000 population)')+
-      ggtitle("Age-std reduction in health burden")
-  }
-}
+
 
 #countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
 #dbID: 1-death,2-DALYs
 #yaxisID: 1-raw,2-age.std
 #demogrID: 1-race,2-income
-plot.shiny.app(countyID = 2,dbID = 1, yaxisID = 2, demogrID = 1)
+plot.shiny.app(countyID = 4,dbID = 1, yaxisID = 1, demogrID = 1)
+
+
+
+
+
+
+
 
 
 ####################### TEST CODE ###########################
+# DFforFigure <- function(OutcomeMatrix,demogrID){
+#   #test
+#   OutcomeMatrix <- RawReductionOutcome[[1]]
+#   demogrID <- 1
+#   #county names
+#   county <- rep(rownames(OutcomeMatrix),each=4)
+#   #race group names
+#   raceGroup <- rep(c("1.White",'2.Black','3.Hisp','4.Other'),nrow(OutcomeMatrix))
+#   #income group names
+#   incomeGroup <- rep(incomeGroupNames,nrow(OutcomeMatrix))
+#   
+#   if (demogrID==1) {
+#     demogrGroup = raceGroup
+#     #shape the outcome as data.frame
+#     outcome <- outcome.update<-as.data.frame(matrix(t(OutcomeMatrix),nDemoClass*nrow(OutcomeMatrix),1))
+#     for (i in 1:6){
+#       outcome.update[4*i-1,1]<-outcome[4*i,1]
+#       outcome.update[4*i,1]<-outcome[4*i-1,1]
+#     }
+#     
+#     df <- data.frame(County=county,DemogrGroup=demogrGroup,v =(-outcome.update))
+#     
+#   }else{
+#     demogrGroup = incomeGroup
+#     #shape the outcome as data.frame
+#     outcome <- as.data.frame(matrix(t(OutcomeMatrix),nDemoClass*nrow(OutcomeMatrix),1))
+#     df <- data.frame(County=county,DemogrGroup=demogrGroup,v =(-outcome))
+#     
+#     }
+#     
+#   return(df=df)
+# }
+
+
 #ggplot(data = df, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
  #        geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Health Burden Reduction Rate (per 100,000 population)')+
   #      ggtitle("Reduction in health burden")
