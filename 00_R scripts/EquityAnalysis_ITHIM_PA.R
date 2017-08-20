@@ -828,7 +828,7 @@ DFforFigure <- function(OutcomeMatrix.list,demogrID,countyID){
     demogrGroup = incomeGroup
     #shape the outcome as data.frame
     outcome <- as.data.frame(matrix(t(OutcomeMatrix),nDemoClass*nrow(OutcomeMatrix),1))
-    df <- data.frame(Scenario=scenario,DemogrGroup=demogrGroup,v =(-outcome))
+    df <- data.frame(Scenario=scenario.name,DemogrGroup=demogrGroup,v =(-outcome))
     
   }
   
@@ -842,15 +842,66 @@ DFforFigure <- function(OutcomeMatrix.list,demogrID,countyID){
 plot.shiny.app <- function(countyID,dbID,yaxisID,demogrID){
   
   if(yaxisID==1){
-    df.result <- DFforFigure(RawReductionOutcome[c((dbID*2+demogrID-2),(dbID*2+demogrID-1))],demogrID,countyID)
+    df.result <- DFforFigure(RawReductionOutcome[c((demogrID*4+dbID*2-5),(demogrID*4+dbID*2-4))],demogrID,countyID)
     ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
       geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Health Burden Reduction')+
       ggtitle("Reduction in health burden")
-  }else{
-    df.result <- DFforFigure(AgeStdReductionOutcome[c((dbID*2+demogrID-2),(dbID*2+demogrID-1))],demogrID,countyID)
+  }else if (yaxisID ==2) {
+    df.result <- DFforFigure(AgeStdReductionOutcome[c((demogrID*4+dbID*2-5),(demogrID*4+dbID*2-4))],demogrID,countyID)
     ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
       geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Health Burden Reduction Rate (per 100,000 population)')+
       ggtitle("Age-std reduction in health burden")
+  }else{
+    #plot for physical activity data
+    AT_Pop_MeanTimebyRace <- read.csv("02_ActiveTransport/PopulationMeanATTimebyRace.csv")
+    AT_Pop_MeanTimebyIncome <- read.csv("02_ActiveTransport/PopulationMeanATTimebyIncome.csv")
+    
+    OutcomeMatrix.walk <- AT_Pop_MeanTimebyRace[c(countyID,(countyID+7),(countyID+14)),c(2,4,6,8)]
+    OutcomeMatrix.cycle <- AT_Pop_MeanTimebyRace[c(countyID,(countyID+7),(countyID+14)),c(3,5,7,9)]
+    
+    scenario.name <- rep(c('2012','2020','2036'),each=4)
+    
+    #race group names
+    raceGroup <- rep(c("1.White",'2.Black','3.Hisp','4.Other'),3)
+    #income group names
+    incomeGroup <- rep(incomeGroupNames,3)
+    
+    if (demogrID==1) {
+      demogrGroup = raceGroup
+      #shape the outcome as data.frame
+      outcome.walk <- outcome.update.walk<-as.data.frame(matrix(t(OutcomeMatrix.walk),nDemoClass*nrow(OutcomeMatrix.walk),1))
+      outcome.cycle <- outcome.update.cycle<-as.data.frame(matrix(t(OutcomeMatrix.cycle),nDemoClass*nrow(OutcomeMatrix.cycle),1))
+      
+      for (i in 1:2){
+        outcome.update.walk[4*i-1,1]<-outcome.walk[4*i,1]
+        outcome.update.walk[4*i,1]<-outcome.walk[4*i-1,1]
+        
+        outcome.update.cycle[4*i-1,1]<-outcome.cycle[4*i,1]
+        outcome.update.cycle[4*i,1]<-outcome.cycle[4*i-1,1]
+      }
+      
+      df.walk <- data.frame(Scenario=scenario.name,DemogrGroup=demogrGroup,Mode = 'walk',v1 =(outcome.update.walk))
+      df.cycle <- data.frame(Scenario=scenario.name,DemogrGroup=demogrGroup,Mode = 'cycle',v1 =(outcome.update.cycle))
+      df.at <- rbind(df.walk,df.cycle)
+      
+      
+    }else{
+      demogrGroup = incomeGroup
+      #shape the outcome as data.frame
+      outcome.walk <- as.data.frame(matrix(t(OutcomeMatrix.walk),nDemoClass*nrow(OutcomeMatrix.walk),1))
+      outcome.cycle <- as.data.frame(matrix(t(OutcomeMatrix.cycle),nDemoClass*nrow(OutcomeMatrix.cycle),1))
+      
+      df.walk <- data.frame(Scenario=scenario.name,DemogrGroup=demogrGroup,Mode = 'walk',v1 =(outcome.walk))
+      df.cycle <- data.frame(Scenario=scenario.name,DemogrGroup=demogrGroup,Mode = 'cycle',v1 =(outcome.cycle))
+      df.at <- rbind(df.walk,df.cycle)
+      
+    }
+    
+    ggplot(data = df.at, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Active Travel Time (mins per week per capita)')+
+      facet_grid(Mode~.,scales = "free") +ggtitle("Physical Activity")
+    
+    
   }
 }
 
@@ -913,16 +964,9 @@ AgeStdReductionOutcome <- AgeStdHealthOutcome(c(1:6))
 
 #countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
 #dbID: 1-death,2-DALYs
-#yaxisID: 1-raw,2-age.std
+#yaxisID: 1-raw,2-age.std,3-physical activity
 #demogrID: 1-race,2-income
-plot.shiny.app(countyID = 4,dbID = 1, yaxisID = 1, demogrID = 1)
-
-
-
-
-
-
-
+plot.shiny.app(countyID = 1,dbID = 1, yaxisID = 3, demogrID = 1)
 
 
 ####################### TEST CODE ###########################
