@@ -239,10 +239,10 @@ format.output <- function(pop,trip.pop,demogr){
 
 #compute VMT by traffic mode for injury module (need further discussion)
 computeVMTbymode <- function(countyID,trip.pop,pop){
-  ModeNames <- c("bike","walk","motorcycle","car","bus","truck")
+  ModeNames <- c("bike","walk","motorcycle","car","truck","bus")
   mode.vmt.byrace2 <- matrix(NA,nrow = 6,ncol = 2,dimnames = list(ModeNames,c("NHW","Other")))
   
-  for (i in 1:2){
+  for (i in 1:2){# 1=NHW; 2=other three
     if (i==1){
       pop.race <- length(which(pop$countyID==countyID&pop$raceID==i))
       
@@ -271,11 +271,11 @@ computeVMTbymode <- function(countyID,trip.pop,pop){
     #car
     mode.vmt.byrace2[4,i]<-vmt*0.9
     
-    #bus
-    mode.vmt.byrace2[5,i]<-vmt*0.02
-    
     #truck
-    mode.vmt.byrace2[6,i]<-vmt*0.06
+    mode.vmt.byrace2[5,i]<-vmt*0.06
+    
+    #bus
+    mode.vmt.byrace2[6,i]<-vmt*0.02
   }
   
   # mode.vmt.byrace <- matrix(NA,nrow = 6,ncol = 4,dimnames = list(ModeNames,c("NHW","NHB","NHO","HO")))
@@ -336,10 +336,6 @@ trip.pop.2036 <- prepTripPop(pop.2036,triptable.2036)
 #walkingtime <- sum(trip.pop.2036$TIME[which(trip.pop.2036$MODE==9)])/population*7
 #cyclingtime <- sum(trip.pop.2036$TIME[which(trip.pop.2036$MODE==8)])/population*7
 
-#compute VMT by traffic mode for injury module
-vmt.baseline <- lapply(c(1:6),function(x) computeVMTbymode(x,trip.pop.2012,pop.2012))
-vmt.2020 <- lapply(c(1:6),function(x) computeVMTbymode(x,trip.pop.2020,pop.2020))
-vmt.2036 <- lapply(c(1:6),function(x) computeVMTbymode(x,trip.pop.2036,pop.2036))
 
 #output the mean pop mean walk time and cycle time
 # walk: mode = 9
@@ -389,6 +385,16 @@ Travel.Output.byIncome.2036 <- format.output(pop.2036,trip.pop.2036,'Income')
 write.csv(Travel.Output.byIncome.2036$final.format.at,file = '00_output/ActiveTransport_byIncome.2036.csv')
 write.csv(Travel.Output.byIncome.2036$final.format.pop,file = '00_output/Population_byIncome.2036.csv')
 
+
+#compute VMT by traffic mode for injury module (two races version)
+vmt.baseline <- lapply(c(1:6),function(x) computeVMTbymode(x,trip.pop.2012,pop.2012))
+vmt.2020 <- lapply(c(1:6),function(x) computeVMTbymode(x,trip.pop.2020,pop.2020))
+vmt.2036 <- lapply(c(1:6),function(x) computeVMTbymode(x,trip.pop.2036,pop.2036))
+names(vmt.baseline)<-names(vmt.2020)<-names(vmt.2036)<-c('ELD','PLA','SAC','SUT','YOL','YUB')
+
+write.csv(vmt.baseline,file = '00_output/VMT_baseline.csv')
+write.csv(vmt.baseline,file = '00_output/VMT_2020.csv')
+write.csv(vmt.baseline,file = '00_output/VMT_2036.csv')
 
 # 
 # 
@@ -490,4 +496,20 @@ write.csv(Travel.Output.byIncome.2036$final.format.pop,file = '00_output/Populat
 #sd <- sd(c(trip.pop.2012.cv$TIME[which(trip.pop.2012.cv$MODE==99&trip.pop.2012.cv$countyID==i)],rep(0,(length(which(pop.2012$countyID==i))-length(trip.pop.2012.cv$TIME[which(trip.pop.2012.cv$MODE==99&trip.pop.2012$countyID==i)])))))
 #mean <- sum(trip.pop.2012.cv$TIME[which(trip.pop.2012.cv$MODE==99&trip.pop.2012.cv$countyID==i)])/length(which(pop.2012$countyID==i))
 #Pop.AC.para[i,3]=sd/mean
+
+pop.NHW.all <- length(which(pop.2012$raceID%in%c(2:4)))
+VMT.bike <-sum(trip.pop.2012$DISTANCE[which(trip.pop.2012$MODE==8&trip.pop.2012$raceID%in%c(2:4))])/pop.NHW.all
+VMT.bike
+
+VMT.walk <-sum(trip.pop.2012$DISTANCE[which(trip.pop.2012$MODE==9&trip.pop.2012$raceID%in%c(2:4))])/pop.NHW.all
+VMT.walk
+
+pop.NHW.all <- length(which(pop.2036$raceID%in%c(2:4)))
+VMT.bike <-sum(trip.pop.2036$DISTANCE[which(trip.pop.2036$MODE==8&trip.pop.2036$raceID%in%c(2:4))])/pop.NHW.all
+VMT.bike
+
+VMT.walk <-sum(trip.pop.2036$DISTANCE[which(trip.pop.2036$MODE==9&trip.pop.2036$raceID%in%c(2:4))])/pop.NHW.all
+VMT.walk
+
+
 

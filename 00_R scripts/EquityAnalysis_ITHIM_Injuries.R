@@ -10,14 +10,14 @@ options(scipen = 100)
 nTrafficModeV <- 6L #victim mode
 nTrafficModeS <- 7L #striking mode (include one-party)
 nInjuriedType <- 2L #fatal & serious
-ModeNames <- c("walk","bike","motorcycle","car","bus","truck") # from "smallest" to "largest"
+ModeNames <- c("bike","walk","motorcycle","car","bus","truck")
 RoadTypes <- c("local","arterial","highway")
 nRoadType <- length(RoadTypes)
 
 #### function for reading csv files of injury data and VMT
-# data source: SWITRS 2012-2016 (Statewide Integrated Traffic Reporting System)
+# data source: SWITRS 2006-2016 (Statewide Integrated Traffic Reporting System)
 # data source: Transportation Injury Mapping System (TIMS by US Berkeley)
-# 5-year annual average number of road traffic injuries
+# 11-year annual average number of road traffic injuries
 input.csv <- function(countyID){
   #test
   #countyID = 1

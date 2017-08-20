@@ -11,30 +11,30 @@ options(scipen = 100)
 nTrafficModeV <- 6L #victim mode
 nTrafficModeS <- 7L #striking mode (include one-party)
 nInjuriedType <- 2L #fatal & serious
-ModeNames <- c("bike","walk","motorcycle","car","bus","truck")
+ModeNames <- c("bike","walk","motorcycle","car","truck","bus")
 RoadTypes <- c("local","arterial","highway")
 nRoadType <- length(RoadTypes)
 
 #### function for reading csv files of injury data and VMT
-# data source: SWITRS 2012-2016 (Statewide Integrated Traffic Reporting System)
+# data source: SWITRS 2006-2016 (Statewide Integrated Traffic Reporting System)
 # data source: Transportation Injury Mapping System (TIMS by US Berkeley)
-# 5-year annual average number of road traffic injuries
+# 11-year annual average number of road traffic injuries
 input.csv <- function(countyID){
   #test
   #countyID = 1
   
-  filenames.injury <- readLines("05_baseline injury/01_filenames_twoRaces.txt")
+  #pop.file.names <- list.files(path = "01_Population")
+  
+  #filenames.injury <- readLines("05_baseline injury/01_filenames_twoRaces.txt")
+  #temp.Other <- read.csv(filenames.injury[2*countyID]) 
+  filenames.injury <- list.files(path = '05_baseline injury')[1:6]
   
   # build a list to store the baseline injury data sets for all races
   injury.list <- rep(list(matrix(NA,36,7)),2)
-  temp.NHW <- read.csv(filenames.injury[2*countyID-1]) # non hispanic white
-  injury.list[[1]] <- temp.NHW[,2:8]
-  temp.Other <- read.csv(filenames.injury[2*countyID]) # non hispanic black
-  injury.list[[2]] <- temp.Other[,2:8]
-  #temp.NHO <- read.csv(filenames.injury[4*countyID-1]) # non hispanic other races
-  #injury.list[[3]] <- temp.NHO[,2:8]
-  #temp.HO <- read.csv(filenames.injury[4*countyID])   # hispanic 
-  #injury.list[[4]] <- temp.HO[,2:8]
+  temp <- read.csv(paste0('05_baseline injury/',filenames.injury[countyID])) 
+  injury.list[[1]] <- temp[1:36,2:8] # non hispanic white
+  injury.list[[2]] <- temp[38:73,2:8] # non hispanic other three
+
   names(injury.list)<- c('NHW','Others')
   
   # input the person & vehicle distance matrix
@@ -245,6 +245,7 @@ createInjuryResults <- function(injury.baseline,injury.scenario){
 
 output.result <- function(countyID){
   # countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
+  #countyID=1
   injury.list <- input.csv(countyID = countyID)[[1]]
   person.vehicle.distance_input.list <- input.csv(countyID = countyID)[[2]]
   
@@ -278,9 +279,9 @@ output.result <- function(countyID){
 }
 
 ############################calculation example#################################
-write.csv(output.result(countyID=1),file = '00_HealthOutcome/00_Injury/ELD.injuryresult_twoRaces.csv')
-write.csv(output.result(countyID=2),file = '00_HealthOutcome/00_Injury/PLA.injuryresult_twoRaces.csv')
-write.csv(output.result(countyID=3),file = '00_HealthOutcome/00_Injury/SAC.injuryresult_twoRaces.csv')
-write.csv(output.result(countyID=4),file = '00_HealthOutcome/00_Injury/SUT.injuryresult_twoRaces.csv')
-write.csv(output.result(countyID=5),file = '00_HealthOutcome/00_Injury/YOL.injuryresult_twoRaces.csv')
-write.csv(output.result(countyID=6),file = '00_HealthOutcome/00_Injury/YUB.injuryresult_twoRaces.csv')
+write.csv(output.result(countyID=1),file = '00_HealthOutcome/00_Injury/11 year SWITRS updated/ELD.injuryresult_twoRaces.csv')
+write.csv(output.result(countyID=2),file = '00_HealthOutcome/00_Injury/11 year SWITRS updated/PLA.injuryresult_twoRaces.csv')
+write.csv(output.result(countyID=3),file = '00_HealthOutcome/00_Injury/11 year SWITRS updated/SAC.injuryresult_twoRaces.csv')
+write.csv(output.result(countyID=4),file = '00_HealthOutcome/00_Injury/11 year SWITRS updated/SUT.injuryresult_twoRaces.csv')
+write.csv(output.result(countyID=5),file = '00_HealthOutcome/00_Injury/11 year SWITRS updated/YOL.injuryresult_twoRaces.csv')
+write.csv(output.result(countyID=6),file = '00_HealthOutcome/00_Injury/11 year SWITRS updated/YUB.injuryresult_twoRaces.csv')

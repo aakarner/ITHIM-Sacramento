@@ -51,8 +51,8 @@ injury.party.3 <- merge(collision.party.3,party.c,by.x = 'CASEID',by.y = 'CASEID
 # 2: pedestrian
 # 3: motorcycle
 # 4: passenger car
-# 5: bus
-# 6: truck
+# 5: truck
+# 6: bus
 # 
 # road type ID
 # 1: local
@@ -136,8 +136,8 @@ get.race.injury <- function(raceID,countyID){
   
   # combine the list in order to output as a .csv file
   result <- rbind(injury.list[[1]],injury.list[[2]],injury.list[[3]],injury.list[[4]],injury.list[[5]],injury.list[[6]])
-  colnames(result)<- c('bike','walk','motorcycle','car','bus','truck','one-party')
-  rownames(result)<- rep(c('bike','walk','motorcycle','car','bus','truck'),6)
+  colnames(result)<- c('bike','walk','motorcycle','car','truck','bus','one-party')
+  rownames(result)<- rep(c('bike','walk','motorcycle','car','truck','bus'),6)
   
   # add the road type and injury type in the .csv file
   result.t <- cbind(result,1)
@@ -178,19 +178,20 @@ output.ELD <- shape.format.output(countyID = 1)
 write.csv(output.ELD,file = "06_Equity Analysis/05_baseline injury/test.eld.INJURY.csv")
 
 output.PLA <- shape.format.output(countyID = 2)
-write.csv(output.ELD,file = "06_Equity Analysis/05_baseline injury/test.pla.INJURY.csv")
+write.csv(output.PLA,file = "06_Equity Analysis/05_baseline injury/test.pla.INJURY.csv")
 
 output.SAC <- shape.format.output(countyID = 3)
-write.csv(output.ELD,file = "06_Equity Analysis/05_baseline injury/test.sac.INJURY.csv")
+write.csv(output.SAC,file = "06_Equity Analysis/05_baseline injury/test.sac.INJURY.csv")
 
 output.SUT <- shape.format.output(countyID = 4)
-write.csv(output.ELD,file = "06_Equity Analysis/05_baseline injury/test.sut.INJURY.csv")
+write.csv(output.SUT,file = "06_Equity Analysis/05_baseline injury/test.sut.INJURY.csv")
 
 output.YOL <- shape.format.output(countyID = 5)
-write.csv(output.ELD,file = "06_Equity Analysis/05_baseline injury/test.yol.INJURY.csv")
+write.csv(output.YOL,file = "06_Equity Analysis/05_baseline injury/test.yol.INJURY.csv")
 
 output.YUB <- shape.format.output(countyID = 6)
-write.csv(output.ELD,file = "06_Equity Analysis/05_baseline injury/test.yub.INJURY.csv")
+write.csv(output.YUB,file = "06_Equity Analysis/05_baseline injury/test.yub.INJURY.csv")
+
 
 # # output the injury matrix as the input of injury module
 # output.NHW <- get.race.injury(raceID=1,countyID=6) #NHW
@@ -205,11 +206,11 @@ write.csv(output.ELD,file = "06_Equity Analysis/05_baseline injury/test.yub.INJU
 # output.HO <- get.race.injury(4,6)
 # #write.csv(output.HO,file = "06_Equity Analysis/05_baseline injury/YUB_04_injury baseline_HO.csv")
 # 
-# #combine other three races (NHB+NHO+HO)
-# matrix.other3 <- as.numeric(output.NHB[,1:7])+as.numeric(output.NHO[,1:7])+as.numeric(output.HO[,1:7])
-# output.other3 <- matrix(matrix.other3,36,7)
-# colnames(output.other3)<- c('bike','walk','motorcycle','car','bus','truck','one-party')
-# rownames(output.other3)<- rep(c('bike','walk','motorcycle','car','bus','truck'),6)
+#combine other three races (NHB+NHO+HO)
+#matrix.other3 <- as.numeric(output.NHB[,1:7])+as.numeric(output.NHO[,1:7])+as.numeric(output.HO[,1:7])
+#output.other3 <- matrix(matrix.other3,36,7)
+#colnames(output.other3)<- c('bike','walk','motorcycle','car','bus','truck','one-party')
+#rownames(output.other3)<- rep(c('bike','walk','motorcycle','car','bus','truck'),6)
 # 
 # # add the road type and injury type in the .csv file
 # output.other3.t <- cbind(output.other3,1)
@@ -220,4 +221,20 @@ write.csv(output.ELD,file = "06_Equity Analysis/05_baseline injury/test.yub.INJU
 # output.other3.t[25:30,8] <- "arterial serious"
 # output.other3.t[31:36,8] <- "highway serious"
 # write.csv(output.other3.t,file = "06_Equity Analysis/05_baseline injury/YUB_05_injury baseline_Other3.csv")
+
+# bus.caseID.1 <- injury.party.1$CASEID[which(injury.party.1$VEHTYPE%in%c('H','I'))]
+# sum(collision.party.1$KILLED[which(collision.party.1$CASEID%in%bus.caseID.1)])
+# sum(collision.party.1$SEVINJ[which(collision.party.1$CASEID%in%bus.caseID.1)])
+# 
+# bus.caseID.2 <- unique(injury.party.2$CASEID[which(injury.party.2$VEHTYPE%in%c('H','I'))])
+# length(bus.caseID.2)
+# sum(collision.party.2$KILLED[which(collision.party.2$CASEID%in%bus.caseID.2)])
+# sum(collision.party.2$SEVINJ[which(collision.party.2$CASEID%in%bus.caseID.2)])
+# 
+# bus.caseID.3 <- unique(injury.party.3$CASEID[which(injury.party.3$VEHTYPE%in%c('H','I'))])
+# length(bus.caseID.3)
+# sum(collision.party.3$KILLED[which(collision.party.3$CASEID%in%bus.caseID.3)])
+# sum(collision.party.3$SEVINJ[which(collision.party.3$CASEID%in%bus.caseID.3)])
+
+
 
