@@ -393,8 +393,8 @@ vmt.2036 <- lapply(c(1:6),function(x) computeVMTbymode(x,trip.pop.2036,pop.2036)
 names(vmt.baseline)<-names(vmt.2020)<-names(vmt.2036)<-c('ELD','PLA','SAC','SUT','YOL','YUB')
 
 write.csv(vmt.baseline,file = '00_output/VMT_baseline.csv')
-write.csv(vmt.baseline,file = '00_output/VMT_2020.csv')
-write.csv(vmt.baseline,file = '00_output/VMT_2036.csv')
+write.csv(vmt.2020,file = '00_output/VMT_2020.csv')
+write.csv(vmt.2036,file = '00_output/VMT_2036.csv')
 
 # 
 # 
