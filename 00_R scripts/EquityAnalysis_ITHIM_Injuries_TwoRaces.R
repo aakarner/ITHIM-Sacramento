@@ -16,9 +16,24 @@ ModeNames <- c("bike","walk","motorcycle","car","truck","bus")
 RoadTypes <- c("local","arterial","highway")
 nRoadType <- length(RoadTypes)
 
+dbNames <- c('Deaths','DALYs')
+
+# county names
+countyNames <- c("ELD","PLA","SAC","SUT","YOL","YUB")
+
 PersonVehicleDist.2012 <- read.csv('06_PersonVehicleDistance/00_PersonVehicleDistance_Baseline.csv')
 PersonVehicleDist.2020 <- read.csv('06_PersonVehicleDistance/01_PersonVehicleDistance_2020.csv')
 PersonVehicleDist.2036 <- read.csv('06_PersonVehicleDistance/02_PersonVehicleDistance_2036.csv')
+
+Pop.file.race <- read.csv("01_Population/02_Population_byRace_2012.csv")
+Pop.file.twoRaces <- cbind(Pop.file.race[,c(2,3)],rowSums(Pop.file.race[,c(4,6,8)]),rowSums(Pop.file.race[,c(5,7,9)]))
+colnames(Pop.file.twoRaces) <- c('male.white','female.white','male.other','female.other')
+
+US.pop <- read.csv("01_Population/01_Population_US_EA.csv")
+
+#distribution of age and gender group
+age.gender.dist.injury <- matrix(1/16,53,4)
+colnames(age.gender.dist.injury) <- c('male.white','female.white','male.other','female.other')
 
 #### function for reading csv files of injury data and VMT
 # data source: SWITRS 2006-2016 (Statewide Integrated Traffic Reporting System)
@@ -317,11 +332,39 @@ createInjuryResults <- function(countyID,scenarioID){
   ))
 }
 
+computeAgeStdOutput.injury <- function(scenario,countyID){
+  #test
+  #countyID = 1
+  #scenario <- scenario.1
+  
+  fatality.NHW.age.gender <- age.gender.dist.injury[((9*countyID-8):(9*countyID-1)),1:2]*scenario$Reduction.fatality.NHW/Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),1:2]*100000
+  fatality.Other.age.gender <- age.gender.dist.injury[((9*countyID-8):(9*countyID-1)),3:4]*scenario$Reduction.fatality.Other/Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),3:4]*100000
+  
+  serious.NHW.age.gender <- age.gender.dist.injury[((9*countyID-8):(9*countyID-1)),1:2]*scenario$Reduction.serious.NHW/Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),1:2]*100000
+  serious.Other.age.gender <- age.gender.dist.injury[((9*countyID-8):(9*countyID-1)),3:4]*scenario$Reduction.serious.Other/Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),3:4]*100000
+  
+  age.std.fatality.NHW <- sum(fatality.NHW.age.gender * US.pop[,c(2,3)])/sum(US.pop[,c(2,3)])
+  age.std.fatality.other <- sum(fatality.Other.age.gender * US.pop[,c(2,3)])/sum(US.pop[,c(2,3)])
+  
+  age.std.serious.NHW <- sum(serious.NHW.age.gender * US.pop[,c(2,3)])/sum(US.pop[,c(2,3)])
+  age.std.serious.other <- sum(serious.Other.age.gender * US.pop[,c(2,3)])/sum(US.pop[,c(2,3)])
+  
+  return(list(
+    age.std.fatality.NHW=age.std.fatality.NHW,
+    age.std.fatality.other=age.std.fatality.other,
+    age.std.serious.NHW=age.std.serious.NHW,
+    age.std.serious.other=age.std.serious.other
+  ))
+  
+}
+
+
 # barID: 1-future years,2-Scenarios,3-customized
-DFforFigure.injury <- function(barID,countyID){
+DFforFigure.injury <- function(barID,countyID,typeID){
   #test
   #barID = 1
   #countyID = 1
+  #typeID = 2
   
   reduction.fatality.value <- reduction.serious.value <-matrix(NA,6,1)
   
@@ -347,19 +390,40 @@ DFforFigure.injury <- function(barID,countyID){
     scenario.name  <- rep(c('C1','C2','C3'),each= 2)
   }
   
-  reduction.fatality.value[1,1] <-scenario.1$Reduction.fatality.NHW
-  reduction.fatality.value[2,1] <-scenario.1$Reduction.fatality.Other
-  reduction.fatality.value[3,1] <-scenario.2$Reduction.fatality.NHW
-  reduction.fatality.value[4,1] <-scenario.2$Reduction.fatality.Other
-  reduction.fatality.value[5,1] <-scenario.3$Reduction.fatality.NHW
-  reduction.fatality.value[6,1] <-scenario.3$Reduction.fatality.Other
+  if (typeID == 2){
+    scenario.1 <- computeAgeStdOutput.injury(scenario.1,countyID)
+    scenario.2 <- computeAgeStdOutput.injury(scenario.2,countyID)
+    scenario.3 <- computeAgeStdOutput.injury(scenario.3,countyID)
+  }
+
+  reduction.fatality.value[1,1] <-scenario.1[[1]]
+  reduction.fatality.value[2,1] <-scenario.1[[2]]
+  reduction.fatality.value[3,1] <-scenario.2[[1]]
+  reduction.fatality.value[4,1] <-scenario.2[[2]]
+  reduction.fatality.value[5,1] <-scenario.3[[1]]
+  reduction.fatality.value[6,1] <-scenario.3[[2]]
+   
+  reduction.serious.value[1,1] <-scenario.1[[3]]
+  reduction.serious.value[2,1] <-scenario.1[[4]]
+  reduction.serious.value[3,1] <-scenario.2[[3]]
+  reduction.serious.value[4,1] <-scenario.2[[4]]
+  reduction.serious.value[5,1] <-scenario.3[[3]]
+  reduction.serious.value[6,1] <-scenario.3[[4]]
   
-  reduction.serious.value[1,1] <-scenario.1$Reduction.serious.NHW
-  reduction.serious.value[2,1] <-scenario.1$Reduction.serious.Other
-  reduction.serious.value[3,1] <-scenario.2$Reduction.serious.NHW
-  reduction.serious.value[4,1] <-scenario.2$Reduction.serious.Other
-  reduction.serious.value[5,1] <-scenario.3$Reduction.serious.NHW
-  reduction.serious.value[6,1] <-scenario.3$Reduction.serious.Other
+  
+  # reduction.fatality.value[1,1] <-scenario.1$Reduction.fatality.NHW
+  # reduction.fatality.value[2,1] <-scenario.1$Reduction.fatality.Other
+  # reduction.fatality.value[3,1] <-scenario.2$Reduction.fatality.NHW
+  # reduction.fatality.value[4,1] <-scenario.2$Reduction.fatality.Other
+  # reduction.fatality.value[5,1] <-scenario.3$Reduction.fatality.NHW
+  # reduction.fatality.value[6,1] <-scenario.3$Reduction.fatality.Other
+  # 
+  # reduction.serious.value[1,1] <-scenario.1$Reduction.serious.NHW
+  # reduction.serious.value[2,1] <-scenario.1$Reduction.serious.Other
+  # reduction.serious.value[3,1] <-scenario.2$Reduction.serious.NHW
+  # reduction.serious.value[4,1] <-scenario.2$Reduction.serious.Other
+  # reduction.serious.value[5,1] <-scenario.3$Reduction.serious.NHW
+  # reduction.serious.value[6,1] <-scenario.3$Reduction.serious.Other
   
   raceGroup <- rep(c("1.White",'2.Other'),3)
   
@@ -368,10 +432,7 @@ DFforFigure.injury <- function(barID,countyID){
   
   return(list(
     df.fatality=df.fatality,
-    df.serious=df.serious,
-    scenario.1=scenario.1,
-    scenario.2=scenario.2,
-    scenario.3=scenario.3
+    df.serious=df.serious
   ))
 }
 # 
@@ -410,24 +471,133 @@ DFforFigure.injury <- function(barID,countyID){
 #   return(output)
 # }
 
+
 # barID: 1-future years,2-Scenarios,3-customized
-# yaxisID: 6-total fatality; 7-total serious injuries
+# yaxisID: 1-Death total; 2-Death age.std; 3-serious injury total; 4-serious injury age.std
+# typeID : 1-raw,2-age.std
 plot.shiny.app.injury <- function(countyID, barID, yaxisID){
   #test
   #countyID = 1
   #barID = 1
-  #yaxisID = 6
+  #yaxisID = 1
   
-  df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID)
-  
-  if (yaxisID == 6){
-    ggplot(data = df.result.injury$df.fatality, mapping = aes(x = factor(DemogrGroup), y = v,fill = Scenario)) + 
-      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Fatalities')+
-      ggtitle("Reduction in total fatalities")
-  }else if (yaxisID ==7){
-    ggplot(data = df.result.injury$df.serious, mapping = aes(x = factor(DemogrGroup), y = v,fill = Scenario)) + 
-      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Serious Injuries')+
-      ggtitle("Reduction in total serious injuries")
+  if (yaxisID == 1){
+    
+    if (countyID%in%c(1:6)){
+      df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 1)
+      
+      plot.title <- paste0(countyNames[countyID],': Reduction in Total Deaths')
+      
+      ggplot(data = df.result.injury$df.fatality, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+        geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Death Reduction')+
+        ggtitle(plot.title)
+    }else if (countyID==7){
+      
+      df.region <- NULL
+      
+      for (i in 1:6){
+        df.temp <- DFforFigure.injury(barID = barID,i,typeID = 1)
+        
+        df.region <- rbind(df.region,df.temp$df.fatality)
+        
+      }
+      df.region$county <- rep(countyNames,each = 6)
+      plot.title <- paste0('Region Wide: Reduction in Total Deaths')
+      
+      ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+        geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Death Reduction')+
+        facet_wrap(~county)+ggtitle(plot.title)
+      
+      
+    }
+    
+    
+  }else if (yaxisID == 2){
+    
+    if (countyID %in% c(1:6)){
+      df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 2)
+      
+      plot.title <- paste0(countyNames[countyID],': Age-Standardized Reduction in Total Deaths')
+      
+      ggplot(data = df.result.injury$df.fatality, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+        geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Death Reduction Rate (per 100,000 population)')+
+        ggtitle(plot.title)
+    }else if (countyID==7){
+      df.region <- NULL
+      
+      for (i in 1:6){
+        df.temp <- DFforFigure.injury(barID = barID,i,typeID = 2)
+        
+        df.region <- rbind(df.region,df.temp$df.fatality)
+        
+      }
+      df.region$county <- rep(countyNames,each = 6)
+      plot.title <- paste0('Region Wide: Age-Standardized Reduction in Total Deaths')
+      
+      ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+        geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Death Reduction Rate (per 100,000 population)')+
+        facet_wrap(~county)+ggtitle(plot.title)
+    }
+    
+    
+  }else if (yaxisID == 3){
+    
+    if (countyID%in%c(1:6)){
+      df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 1)
+      plot.title <- paste0(countyNames[countyID],': Reduction in Total DALYs')
+      
+      ggplot(data = df.result.injury$df.serious, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+        geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total DALYs Reduction')+
+        ggtitle(plot.title)
+    }else if (countyID ==7){
+      df.region <- NULL
+      
+      for (i in 1:6){
+        df.temp <- DFforFigure.injury(barID = barID,i,typeID = 1)
+        
+        df.region <- rbind(df.region,df.temp$df.serious)
+        
+      }
+      df.region$county <- rep(countyNames,each = 6)
+      plot.title <- paste0('Region Wide: Reduction in Total DALYs')
+      
+      ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+        geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total DALYs Reduction')+
+        facet_wrap(~county)+ggtitle(plot.title)
+      
+    }
+    
+    
+  }else if (yaxisID ==4){
+    
+    if (countyID%in%c(1:6)){
+      df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 2)
+      
+      plot.title <- paste0(countyNames[countyID],': Age-Standardized Reduction in Total DALYs')
+      
+      ggplot(data = df.result.injury$df.serious, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+        geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('DALYs Reduction Rate (per 100,000 population)')+
+        ggtitle(plot.title)
+    }else if (countyID==7){
+      
+      df.region <- NULL
+      
+      for (i in 1:6){
+        df.temp <- DFforFigure.injury(barID = barID,i,typeID = 2)
+        
+        df.region <- rbind(df.region,df.temp$df.serious)
+        
+      }
+      df.region$county <- rep(countyNames,each = 6)
+      plot.title <- paste0('Region Wide: Age-Standardized Reduction in Total DALYs')
+      
+      ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+        geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('DALYs Reduction Rate (per 100,000 population)')+
+        facet_wrap(~county)+ggtitle(plot.title)
+      
+    }
+    
+    
   }else{
     message('wrong input')
   }
@@ -442,7 +612,7 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
 #   geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Fatalities')+
 #   ggtitle("Reduction in total injuries")
 
-plot.shiny.app.injury(countyID = 2, barID = 1,yaxisID = 7)
+plot.shiny.app.injury(countyID = 2, barID = 1,yaxisID = 1)
 
 #write.csv(output.result(countyID=1),file = '00_HealthOutcome/00_Injury/11 year SWITRS updated/ELD.injuryresult_twoRaces.csv')
 #write.csv(output.result(countyID=2),file = '00_HealthOutcome/00_Injury/11 year SWITRS updated/PLA.injuryresult_twoRaces.csv')

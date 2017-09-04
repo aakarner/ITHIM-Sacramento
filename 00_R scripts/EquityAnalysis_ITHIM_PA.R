@@ -945,6 +945,7 @@ Reduction.output <- function(countyID=c(1:6)){
 
 #functions for computing age-normalized health outcome
 computeAgeStdOutput <- function(All.InputPara_byDemo,HealthOutcome_byDemo){
+  
   # input the US population as the reference
   US.pop <- All.InputPara_byDemo$allPop
   
@@ -1165,6 +1166,108 @@ DFforFigure <- function(OutcomeMatrix.list,demogrID,countyID,barID){
   return(df=df)
 }
 
+DFforRegionWide <- function(ReductionOutcome){
+  # TEST
+  #demogrID = 1
+  #dbID = 1
+  #barID=1
+  #ReductionOutcome <- RawReductionOutcome
+  df.region <- NULL
+  
+  for (i in 1:6){# countyID
+    df.temp <- DFforFigure(ReductionOutcome[c((demogrID*18+dbID*9-26):(demogrID*18+dbID*9-18))],demogrID,i,barID)
+    df.region <- rbind(df.region,df.temp)
+  }
+  df.region$county <- rep(countyNames,each = 12)
+  
+  return(df.region)
+}
+
+# plots for physical activity data (active travel time, unit:min/week)
+DFforPhysicalActivity <- function(barID,countyID,demogrID){
+  if (barID==1){
+    OutcomeMatrix.walk.byRace <- rbind(AT_Pop_MeanTimebyRace.baseline[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyRace.2020[c(countyID),c(2,4,6,8)],
+                                       AT_Pop_MeanTimebyRace.2027[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyRace.2036[c(countyID),c(2,4,6,8)])
+    OutcomeMatrix.cycle.byRace <- rbind(AT_Pop_MeanTimebyRace.baseline[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyRace.2020[c(countyID),c(3,5,7,9)],
+                                        AT_Pop_MeanTimebyRace.2027[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyRace.2036[c(countyID),c(3,5,7,9)])
+    
+    OutcomeMatrix.walk.byIncome <- rbind(AT_Pop_MeanTimebyIncome.baseline[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyIncome.2020[c(countyID),c(2,4,6,8)],
+                                         AT_Pop_MeanTimebyIncome.2027[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyIncome.2036[c(countyID),c(2,4,6,8)])
+    OutcomeMatrix.cycle.byIncome <- rbind(AT_Pop_MeanTimebyIncome.baseline[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyIncome.2020[c(countyID),c(3,5,7,9)],
+                                          AT_Pop_MeanTimebyIncome.2027[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyIncome.2036[c(countyID),c(3,5,7,9)])
+    
+    scenario.name <- rep(c('2012','2020','2027','2036'),each=4)
+  }else if (barID==2){
+    
+    OutcomeMatrix.walk.byRace <- rbind(AT_Pop_MeanTimebyRace.baseline[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyRace.S1[c(countyID),c(2,4,6,8)],
+                                       AT_Pop_MeanTimebyRace.S2[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyRace.S3[c(countyID),c(2,4,6,8)])
+    OutcomeMatrix.cycle.byRace <- rbind(AT_Pop_MeanTimebyRace.baseline[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyRace.S1[c(countyID),c(3,5,7,9)],
+                                        AT_Pop_MeanTimebyRace.S2[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyRace.S3[c(countyID),c(3,5,7,9)])
+    
+    OutcomeMatrix.walk.byIncome <- rbind(AT_Pop_MeanTimebyIncome.baseline[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyIncome.S1[c(countyID),c(2,4,6,8)],
+                                         AT_Pop_MeanTimebyIncome.S2[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyIncome.S3[c(countyID),c(2,4,6,8)])
+    OutcomeMatrix.cycle.byIncome <- rbind(AT_Pop_MeanTimebyIncome.baseline[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyIncome.S1[c(countyID),c(3,5,7,9)],
+                                          AT_Pop_MeanTimebyIncome.S2[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyIncome.S3[c(countyID),c(3,5,7,9)])
+    
+    
+    scenario.name <- rep(c('2012','S1','S2','S3'),each=4)
+  }else if (barID==3){
+    
+    OutcomeMatrix.walk.byRace <- rbind(AT_Pop_MeanTimebyRace.baseline[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyRace.C1[c(countyID),c(2,4,6,8)],
+                                       AT_Pop_MeanTimebyRace.C2[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyRace.C3[c(countyID),c(2,4,6,8)])
+    OutcomeMatrix.cycle.byRace <- rbind(AT_Pop_MeanTimebyRace.baseline[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyRace.C1[c(countyID),c(3,5,7,9)],
+                                        AT_Pop_MeanTimebyRace.C2[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyRace.C3[c(countyID),c(3,5,7,9)])
+    
+    OutcomeMatrix.walk.byIncome <- rbind(AT_Pop_MeanTimebyIncome.baseline[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyIncome.C1[c(countyID),c(2,4,6,8)],
+                                         AT_Pop_MeanTimebyIncome.C2[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyIncome.C3[c(countyID),c(2,4,6,8)])
+    OutcomeMatrix.cycle.byIncome <- rbind(AT_Pop_MeanTimebyIncome.baseline[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyIncome.C1[c(countyID),c(3,5,7,9)],
+                                          AT_Pop_MeanTimebyIncome.C2[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyIncome.C3[c(countyID),c(3,5,7,9)])
+    
+    
+    scenario.name <- rep(c('2012','C1','C2','C3'),each=4)
+  }
+  
+  #race group names
+  raceGroup <- rep(c("1.White",'2.Black','3.Hisp','4.Other'),4)
+  #income group names
+  incomeGroup <- rep(incomeGroupNames,4)
+  
+  if (demogrID==1) {
+    demogrGroup = raceGroup
+    #shape the outcome as data.frame
+    outcome.walk <- outcome.update.walk<-as.data.frame(matrix(t(OutcomeMatrix.walk.byRace),nDemoClass*nrow(OutcomeMatrix.walk.byRace),1))
+    outcome.cycle <- outcome.update.cycle<-as.data.frame(matrix(t(OutcomeMatrix.cycle.byRace),nDemoClass*nrow(OutcomeMatrix.cycle.byRace),1))
+    
+    for (i in 1:3){
+      outcome.update.walk[4*i-1,1]<-outcome.walk[4*i,1]
+      outcome.update.walk[4*i,1]<-outcome.walk[4*i-1,1]
+      
+      outcome.update.cycle[4*i-1,1]<-outcome.cycle[4*i,1]
+      outcome.update.cycle[4*i,1]<-outcome.cycle[4*i-1,1]
+    }
+    
+    df.walk <- data.frame(Scenario=scenario.name,DemogrGroup=demogrGroup,Mode = 'walk',v1 =(outcome.update.walk))
+    df.cycle <- data.frame(Scenario=scenario.name,DemogrGroup=demogrGroup,Mode = 'cycle',v1 =(outcome.update.cycle))
+    df.at <- rbind(df.walk,df.cycle)
+    
+    
+  }else{
+    demogrGroup = incomeGroup
+    #shape the outcome as data.frame
+    outcome.walk <- as.data.frame(matrix(t(OutcomeMatrix.walk.byIncome),nDemoClass*nrow(OutcomeMatrix.walk.byIncome),1))
+    outcome.cycle <- as.data.frame(matrix(t(OutcomeMatrix.cycle.byIncome),nDemoClass*nrow(OutcomeMatrix.cycle.byIncome),1))
+    
+    df.walk <- data.frame(Scenario=scenario.name,DemogrGroup=demogrGroup,Mode = 'walk',v1 =(outcome.walk))
+    df.cycle <- data.frame(Scenario=scenario.name,DemogrGroup=demogrGroup,Mode = 'cycle',v1 =(outcome.cycle))
+    df.at <- rbind(df.walk,df.cycle)
+    
+  }
+  
+  return(df.at)
+  
+}
+
+
 #countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
 #dbID: 1-death,2-DALYs
 #typeID: 1-raw,2-age.std
@@ -1179,99 +1282,66 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
   # df.result <- df
   
   if(typeID==1){
-    df.result <- DFforFigure(RawReductionOutcome[c((demogrID*18+dbID*9-26):(demogrID*18+dbID*9-18))],demogrID,countyID,barID)
-    ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
-      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Health Burden Reduction')+
-      ggtitle("Reduction in health burden")
+    
+    if (countyID%in%c(1:6)){
+      df.result <- DFforFigure(RawReductionOutcome[c((demogrID*18+dbID*9-26):(demogrID*18+dbID*9-18))],demogrID,countyID,barID)
+      plot.title <- paste0(countyNames[countyID],': Reduction in Total ',dbNames[dbID])
+      ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+        geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Health Burden Reduction')+
+        ggtitle(plot.title)
+    }else if(countyID==7){
+      df.result <- DFforRegionWide(RawReductionOutcome)
+      plot.title <- paste0('Region-Wide',': Reduction in Total ',dbNames[dbID])
+      ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+        geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Health Burden Reduction')+
+        facet_wrap(~county)+ggtitle(plot.title)
+    }
+    
+    
+
   }else if (typeID ==2) {
-    df.result <- DFforFigure(AgeStdReductionOutcome[c((demogrID*18+dbID*9-26):(demogrID*18+dbID*9-18))],demogrID,countyID,barID)
-    ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
-      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Health Burden Reduction Rate (per 100,000 population)')+
-      ggtitle("Age-std reduction in health burden")
+    
+    if (countyID%in%c(1:6)){
+      df.result <- DFforFigure(AgeStdReductionOutcome[c((demogrID*18+dbID*9-26):(demogrID*18+dbID*9-18))],demogrID,countyID,barID)
+      plot.title <- paste0(countyNames[countyID],': Age-Standardized Reduction in Total ',dbNames[dbID])
+      ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+        geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Health Burden Reduction Rate (per 100,000 population)')+
+        ggtitle(plot.title)
+    }else if(countyID==7){
+      df.result <- DFforRegionWide(AgeStdReductionOutcome)
+      plot.title <- paste0('Region-Wide',': Age-Standardized Reduction in Total ',dbNames[dbID])
+      ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+        geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Health Burden Reduction Rate (per 100,000 population)')+
+        facet_wrap(~county)+ggtitle(plot.title)
+    }
+    
+
   }else{
     #plot for physical activity data
-    
-    if (barID==1){
-      OutcomeMatrix.walk.byRace <- rbind(AT_Pop_MeanTimebyRace.baseline[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyRace.2020[c(countyID),c(2,4,6,8)],
-                                         AT_Pop_MeanTimebyRace.2027[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyRace.2036[c(countyID),c(2,4,6,8)])
-      OutcomeMatrix.cycle.byRace <- rbind(AT_Pop_MeanTimebyRace.baseline[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyRace.2020[c(countyID),c(3,5,7,9)],
-                                          AT_Pop_MeanTimebyRace.2027[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyRace.2036[c(countyID),c(3,5,7,9)])
+    if (countyID%in%c(1:6)){
+      df.at <- DFforPhysicalActivity(barID,countyID,demogrID)
+      plot.title <- paste0(countyNames[countyID],': Active Travel Time')
+      ggplot(data = df.at, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+        geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Active Travel Time (mins per week per capita)')+
+        facet_grid(Mode~.,scales = "free") +ggtitle(plot.title)
+    }else if (countyID==7){
       
-      OutcomeMatrix.walk.byIncome <- rbind(AT_Pop_MeanTimebyIncome.baseline[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyIncome.2020[c(countyID),c(2,4,6,8)],
-                                         AT_Pop_MeanTimebyIncome.2027[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyIncome.2036[c(countyID),c(2,4,6,8)])
-      OutcomeMatrix.cycle.byIncome <- rbind(AT_Pop_MeanTimebyIncome.baseline[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyIncome.2020[c(countyID),c(3,5,7,9)],
-                                          AT_Pop_MeanTimebyIncome.2027[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyIncome.2036[c(countyID),c(3,5,7,9)])
+      df.region <- NULL
       
-      scenario.name <- rep(c('2012','2020','2027','2036'),each=4)
-    }else if (barID==2){
-      
-      OutcomeMatrix.walk.byRace <- rbind(AT_Pop_MeanTimebyRace.baseline[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyRace.S1[c(countyID),c(2,4,6,8)],
-                                         AT_Pop_MeanTimebyRace.S2[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyRace.S3[c(countyID),c(2,4,6,8)])
-      OutcomeMatrix.cycle.byRace <- rbind(AT_Pop_MeanTimebyRace.baseline[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyRace.S1[c(countyID),c(3,5,7,9)],
-                                          AT_Pop_MeanTimebyRace.S2[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyRace.S3[c(countyID),c(3,5,7,9)])
-      
-      OutcomeMatrix.walk.byIncome <- rbind(AT_Pop_MeanTimebyIncome.baseline[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyIncome.S1[c(countyID),c(2,4,6,8)],
-                                           AT_Pop_MeanTimebyIncome.S2[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyIncome.S3[c(countyID),c(2,4,6,8)])
-      OutcomeMatrix.cycle.byIncome <- rbind(AT_Pop_MeanTimebyIncome.baseline[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyIncome.S1[c(countyID),c(3,5,7,9)],
-                                            AT_Pop_MeanTimebyIncome.S2[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyIncome.S3[c(countyID),c(3,5,7,9)])
-      
-      
-      scenario.name <- rep(c('2012','S1','S2','S3'),each=4)
-    }else if (barID==3){
-      
-      OutcomeMatrix.walk.byRace <- rbind(AT_Pop_MeanTimebyRace.baseline[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyRace.C1[c(countyID),c(2,4,6,8)],
-                                         AT_Pop_MeanTimebyRace.C2[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyRace.C3[c(countyID),c(2,4,6,8)])
-      OutcomeMatrix.cycle.byRace <- rbind(AT_Pop_MeanTimebyRace.baseline[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyRace.C1[c(countyID),c(3,5,7,9)],
-                                          AT_Pop_MeanTimebyRace.C2[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyRace.C3[c(countyID),c(3,5,7,9)])
-      
-      OutcomeMatrix.walk.byIncome <- rbind(AT_Pop_MeanTimebyIncome.baseline[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyIncome.C1[c(countyID),c(2,4,6,8)],
-                                           AT_Pop_MeanTimebyIncome.C2[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyIncome.C3[c(countyID),c(2,4,6,8)])
-      OutcomeMatrix.cycle.byIncome <- rbind(AT_Pop_MeanTimebyIncome.baseline[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyIncome.C1[c(countyID),c(3,5,7,9)],
-                                            AT_Pop_MeanTimebyIncome.C2[c(countyID),c(3,5,7,9)],AT_Pop_MeanTimebyIncome.C3[c(countyID),c(3,5,7,9)])
-      
-      
-      scenario.name <- rep(c('2012','C1','C2','C3'),each=4)
-    }
-    
-    #race group names
-    raceGroup <- rep(c("1.White",'2.Black','3.Hisp','4.Other'),4)
-    #income group names
-    incomeGroup <- rep(incomeGroupNames,4)
-    
-    if (demogrID==1) {
-      demogrGroup = raceGroup
-      #shape the outcome as data.frame
-      outcome.walk <- outcome.update.walk<-as.data.frame(matrix(t(OutcomeMatrix.walk.byRace),nDemoClass*nrow(OutcomeMatrix.walk.byRace),1))
-      outcome.cycle <- outcome.update.cycle<-as.data.frame(matrix(t(OutcomeMatrix.cycle.byRace),nDemoClass*nrow(OutcomeMatrix.cycle.byRace),1))
-      
-      for (i in 1:3){
-        outcome.update.walk[4*i-1,1]<-outcome.walk[4*i,1]
-        outcome.update.walk[4*i,1]<-outcome.walk[4*i-1,1]
-        
-        outcome.update.cycle[4*i-1,1]<-outcome.cycle[4*i,1]
-        outcome.update.cycle[4*i,1]<-outcome.cycle[4*i-1,1]
+      for (i in 1:6){
+        df.temp <- DFforPhysicalActivity(barID,i,demogrID)
+        df.region <- rbind(df.region,df.temp)
       }
       
-      df.walk <- data.frame(Scenario=scenario.name,DemogrGroup=demogrGroup,Mode = 'walk',v1 =(outcome.update.walk))
-      df.cycle <- data.frame(Scenario=scenario.name,DemogrGroup=demogrGroup,Mode = 'cycle',v1 =(outcome.update.cycle))
-      df.at <- rbind(df.walk,df.cycle)
+      df.region$county <- rep(countyNames,each = 32)
       
-      
-    }else{
-      demogrGroup = incomeGroup
-      #shape the outcome as data.frame
-      outcome.walk <- as.data.frame(matrix(t(OutcomeMatrix.walk.byIncome),nDemoClass*nrow(OutcomeMatrix.walk.byIncome),1))
-      outcome.cycle <- as.data.frame(matrix(t(OutcomeMatrix.cycle.byIncome),nDemoClass*nrow(OutcomeMatrix.cycle.byIncome),1))
-      
-      df.walk <- data.frame(Scenario=scenario.name,DemogrGroup=demogrGroup,Mode = 'walk',v1 =(outcome.walk))
-      df.cycle <- data.frame(Scenario=scenario.name,DemogrGroup=demogrGroup,Mode = 'cycle',v1 =(outcome.cycle))
-      df.at <- rbind(df.walk,df.cycle)
+      ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+        geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Active Travel Time (mins per week per capita)')+
+        facet_grid(Mode~county,scales = "free") +ggtitle("Physical Activity")
       
     }
     
-    ggplot(data = df.at, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
-      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Active Travel Time (mins per week per capita)')+
-      facet_grid(Mode~.,scales = "free") +ggtitle("Physical Activity")
+
   }
 }
 
@@ -1306,6 +1376,8 @@ k<-0.5
 # group names for race/ethnicity and income 
 raceGroupNames <- c("1.NHW","2.NHB","3.NHO","4.HO")
 incomeGroupNames <- c("Quant1","Quant2","Quant3","Quant4")
+
+dbNames <- c('Deaths','DALYs')
 
 # county names
 countyNames <- c("ELD","PLA","SAC","SUT","YOL","YUB")
@@ -1399,7 +1471,7 @@ AgeStdReductionOutcome <- AgeStdHealthOutcome(c(1:6))
 #typeID: 1-raw,2-age.std,3-physical activity
 #demogrID: 1-race,2-income
 #barID: 1- future years,2-scenarios,3-customized
-plot.shiny.app.PA(countyID = 5,dbID = 1, typeID = 2, demogrID = 1,barID = 1)
+plot.shiny.app.PA(countyID = 1,dbID = 2, typeID = 3, demogrID = 1,barID = 1)
 
 ####################### TEST CODE ###########################
 # DFforFigure <- function(OutcomeMatrix,demogrID){
