@@ -48,7 +48,6 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
       #countyID=1
       #barID = 1
       
-      
       df.result.PA <- DFforFigure(RawReductionOutcome[c((1*18+1*9-26):(1*18+1*9-18))],1,countyID,barID)
       df.result.PA.aggr.white <- df.result.PA[c(1,5,9),]
       for (i in 1:3) {
@@ -171,7 +170,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
 # outcomeID: 1-physical activity; 2-injury; 3-both
 # demogrID: 1-Race/ethnicty; 2-household income
 # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std; 5-physical activity data
-integrated.shiny.app(countyID = 7, barID = 1,outcomeID = 1,demogrID = 1, yaxisID = 2)
+integrated.shiny.app(countyID = 7, barID = 2,outcomeID = 1,demogrID = 1, yaxisID = 2)
 
 
 

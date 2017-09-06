@@ -1166,7 +1166,7 @@ DFforFigure <- function(OutcomeMatrix.list,demogrID,countyID,barID){
   return(df=df)
 }
 
-DFforRegionWide <- function(ReductionOutcome){
+DFforRegionWide <- function(ReductionOutcome,demogrID,dbID,barID){
   # TEST
   #demogrID = 1
   #dbID = 1
@@ -1290,7 +1290,7 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Health Burden Reduction')+
         ggtitle(plot.title)
     }else if(countyID==7){
-      df.result <- DFforRegionWide(RawReductionOutcome)
+      df.result <- DFforRegionWide(RawReductionOutcome,demogrID = demogrID,dbID = dbID,barID = barID)
       plot.title <- paste0('Region-Wide',': Reduction in Total ',dbNames[dbID])
       ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Health Burden Reduction')+
@@ -1308,7 +1308,7 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Health Burden Reduction Rate (per 100,000 population)')+
         ggtitle(plot.title)
     }else if(countyID==7){
-      df.result <- DFforRegionWide(AgeStdReductionOutcome)
+      df.result <- DFforRegionWide(AgeStdReductionOutcome,demogrID = demogrID,dbID = dbID,barID = barID)
       plot.title <- paste0('Region-Wide',': Age-Standardized Reduction in Total ',dbNames[dbID])
       ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Health Burden Reduction Rate (per 100,000 population)')+
@@ -1471,7 +1471,7 @@ AgeStdReductionOutcome <- AgeStdHealthOutcome(c(1:6))
 #typeID: 1-raw,2-age.std,3-physical activity
 #demogrID: 1-race,2-income
 #barID: 1- future years,2-scenarios,3-customized
-plot.shiny.app.PA(countyID = 1,dbID = 2, typeID = 3, demogrID = 1,barID = 1)
+plot.shiny.app.PA(countyID = 7,dbID = 2, typeID = 3, demogrID = 1,barID = 2)
 
 ####################### TEST CODE ###########################
 # DFforFigure <- function(OutcomeMatrix,demogrID){
