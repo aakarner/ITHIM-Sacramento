@@ -1337,7 +1337,7 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
       
       ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Active Travel Time (mins per week per capita)')+
-        facet_grid(Mode~county,scales = "free") +ggtitle("Physical Activity")
+        facet_grid(Mode~county,scales = "free") +ggtitle("Region-Wide Active Travel Time")
       
     }
     
