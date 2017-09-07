@@ -36,7 +36,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
     
   }else if (outcomeID==2){
     if (yaxisID%in%c(1:4)){
-      plot.shiny.app.injury(countyID = countyID,barID = 1,yaxisID = yaxisID)
+      plot.shiny.app.injury(countyID = countyID,barID = barID,yaxisID = yaxisID)
     }else{
       message('wrong input')
     }
@@ -175,7 +175,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
 # outcomeID: 1-physical activity; 2-injury; 3-both
 # demogrID: 1-Race/ethnicty; 2-household income
 # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std; 5-physical activity data
-integrated.shiny.app(countyID = 7, barID = 1,outcomeID = 1,demogrID = 1, yaxisID = 5)
+integrated.shiny.app(countyID = 7, barID = 4,outcomeID = 2,demogrID = 1, yaxisID = 1)
 
 
 

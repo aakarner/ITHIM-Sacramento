@@ -612,7 +612,7 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
 #   geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Fatalities')+
 #   ggtitle("Reduction in total injuries")
 
-plot.shiny.app.injury(countyID = 2, barID = 1,yaxisID = 1)
+plot.shiny.app.injury(countyID = 2, barID = 2,yaxisID = 1)
 
 #write.csv(output.result(countyID=1),file = '00_HealthOutcome/00_Injury/11 year SWITRS updated/ELD.injuryresult_twoRaces.csv')
 #write.csv(output.result(countyID=2),file = '00_HealthOutcome/00_Injury/11 year SWITRS updated/PLA.injuryresult_twoRaces.csv')
