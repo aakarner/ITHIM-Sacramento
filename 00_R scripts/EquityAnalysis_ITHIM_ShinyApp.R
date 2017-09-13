@@ -49,8 +49,8 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
 
       if (yaxisID==1){ #total deaths
         #test
-        #countyID=1
-        #barID = 1
+        countyID=1
+        barID = 1
         
         df.result.PA <- DFforFigure(RawReductionOutcome[c((1*18+1*9-26):(1*18+1*9-18))],1,countyID,barID)
         df.result.PA.aggr.white <- df.result.PA[c(1,5,9),]
@@ -67,9 +67,26 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
         df.result.injury <- df.result.injury$df.fatality
         df.result.injury$type <- 'traffic injury'
         
-        df.result.twomodule <- rbind(df.result.PA.aggr,df.result.injury)
+        df.result.integration.temp <- df.result.PA.aggr[,1:2]
+        df.result.integration.temp$V1 <- df.result.PA.aggr$V1+df.result.injury$V1
+        df.result.integration.temp$type <- 'integration'
+        
+        df.result.integration <- rbind(df.result.PA.aggr,df.result.injury,df.result.integration.temp)
         
         plot.title <- paste0(countyNames[countyID],': Reduction in Total Deaths')
+        
+        ggplot(data = df.result.integration,mapping = aes(x = factor(DemogrGroup), y = V1,color = factor(Scenario),shape = factor(type)))+
+           geom_point(stat = 'identity',size=3,position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Death Reduction')+
+           ggtitle(plot.title)
+        # 
+        # ggplot(data = df.result.integration,mapping = aes(x = factor(DemogrGroup), y = V1,color = factor(Scenario),shape = factor(type)))+
+        #   geom_point(stat = 'identity',size=3,position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Death Reduction')+
+        #   ggtitle(plot.title)
+        
+        # ggplot(data = df.result.integration,mapping = aes(x = factor(DemogrGroup), y = V1,color = factor(Scenario)))+
+        #   geom_dotplot(binaxis = "y",position = 'dodge',binwidth = 0.1)+xlab('Demographic Group')+ylab('Total Death Reduction')+
+        #   ggtitle(plot.title)
+        
         
         ggplot(data = df.result.twomodule, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
           geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Death Reduction')+
@@ -97,11 +114,15 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
         df.result.injury <- df.result.injury$df.serious
         df.result.injury$type <- 'traffic injury'
         
-        df.result.twomodule <- rbind(df.result.PA.aggr,df.result.injury)
+        df.result.integration.temp <- df.result.PA.aggr[,1:2]
+        df.result.integration.temp$V1 <- df.result.PA.aggr$V1+df.result.injury$V1
+        df.result.integration.temp$type <- 'integration'
+        
+        df.result.integration <- rbind(df.result.PA.aggr,df.result.injury,df.result.integration.temp)
         
         plot.title <- paste0(countyNames[countyID],': Reduction in Total DALYs')
         
-        ggplot(data = df.result.twomodule, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+        ggplot(data = df.result.integration, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
           geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total DALYs Reduction')+
           facet_grid(.~type,scales = "free")+ggtitle(plot.title)
       }else if (yaxisID==3){ # age.std deaths
@@ -175,7 +196,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
 # outcomeID: 1-physical activity; 2-injury; 3-both
 # demogrID: 1-Race/ethnicty; 2-household income
 # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std; 5-physical activity data
-integrated.shiny.app(countyID = 7, barID = 3,outcomeID = 1,demogrID = 1, yaxisID = 1)
+integrated.shiny.app(countyID = 1, barID = 1,outcomeID = 3,demogrID = 1, yaxisID = 1)
 
 
 
