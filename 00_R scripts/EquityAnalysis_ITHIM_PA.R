@@ -1288,12 +1288,14 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
       plot.title <- paste0(countyNames[countyID],': Reduction in Total ',dbNames[dbID])
       ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Health Burden Reduction')+
+        geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         ggtitle(plot.title)
     }else if(countyID==7){
       df.result <- DFforRegionWide(RawReductionOutcome,demogrID = demogrID,dbID = dbID,barID = barID)
       plot.title <- paste0('Region-Wide',': Reduction in Total ',dbNames[dbID])
       ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Health Burden Reduction')+
+        geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         facet_wrap(~county)+ggtitle(plot.title)
     }
     
@@ -1306,12 +1308,14 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
       plot.title <- paste0(countyNames[countyID],': Age-Standardized Reduction in Total ',dbNames[dbID])
       ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Health Burden Reduction Rate (per 100,000 population)')+
+        geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         ggtitle(plot.title)
     }else if(countyID==7){
       df.result <- DFforRegionWide(AgeStdReductionOutcome,demogrID = demogrID,dbID = dbID,barID = barID)
       plot.title <- paste0('Region-Wide',': Age-Standardized Reduction in Total ',dbNames[dbID])
       ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Health Burden Reduction Rate (per 100,000 population)')+
+        geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         facet_wrap(~county)+ggtitle(plot.title)
     }
     
@@ -1323,6 +1327,7 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
       plot.title <- paste0(countyNames[countyID],': Active Travel Time')
       ggplot(data = df.at, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Active Travel Time (mins per week per capita)')+
+        geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         facet_grid(Mode~.,scales = "free") +ggtitle(plot.title)
     }else if (countyID==7){
       
@@ -1337,6 +1342,7 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
       
       ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Active Travel Time (mins per week per capita)')+
+        #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         facet_grid(Mode~county,scales = "free") +ggtitle("Region-Wide Active Travel Time")
       
     }
@@ -1471,7 +1477,7 @@ AgeStdReductionOutcome <- AgeStdHealthOutcome(c(1:6))
 #typeID: 1-raw,2-age.std,3-physical activity
 #demogrID: 1-race,2-income
 #barID: 1- future years,2-scenarios,3-customized
-plot.shiny.app.PA(countyID = 7,dbID = 2, typeID = 3, demogrID = 1,barID = 2)
+plot.shiny.app.PA(countyID = 1,dbID = 1, typeID = 2, demogrID = 1,barID = 1)
 
 ####################### TEST CODE ###########################
 # DFforFigure <- function(OutcomeMatrix,demogrID){

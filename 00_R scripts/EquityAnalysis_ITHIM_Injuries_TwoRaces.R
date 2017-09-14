@@ -385,8 +385,6 @@ createInjuryResults <- function(countyID,scenarioID){
 
 #createInjuryResults(1,1)
 
-
-
 computeAgeStdOutput.injury <- function(scenario,countyID){
   #test
   #countyID = 2
@@ -551,6 +549,7 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
       
       ggplot(data = df.result.injury$df.fatality, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Death Reduction')+
+        geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         ggtitle(plot.title)
     }else if (countyID==7){
       
@@ -567,6 +566,7 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
       
       ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Death Reduction')+
+        geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         facet_wrap(~county)+ggtitle(plot.title)
       
       
@@ -582,6 +582,7 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
       
       ggplot(data = df.result.injury$df.fatality, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Death Reduction Rate (per 100,000 population)')+
+        geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         ggtitle(plot.title)
     }else if (countyID==7){
       df.region <- NULL
@@ -597,6 +598,7 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
       
       ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Death Reduction Rate (per 100,000 population)')+
+        geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         facet_wrap(~county)+ggtitle(plot.title)
     }
     
@@ -609,6 +611,7 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
       
       ggplot(data = df.result.injury$df.DALYs, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total DALYs Reduction')+
+        geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         ggtitle(plot.title)
     }else if (countyID ==7){
       df.region <- NULL
@@ -624,6 +627,7 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
       
       ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total DALYs Reduction')+
+        geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         facet_wrap(~county)+ggtitle(plot.title)
       
     }
@@ -638,6 +642,7 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
       
       ggplot(data = df.result.injury$df.DALYs, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('DALYs Reduction Rate (per 100,000 population)')+
+        geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         ggtitle(plot.title)
     }else if (countyID==7){
       
@@ -654,6 +659,7 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
       
       ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('DALYs Reduction Rate (per 100,000 population)')+
+        geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         facet_wrap(~county)+ggtitle(plot.title)
       
     }
