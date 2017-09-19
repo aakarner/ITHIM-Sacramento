@@ -14,12 +14,12 @@ source('EquityAnalysis_ITHIM_Injuries_TwoRaces.R')
 # demogrID: 1-Race/ethnicty; 2-household income
 # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std; 5-physical activity data
 
-
 #plot.shiny.app.PA(countyID = 1,dbID = 1,typeID = 1,demogrID = 1,barID = 1)
 #plot.shiny.app.injury(countyID = 1,barID = 1,yaxisID = 6)
 
+# function for combining two moduels (PA and injury)
 integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
-  if (outcomeID == 1){
+  if (outcomeID == 1){ #PA
     if (yaxisID == 1){ # death total
       plot.shiny.app.PA(countyID = countyID,dbID = 1,typeID = 1,demogrID = demogrID,barID = barID)
     }else if (yaxisID==2){ # death age.std
@@ -34,7 +34,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
       message('wrong input')
     }
     
-  }else if (outcomeID==2){
+  }else if (outcomeID==2){ #injury
     if (yaxisID%in%c(1:4)){
       plot.shiny.app.injury(countyID = countyID,barID = barID,yaxisID = yaxisID)
     }else{
@@ -42,7 +42,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
     }
     
     
-  }else if (outcomeID==3){
+  }else if (outcomeID==3){ # both
     if (countyID%in%(1:6)){
       
       value <- NULL
@@ -61,15 +61,15 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
         
         df.result.PA.aggr <- rbind(df.result.PA.aggr.white,df.result.PA.aggr.other)
         df.result.PA.aggr <- df.result.PA.aggr[order(df.result.PA.aggr$Scenario),]
-        df.result.PA.aggr$type <- 'physical activity'
+        df.result.PA.aggr$type <- 'a.physical activity'
         
         df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 1)
         df.result.injury <- df.result.injury$df.fatality
-        df.result.injury$type <- 'traffic injury'
+        df.result.injury$type <- 'b.traffic injury'
         
         df.result.integration.temp <- df.result.PA.aggr[,1:2]
         df.result.integration.temp$V1 <- df.result.PA.aggr$V1+df.result.injury$V1
-        df.result.integration.temp$type <- 'integration'
+        df.result.integration.temp$type <- 'c. both'
         
         df.result.integration <- rbind(df.result.PA.aggr,df.result.injury,df.result.integration.temp)
         
@@ -109,15 +109,15 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
         
         df.result.PA.aggr <- rbind(df.result.PA.aggr.white,df.result.PA.aggr.other)
         df.result.PA.aggr <- df.result.PA.aggr[order(df.result.PA.aggr$Scenario),]
-        df.result.PA.aggr$type <- 'physical activity'
+        df.result.PA.aggr$type <- 'a. physical activity'
         
         df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 1)
         df.result.injury <- df.result.injury$df.DALYs
-        df.result.injury$type <- 'traffic injury'
+        df.result.injury$type <- 'b. traffic injury'
         
         df.result.integration.temp <- df.result.PA.aggr[,1:2]
         df.result.integration.temp$V1 <- df.result.PA.aggr$V1+df.result.injury$V1
-        df.result.integration.temp$type <- 'integration'
+        df.result.integration.temp$type <- 'c. both'
         
         df.result.integration <- rbind(df.result.PA.aggr,df.result.injury,df.result.integration.temp)
         
@@ -142,16 +142,16 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
         
         df.result.PA.aggr <- rbind(df.result.PA.aggr.white,df.result.PA.aggr.other)
         df.result.PA.aggr <- df.result.PA.aggr[order(df.result.PA.aggr$Scenario),]
-        df.result.PA.aggr$type <- 'physical activity'
+        df.result.PA.aggr$type <- 'a. physical activity'
         
         df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 2)
         df.result.injury <- df.result.injury$df.fatality
-        df.result.injury$type <- 'traffic injury'
+        df.result.injury$type <- 'b. traffic injury'
         
         
         df.result.integration.temp <- df.result.PA.aggr[,1:2]
         df.result.integration.temp$V1 <- df.result.PA.aggr$V1+df.result.injury$V1
-        df.result.integration.temp$type <- 'integration'
+        df.result.integration.temp$type <- 'c. both'
         
         df.result.integration <- rbind(df.result.PA.aggr,df.result.injury,df.result.integration.temp)
         
@@ -175,17 +175,17 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
         
         df.result.PA.aggr <- rbind(df.result.PA.aggr.white,df.result.PA.aggr.other)
         df.result.PA.aggr <- df.result.PA.aggr[order(df.result.PA.aggr$Scenario),]
-        df.result.PA.aggr$type <- 'physical activity'
+        df.result.PA.aggr$type <- 'a. physical activity'
         
         df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 2)
         df.result.injury <- df.result.injury$df.DALYs
-        df.result.injury$type <- 'traffic injury'
+        df.result.injury$type <- 'b. traffic injury'
         
         plot.title <- paste0(countyNames[countyID],': Age-Standardized Reduction in Total DALYs')
         
         df.result.integration.temp <- df.result.PA.aggr[,1:2]
         df.result.integration.temp$V1 <- df.result.PA.aggr$V1+df.result.injury$V1
-        df.result.integration.temp$type <- 'integration'
+        df.result.integration.temp$type <- 'c. both'
         
         df.result.integration <- rbind(df.result.PA.aggr,df.result.injury,df.result.integration.temp)
         
@@ -217,11 +217,11 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
           
           df.result.PA.aggr <- rbind(df.result.PA.aggr.white,df.result.PA.aggr.other)
           df.result.PA.aggr <- df.result.PA.aggr[order(df.result.PA.aggr$Scenario),]
-          df.result.PA.aggr$type <- 'physical activity'
+          df.result.PA.aggr$type <- 'a. physical activity'
           
           df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 1)
           df.result.injury <- df.result.injury$df.fatality
-          df.result.injury$type <- 'traffic injury'
+          df.result.injury$type <- 'b. traffic injury'
           
           df.result.integration.temp <- df.result.PA.aggr[,1:2]
           df.result.integration.temp$V1 <- df.result.PA.aggr$V1+df.result.injury$V1
@@ -258,11 +258,11 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
           
           df.result.PA.aggr <- rbind(df.result.PA.aggr.white,df.result.PA.aggr.other)
           df.result.PA.aggr <- df.result.PA.aggr[order(df.result.PA.aggr$Scenario),]
-          df.result.PA.aggr$type <- 'physical activity'
+          df.result.PA.aggr$type <- 'a. physical activity'
           
           df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 2)
           df.result.injury <- df.result.injury$df.fatality
-          df.result.injury$type <- 'traffic injury'
+          df.result.injury$type <- 'b. traffic injury'
           
           
           df.result.integration.temp <- df.result.PA.aggr[,1:2]
@@ -296,11 +296,11 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
           
           df.result.PA.aggr <- rbind(df.result.PA.aggr.white,df.result.PA.aggr.other)
           df.result.PA.aggr <- df.result.PA.aggr[order(df.result.PA.aggr$Scenario),]
-          df.result.PA.aggr$type <- 'physical activity'
+          df.result.PA.aggr$type <- 'a. physical activity'
           
           df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 1)
           df.result.injury <- df.result.injury$df.DALYs
-          df.result.injury$type <- 'traffic injury'
+          df.result.injury$type <- 'b. traffic injury'
           
           df.result.integration.temp <- df.result.PA.aggr[,1:2]
           df.result.integration.temp$V1 <- df.result.PA.aggr$V1+df.result.injury$V1
@@ -331,11 +331,11 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
           
           df.result.PA.aggr <- rbind(df.result.PA.aggr.white,df.result.PA.aggr.other)
           df.result.PA.aggr <- df.result.PA.aggr[order(df.result.PA.aggr$Scenario),]
-          df.result.PA.aggr$type <- 'physical activity'
+          df.result.PA.aggr$type <- 'a. physical activity'
           
           df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 2)
           df.result.injury <- df.result.injury$df.DALYs
-          df.result.injury$type <- 'traffic injury'
+          df.result.injury$type <- 'b. traffic injury'
           
           #plot.title <- paste0(countyNames[countyID],': Age-Standardized Reduction in Total DALYs')
           
@@ -403,7 +403,7 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
       value[i]<-sum(df.PA.aggr.temp[c(i,i+3,i+6,i+9,i+12,i+15),3])
     }
     
-    df.PA.aggr <- data.frame(Scenario = scenario.name.sep,type = 'Physical activity',V1=value)
+    df.PA.aggr <- data.frame(Scenario = scenario.name.sep,type = 'a. physical activity',V1=value)
     
     ####injury module
     df.injury.region <- NULL
@@ -417,7 +417,7 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
         value[j] <- sum(df.temp$df.fatality[(2*j-1):(2*j),3]) 
       }
       
-      df.injury.aggr.temp <- data.frame(V1=value,type='traffic injury')
+      df.injury.aggr.temp <- data.frame(V1=value,type='b. traffic injury')
       
       df.injury.region <- rbind(df.injury.region,df.injury.aggr.temp)
       
@@ -431,12 +431,12 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
       value[i]<-sum(df.injury.region[c(i,i+3,i+6,i+9,i+12,i+15),3])
     }
     
-    df.injury.aggr <- data.frame(Scenario = scenario.name.sep,type = 'Traffic injury',V1=value)
+    df.injury.aggr <- data.frame(Scenario = scenario.name.sep,type = 'b. traffic injury',V1=value)
     
     # sum of two module
     df.result.integration.temp <- df.PA.aggr[,1:2]
     df.result.integration.temp$V1 <- df.PA.aggr$V1+df.injury.aggr$V1
-    df.result.integration.temp$type <- 'integration'
+    df.result.integration.temp$type <- 'c. both'
     
     df.integration.aggr <- rbind(df.PA.aggr,df.injury.aggr,df.result.integration.temp)
     
@@ -464,7 +464,7 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
       value[i]<-sum(df.PA.aggr.temp[c(i,i+3,i+6,i+9,i+12,i+15),3])
     }
     
-    df.PA.aggr <- data.frame(Scenario = scenario.name.sep,type = 'Physical activity',V1=value)
+    df.PA.aggr <- data.frame(Scenario = scenario.name.sep,type = 'a. physical activity',V1=value)
     
     ####injury module
     df.injury.region <- NULL
@@ -478,7 +478,7 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
         value[j] <- sum(df.temp$df.fatality[(2*j-1):(2*j),3]) 
       }
       
-      df.injury.aggr.temp <- data.frame(V1=value,type='traffic injury')
+      df.injury.aggr.temp <- data.frame(V1=value,type='b. traffic injury')
       
       df.injury.region <- rbind(df.injury.region,df.injury.aggr.temp)
       
@@ -492,12 +492,12 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
       value[i]<-sum(df.injury.region[c(i,i+3,i+6,i+9,i+12,i+15),3])
     }
     
-    df.injury.aggr <- data.frame(Scenario = scenario.name.sep,type = 'Traffic injury',V1=value)
+    df.injury.aggr <- data.frame(Scenario = scenario.name.sep,type = 'b. traffic injury',V1=value)
     
     # sum of two module
     df.result.integration.temp <- df.PA.aggr[,1:2]
     df.result.integration.temp$V1 <- df.PA.aggr$V1+df.injury.aggr$V1
-    df.result.integration.temp$type <- 'integration'
+    df.result.integration.temp$type <- 'c. both'
     
     df.integration.aggr <- rbind(df.PA.aggr,df.injury.aggr,df.result.integration.temp)
     
@@ -516,14 +516,14 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
       value[i]<-sum(PA.disaggr[(4*i-3):(4*i),3])
     }
     
-    df.PA.aggr.temp <- data.frame(Scenario = scenairo.name,county = rep(countyNames,each=3),V1=value,type='physical activity')
+    df.PA.aggr.temp <- data.frame(Scenario = scenairo.name,county = rep(countyNames,each=3),V1=value,type='a. physical activity')
     
     value <- NULL
     for (i in 1:3){
       value[i]<-sum(df.PA.aggr.temp[c(i,i+3,i+6,i+9,i+12,i+15),3])
     }
     
-    df.PA.aggr <- data.frame(Scenario = scenario.name.sep,type = 'Physical activity',V1=value)
+    df.PA.aggr <- data.frame(Scenario = scenario.name.sep,type = 'a. physical activity',V1=value)
     
     ####injury module
     df.injury.region <- NULL
@@ -537,7 +537,7 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
         value[j] <- sum(df.temp$df.DALYs[(2*j-1):(2*j),3]) 
       }
       
-      df.injury.aggr.temp <- data.frame(V1=value,type='traffic injury')
+      df.injury.aggr.temp <- data.frame(V1=value,type='b. traffic injury')
       
       df.injury.region <- rbind(df.injury.region,df.injury.aggr.temp)
       
@@ -551,12 +551,12 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
       value[i]<-sum(df.injury.region[c(i,i+3,i+6,i+9,i+12,i+15),3])
     }
     
-    df.injury.aggr <- data.frame(Scenario = scenario.name.sep,type = 'Traffic injury',V1=value)
+    df.injury.aggr <- data.frame(Scenario = scenario.name.sep,type = 'b. traffic injury',V1=value)
     
     # sum of two module
     df.result.integration.temp <- df.PA.aggr[,1:2]
     df.result.integration.temp$V1 <- df.PA.aggr$V1+df.injury.aggr$V1
-    df.result.integration.temp$type <- 'integration'
+    df.result.integration.temp$type <- 'c. both'
     
     df.integration.aggr <- rbind(df.PA.aggr,df.injury.aggr,df.result.integration.temp)
     
@@ -575,14 +575,14 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
       value[i]<-sum(PA.disaggr[(4*i-3):(4*i),3])
     }
     
-    df.PA.aggr.temp <- data.frame(Scenario = scenairo.name,county = rep(countyNames,each=3),V1=value,type='physical activity')
+    df.PA.aggr.temp <- data.frame(Scenario = scenairo.name,county = rep(countyNames,each=3),V1=value,type='a. physical activity')
     
     value <- NULL
     for (i in 1:3){
       value[i]<-sum(df.PA.aggr.temp[c(i,i+3,i+6,i+9,i+12,i+15),3])
     }
     
-    df.PA.aggr <- data.frame(Scenario = scenario.name.sep,type = 'Physical activity',V1=value)
+    df.PA.aggr <- data.frame(Scenario = scenario.name.sep,type = 'a. physical activity',V1=value)
     
     ####injury module
     df.injury.region <- NULL
@@ -596,7 +596,7 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
         value[j] <- sum(df.temp$df.DALYs[(2*j-1):(2*j),3]) 
       }
       
-      df.injury.aggr.temp <- data.frame(V1=value,type='traffic injury')
+      df.injury.aggr.temp <- data.frame(V1=value,type='b. traffic injury')
       
       df.injury.region <- rbind(df.injury.region,df.injury.aggr.temp)
       
@@ -610,12 +610,12 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
       value[i]<-sum(df.injury.region[c(i,i+3,i+6,i+9,i+12,i+15),3])
     }
     
-    df.injury.aggr <- data.frame(Scenario = scenario.name.sep,type = 'Traffic injury',V1=value)
+    df.injury.aggr <- data.frame(Scenario = scenario.name.sep,type = 'b. traffic injury',V1=value)
     
     # sum of two module
     df.result.integration.temp <- df.PA.aggr[,1:2]
     df.result.integration.temp$V1 <- df.PA.aggr$V1+df.injury.aggr$V1
-    df.result.integration.temp$type <- 'integration'
+    df.result.integration.temp$type <- 'c. both'
     
     df.integration.aggr <- rbind(df.PA.aggr,df.injury.aggr,df.result.integration.temp)
     
@@ -637,8 +637,13 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
 # outcomeID: 1-physical activity; 2-injury; 3-both
 # demogrID: 1-Race/ethnicty; 2-household income
 # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std; 5-physical activity data
-integrated.shiny.app(countyID = 1, barID = 1,outcomeID = 3,demogrID = 1, yaxisID =2)
+integrated.shiny.app(countyID = 2, barID = 1,outcomeID = 2,demogrID = 1, yaxisID =1)
 
+
+
+# Parameter description
+# barID: 1-future years,2-scenarios
+# yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std
 aggr.outcome.shiny.app(barID = 1,yaxisID=1)
 
 

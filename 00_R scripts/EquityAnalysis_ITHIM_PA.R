@@ -1,4 +1,5 @@
 ###################### ITHIM application for Equity Analysis - Physical Activity Module ######################
+#library definition
 library(ggplot2)
 
 #set your working directory
@@ -11,13 +12,14 @@ options(scipen = 100)
 # function for reading .csv files by countyID
 read.csv.files <- function(countyID){
   
-  # input the population (source: US Census/SACSIM)
+  # input the population (source: US Census)
   Pop_Input_byRace <- Pop.file.race[(countyID*9-8):(countyID*9-1),1:9]
   Pop_Input_byIncome <- Pop.file.income[(countyID*9-8):(countyID*9-1),1:9]
   #Pop_Input_byRace <- read.csv(paste0("01_Population/",pop.file.names[countyID*2]))
   #Pop_Input_byIncome <- read.csv(paste0("01_Population/",pop.file.names[countyID*2+1]))
   
-  # input the parameters of active transport of baseline,2020,and 2036
+  # input the parameters of active transport of baseline,2020, 2027,and 2036
+  # and for scenarios (S1,S2,S3) and customized data sets (C1,C2,C3)
   # (include relative walking/cycling time and speed)
   AT_Input_byRace.baseline <- AT.file.baseline.byRace[(countyID*36-35):(countyID*36-1),1:10]
   AT_Input_byIncome.baseline <- AT.file.baseline.byIncome[(countyID*36-35):(countyID*36-1),1:10]
@@ -88,7 +90,7 @@ read.csv.files <- function(countyID){
   # names(AT_Pop_List_MeanTimebyIncome) <- c("baseline",'2020','2036','2027','S1','S2','S3')
   # 
   
-  #input the gbd data
+  #input the GBD data
   gbd.file.names <- list.files(path = "04_GBD")
   gbd_Input_byRace <- read.csv(paste0("04_GBD/",gbd.file.names[countyID*2]))
   gbd_Input_byIncome <- read.csv(paste0("04_GBD/",gbd.file.names[countyID*2+1]))
@@ -121,7 +123,7 @@ read.csv.files <- function(countyID){
   #InputPara_byRace <- InputPara(Pop_Input_byRace,nonTravelMET_Input_byRace,gbd_Input_byRace)
   #InputPara_byIncome <- InputPara(Pop_Input_byIncome,nonTravelMET_Input_byIncome,gbd_Input_byIncome)
   
-  
+  # return required parameters
   return(list(
     InputPara_byRace = InputPara_byRace,
     InputPara_byIncome = InputPara_byIncome,
@@ -243,13 +245,14 @@ InputPara <- function (Pop_Input,nonTravelMET_Input,gbd_Input){
   #   AT_List_byDemo[[i]] <- as.matrix(AT_Input[1:nrow(AT_Input),(2*i):(2*i+1)])
   # }
   
-  # input the non travel METs into each demo catrgories
+  # input the non travel METs into each demo group
   nonTravelMET_List_byDemo <- rep(list((matrix(NA,nrow=2*nAgeClass,ncol=5))), nDemoClass)
   for(i in 1:nDemoClass){
     nonTravelMET_List_byDemo[[i]] <- as.matrix(nonTravelMET_Input[(17*i-16):(17*i-1),2:6])
     dimnames(nonTravelMET_List_byDemo[[i]]) = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),seq(0.1,0.9,by=0.2))
   }
   
+  #return required parameters
   return(list(
     Pop_List_byDemo = Pop_List_byDemo,
     PopProp_List_byDemo=PopProp_List_byDemo,
@@ -262,7 +265,6 @@ InputPara <- function (Pop_Input,nonTravelMET_Input,gbd_Input){
 }
 
 # function for creating total exposure matrix 
-# after inputing the population Mean Walking/Cycling Time (min per week)
 TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime, AT_Input, PopProp, nonTravelMET){
   #######Test
   # PopMeanWalkTime = 36.46005
@@ -403,7 +405,7 @@ create.PA.RR <- function(){
   
   RR.lit <- exposure <- matrix(NA,nrow=nAgeClass,ncol=2,dimnames=list(paste0("agClass",1:nAgeClass),c("F","M")))
   
-  # all cause mortality (Woodcock)
+  # all cause mortality (source: Woodcock)
   exposure[1:nAgeClass,1:2] <- 11
   RR.lit[1:nAgeClass,1:2] <- 0.81
   
@@ -471,7 +473,7 @@ create.PA.RR <- function(){
   # return(RR)
 }
 
-#function for computing local disease burden
+#function for computing local disease burden (scaling process)
 computeLocalGBD <- function (death_target,TargetPop,InputPara){
   #test
   #death_target = All.InputPara$InputPara_byIncome$gbd_Input[,2]
@@ -828,7 +830,7 @@ output.HealthOutcome <- function(countyID){
   
 }
 
-#function for computing health outcome (absolute reduction)
+#function for computing health outcome (absolute total reduction)
 Reduction.output <- function(countyID=c(1:6)){
   
   Reduction.Death.matrix.race.2020 <- Reduction.Death.matrix.race.2036 <-Reduction.Death.matrix.race.2027<-
@@ -960,6 +962,7 @@ computeAgeStdOutput <- function(All.InputPara_byDemo,HealthOutcome_byDemo){
   
   age.std.death <- age.std.DALYs <- matrix(NA,1,4)
   
+  #scale process
   for (i in 1:4){
     age.std.death[1,i]=sum(death.rate[,i]*US.pop)/sum(US.pop)
     age.std.DALYs[1,i]=sum(DALYs.rate[,i]*US.pop)/sum(US.pop)
@@ -971,6 +974,7 @@ computeAgeStdOutput <- function(All.InputPara_byDemo,HealthOutcome_byDemo){
   ))
 }
 
+#output the age.std health outcome
 AgeStdHealthOutcome <- function(countyID) {
   
   AgeStdDeath.matrix.race.2020 <- AgeStdDeath.matrix.race.2036 <-AgeStdDeath.matrix.race.2027<-
@@ -1166,6 +1170,7 @@ DFforFigure <- function(OutcomeMatrix.list,demogrID,countyID,barID){
   return(df=df)
 }
 
+# data frame for region-wide results
 DFforRegionWide <- function(ReductionOutcome,demogrID,dbID,barID){
   # TEST
   #demogrID = 1
@@ -1183,7 +1188,7 @@ DFforRegionWide <- function(ReductionOutcome,demogrID,dbID,barID){
   return(df.region)
 }
 
-# plots for physical activity data (active travel time, unit:min/week)
+# data frame for physical activity data (active travel time, unit:min/week)
 DFforPhysicalActivity <- function(barID,countyID,demogrID){
   if (barID==1){
     OutcomeMatrix.walk.byRace <- rbind(AT_Pop_MeanTimebyRace.baseline[c(countyID),c(2,4,6,8)],AT_Pop_MeanTimebyRace.2020[c(countyID),c(2,4,6,8)],
@@ -1267,7 +1272,6 @@ DFforPhysicalActivity <- function(barID,countyID,demogrID){
   
 }
 
-
 #countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
 #dbID: 1-death,2-DALYs
 #typeID: 1-raw,2-age.std
@@ -1285,17 +1289,17 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
     
     if (countyID%in%c(1:6)){
       df.result <- DFforFigure(RawReductionOutcome[c((demogrID*18+dbID*9-26):(demogrID*18+dbID*9-18))],demogrID,countyID,barID)
-      plot.title <- paste0(countyNames[countyID],': Reduction in Total ',dbNames[dbID])
+      plot.title <- paste0(countyNames[countyID],': Reduction in Total ',dbNames[dbID],' from Physical Activity Module')
       ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Health Burden Reduction')+
         geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         ggtitle(plot.title)
     }else if(countyID==7){
       df.result <- DFforRegionWide(RawReductionOutcome,demogrID = demogrID,dbID = dbID,barID = barID)
-      plot.title <- paste0('Region-Wide',': Reduction in Total ',dbNames[dbID])
+      plot.title <- paste0('Region-Wide',': Reduction in Total ',dbNames[dbID],' from Physical Activity Module')
       ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Health Burden Reduction')+
-        geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
+        #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         facet_wrap(~county)+ggtitle(plot.title)
     }
     
@@ -1305,17 +1309,17 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
     
     if (countyID%in%c(1:6)){
       df.result <- DFforFigure(AgeStdReductionOutcome[c((demogrID*18+dbID*9-26):(demogrID*18+dbID*9-18))],demogrID,countyID,barID)
-      plot.title <- paste0(countyNames[countyID],': Age-Standardized Reduction in Total ',dbNames[dbID])
+      plot.title <- paste0(countyNames[countyID],': Age-Standardized Reduction in Total ',dbNames[dbID],' from Physical Activity Module')
       ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Health Burden Reduction Rate (per 100,000 population)')+
         geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         ggtitle(plot.title)
     }else if(countyID==7){
       df.result <- DFforRegionWide(AgeStdReductionOutcome,demogrID = demogrID,dbID = dbID,barID = barID)
-      plot.title <- paste0('Region-Wide',': Age-Standardized Reduction in Total ',dbNames[dbID])
+      plot.title <- paste0('Region-Wide',': Age-Standardized Reduction in Total ',dbNames[dbID],' from Physical Activity Module')
       ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Health Burden Reduction Rate (per 100,000 population)')+
-        geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
+        #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         facet_wrap(~county)+ggtitle(plot.title)
     }
     
@@ -1343,7 +1347,7 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
       ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Active Travel Time (mins per week per capita)')+
         #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
-        facet_grid(Mode~county,scales = "free") +ggtitle("Region-Wide Active Travel Time")
+        facet_grid(Mode~county,scales = "free") +ggtitle("Region-Wide: Active Travel Time")
       
     }
     
@@ -1383,11 +1387,13 @@ k<-0.5
 raceGroupNames <- c("1.NHW","2.NHB","3.NHO","4.HO")
 incomeGroupNames <- c("Quant1","Quant2","Quant3","Quant4")
 
+# disease burden
 dbNames <- c('Deaths','DALYs')
 
 # county names
-countyNames <- c("ELD","PLA","SAC","SUT","YOL","YUB")
+countyNames <- c("El Dorado","Placer","Sacramento","Sutter","Yolo","Yuba")
 
+# population input
 Pop_Input_US <- read.csv("01_Population/01_Population_US_EA.csv")
 gbd_Input_US <- read.csv("04_GBD/01_GBD_US_AllCause.csv")
 
@@ -1466,11 +1472,12 @@ nonTravelMET_Input_byIncome <- read.csv("03_nonTravelMET/02_nonTravelMET_byIncom
 #           file = '00_HealthOutcome/YUB.healthoutcome.byIncome.2036.csv')
 
 # countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
+# compute the raw total reduction of health burdens
 RawReductionOutcome <- Reduction.output(c(1:6))
+# compute the age.std reduction of health burdens
 AgeStdReductionOutcome <- AgeStdHealthOutcome(c(1:6))
 
 ############################# Plots ############################################
-
 
 #countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
 #dbID: 1-death,2-DALYs
@@ -1478,6 +1485,10 @@ AgeStdReductionOutcome <- AgeStdHealthOutcome(c(1:6))
 #demogrID: 1-race,2-income
 #barID: 1- future years,2-scenarios,3-customized
 plot.shiny.app.PA(countyID = 1,dbID = 1, typeID = 2, demogrID = 1,barID = 1)
+
+
+
+
 
 ####################### TEST CODE ###########################
 # DFforFigure <- function(OutcomeMatrix,demogrID){
