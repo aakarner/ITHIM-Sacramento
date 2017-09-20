@@ -593,7 +593,7 @@ computeHealthOutcome <- function (RR.PA,BaselineTotalExpo,ScenarioTotalExpo,gbd.
   yld.baseline.firstCol <- gbd.local$yld/sum.RatioDB.Baseline
   yld.baseline <- fun.outcome(RatioDB.Baseline,yld.baseline.firstCol)
   
-  #Compute the ∆Burden, total ∆Burden, and the proportion
+  #Compute the âBurden, total âBurden, and the proportion
   delta.Burden <- (matrix(NA,nrow=nAgeClass*2,ncol=4,dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),c("delta.Deaths","delta.YLL","delta.YLD","DALYS"))))
   
   delta.Burden[,1] <- rowSums(dproj.scenario)-rowSums(dproj.baseline) #deaths
@@ -664,8 +664,8 @@ computeHealthOutcome <- function (RR.PA,BaselineTotalExpo,ScenarioTotalExpo,gbd.
   # yld.baseline.firstCol <- mapply(function(x,y) x$yld/y, gbd.local,sum.RatioDB.Baseline,SIMPLIFY=FALSE)
   # yld.baseline <- mapply(fun.outcome,RatioDB.Baseline,yld.baseline.firstCol,SIMPLIFY=FALSE)
   # 
-  # #Compute the ∆Burden, total ∆Burden, and the proportion
-  # delta.Burden <- rep(list((matrix(NA,nrow=nAgeClass*2,ncol=4,dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),c("∆Deaths","∆YLL","∆YLD","DALYS"))))), length(diseaseNames))
+  # #Compute the âBurden, total âBurden, and the proportion
+  # delta.Burden <- rep(list((matrix(NA,nrow=nAgeClass*2,ncol=4,dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),c("âDeaths","âYLL","âYLD","DALYS"))))), length(diseaseNames))
   # names(delta.Burden) <- diseaseNames
   # 
   # delta.Burden <- mapply(function (x,a,b,c,d,e,f) {
@@ -3077,42 +3077,42 @@ tabPanel("Advanced Plots",
          )
 ),
 #Upload Panel from http://shiny.rstudio.com/gallery/upload-file.html
-tabPanel("Upload", 
+# 01_Data/EQ/ActiveTransport/c1-c2-c3
+# 01_Data/EQ/PVD/c1-2-3
+
+tabPanel("Custom Scenarios", 
          
          sidebarLayout(
            sidebarPanel(
              fileInput('file1', 'Choose file to upload',
                        accept = c(
-                         'text/csv',
-                         'text/comma-separated-values',
-                         'text/tab-separated-values',
-                         'text/plain',
-                         '.csv',
-                         '.tsv'
+                         '.zip'
                        )
              ),
              tags$hr(),
-             checkboxInput('header', 'Header', TRUE),
-             radioButtons('sep', 'Separator',
-                          c(Comma=',',
-                            Semicolon=';',
-                            Tab='\t'),
-                          ','),
-             radioButtons('quote', 'Quote',
-                          c(None='',
-                            'Double Quote'='"',
-                            'Single Quote'="'"),
-                          '"'),
-             tags$hr(),
-             p('If you want a sample .csv or .tsv file to upload,',
-               'you can first download the sample',
-               a(href = 'mtcars.csv', 'mtcars.csv'), 'or',
-               a(href = 'pressure.tsv', 'pressure.tsv'),
-               'files, and then try uploading them.'
-             )
+             p('Please use the following as a template for the data structure of your custom scenarios',
+               a(href = "CustomScenarioTemplate.zip", "CustomScenarioTemplate.zip")
+             ),
+             radioButtons("selectCounty", label = h3("Select County"), 
+                          choices = list("El Dorado" = 1, "Placer" = 2, "Sacramento" = 3, "Sutter"= 4, "Yolo"= 5, "Yuba"= 6, "All"= 7), 
+                          selected = 1),
+             radioButtons("selectbarID", label = h3("Select Scenario"), 
+                          choices = list("Future Years" = 1, "Scenarios" = 2, "Customized" = 3), 
+                          selected = 1),
+             radioButtons("selectoutcomeID", label = h3("Select Outcome"), 
+                          choices = list("Physical Activity" = 1, "Injury" = 2, "Both" = 3), 
+                          selected = 1),
+             radioButtons("selectdemogrID", label = h3("Select Demographic"), 
+                          choices = list("Race/Ethnicity" = 1, "Household Income" = 2), 
+                          selected = 1),
+             radioButtons("selectyaxisID", label = h3("Select Units"), 
+                          choices = list("Deaths - [Total]" = 1, "Death - [Age Standardized]" = 2, 
+                                         "Disability Adjusted Life Years (DALYs) - [Total]" = 3, "DALYs - [Age Standardized]" = 4, 
+                                         "Physical Activity Data" = 5), 
+                          selected = 1)
            ),
            mainPanel(
-             tableOutput('contents')
+             plotOutput("CustomizablePlot")
            )
 
   )
@@ -3125,6 +3125,19 @@ server <- function(input, output) {
   # data <- reactive({
   #       (input$select)
   #     })
+  
+  output$CustomizablePlot <- renderPlot({
+    
+    # Parameter description
+    # countyID: 1-ELD; 2-PLA; 3-SAC; 4-SUT; 5-YOL; 6-YUB; 7-All
+    # barID: 1-future years,2-scenarios,3-customized
+    # outcomeID: 1-physical activity; 2-injury; 3-both
+    # demogrID: 1-Race/ethnicty; 2-household income
+    # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std; 5-physical activity data
+    integrated.shiny.app(countyID = as.integer(input$selectCounty), barID = as.integer(input$selectbarID),
+                         outcomeID = as.integer(input$selectoutcomeID),demogrID = as.integer(input$selectdemogrID), 
+                         yaxisID = as.integer(input$selectyaxisID))
+  })
   
   output$AdvancedPlot <- renderPlot({
 
