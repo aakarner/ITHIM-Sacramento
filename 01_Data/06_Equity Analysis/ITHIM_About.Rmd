@@ -1,0 +1,24 @@
+---
+title: "About"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Integrated Transport and Health Impact Modelling Tool (ITHIM) 
+### Sacramento Area Race/Ethnicity and Income
+
+This site is an application of the [ITHIM model](http://www.cedar.iph.cam.ac.uk/research/modelling/ithim/) created at the [UK Center for Diet and Activity Research](http://www.cedar.iph.cam.ac.uk/). This application of the tool was implemented to do two main things:
+<ol>
+<li>To visualize how different people travel in the Sacramento area and how active they are </li>
+<li>To look at how things would change under different scenarios in which the probability of active transportation increases </li>
+</ol>
+
+This model includes contributions by:   
+
+- Alex Karner
+- Dana Rowangould
+- Yizheng Wu
+- Ofurhe Igbinedion
