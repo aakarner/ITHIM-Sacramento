@@ -26,6 +26,13 @@ countyNames <- c("El Dorado","Placer","Sacramento","Sutter","Yolo","Yuba")
 PersonVehicleDist.2012 <- read.csv('06_PersonVehicleDistance/00_PersonVehicleDistance_Baseline.csv')
 PersonVehicleDist.2020 <- read.csv('06_PersonVehicleDistance/01_PersonVehicleDistance_2020.csv')
 PersonVehicleDist.2036 <- read.csv('06_PersonVehicleDistance/02_PersonVehicleDistance_2036.csv')
+PersonVehicleDist.2027 <- read.csv('06_PersonVehicleDistance/03_PersonVehicleDistance_2027.csv')
+PersonVehicleDist.S1 <- read.csv('06_PersonVehicleDistance/04_PersonVehicleDistance_S1.csv')
+PersonVehicleDist.S2 <- read.csv('06_PersonVehicleDistance/05_PersonVehicleDistance_S2.csv')
+PersonVehicleDist.S3 <- read.csv('06_PersonVehicleDistance/06_PersonVehicleDistance_S3.csv')
+PersonVehicleDist.C1 <- read.csv('06_PersonVehicleDistance/07_PersonVehicleDistance_Custom1.csv')
+PersonVehicleDist.C2 <- read.csv('06_PersonVehicleDistance/08_PersonVehicleDistance_Custom2.csv')
+PersonVehicleDist.C3 <- read.csv('06_PersonVehicleDistance/09_PersonVehicleDistance_Custom3.csv')
 
 # input the population data for each race group
 Pop.file.race <- read.csv("01_Population/02_Population_byRace_2012.csv")
@@ -698,7 +705,7 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
 #   geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Fatalities')+
 #   ggtitle("Reduction in total injuries")
 
-plot.shiny.app.injury(countyID = 3, barID = 1,yaxisID = 1)
+plot.shiny.app.injury(countyID = 3, barID = 3,yaxisID = 1)
 
 #write.csv(output.result(countyID=1),file = '00_HealthOutcome/00_Injury/11 year SWITRS updated/ELD.injuryresult_twoRaces.csv')
 #write.csv(output.result(countyID=2),file = '00_HealthOutcome/00_Injury/11 year SWITRS updated/PLA.injuryresult_twoRaces.csv')
