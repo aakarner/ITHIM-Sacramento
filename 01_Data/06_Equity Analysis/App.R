@@ -1514,9 +1514,9 @@ dbNames <- c('Deaths','DALYs')
 countyNames <- c("El Dorado","Placer","Sacramento","Sutter","Yolo","Yuba")
 
 # input the vehicle distance data
-PersonVehicleDist.2012 <- read.csv('06_PersonVehicleDistance/00_PersonVehicleDistance_Baseline.csv')
-PersonVehicleDist.2020 <- read.csv('06_PersonVehicleDistance/01_PersonVehicleDistance_2020.csv')
-PersonVehicleDist.2036 <- read.csv('06_PersonVehicleDistance/02_PersonVehicleDistance_2036.csv')
+PersonVehicleDist.C1 <- read.csv('06_PersonVehicleDistance/07_PersonVehicleDistance_Custom1.csv')
+PersonVehicleDist.C2 <- read.csv('06_PersonVehicleDistance/08_PersonVehicleDistance_Custom2.csv')
+PersonVehicleDist.C3 <- read.csv('06_PersonVehicleDistance/09_PersonVehicleDistance_Custom3.csv')
 
 # input the population data for each race group
 Pop.file.race <- read.csv("01_Population/02_Population_byRace_2012.csv")
@@ -1544,7 +1544,7 @@ input.csv <- function(countyID,scenarioID){
   
   #test
   #countyID = 2
-  #scenarioID = 0
+  #scenarioID = 7
   #pop.file.names <- list.files(path = "01_Population")
   
   #filenames.injury <- readLines("05_baseline injury/01_filenames_twoRaces.txt")
@@ -1570,9 +1570,19 @@ input.csv <- function(countyID,scenarioID){
   # }
   # names(person.vehicle.distance_input.list)<- c('NHW','Others')
   
-  filenames.dist <- list.files(path='06_PersonVehicleDistance')
   person.vehicle.distance_input.matrix <- matrix(NA,34,2)
-  person.vehicle.distance_input <- read.csv(paste0('06_PersonVehicleDistance/',filenames.dist[scenarioID+1]))
+  if (scenarioID<=6){
+    filenames.dist <- list.files(path='06_PersonVehicleDistance')
+    person.vehicle.distance_input <- read.csv(paste0('06_PersonVehicleDistance/',filenames.dist[scenarioID+1]))
+  }else if (scenarioID==7){
+    person.vehicle.distance_input <- PersonVehicleDist.C1
+  }else if (scenarioID==8){
+    person.vehicle.distance_input <- PersonVehicleDist.C2
+  }else if(scenarioID==9){
+    person.vehicle.distance_input <- PersonVehicleDist.C3
+  }
+  
+  
   colnames(person.vehicle.distance_input.matrix)<- c('NHW','Others')
   
   #NHW
@@ -2180,11 +2190,6 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
   }
 }
 
-
-
-
-
-
 # Parameter description
 # countyID: 1-ELD; 2-PLA; 3-SAC; 4-SUT; 5-YOL; 6-YUB; 7-All
 # barID: 1-future years,2-scenarios,3-customized
@@ -2549,7 +2554,6 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
 # demogrID: 1-Race/ethnicty; 2-household income
 # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std; 5-physical activity data
 
-
 aggr.outcome.shiny.app <- function(barID,yaxisID){
   
   #TEST
@@ -2886,8 +2890,6 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
 # demogrID: 1-Race/ethnicty; 2-household income
 # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std; 5-physical activity data
 integrated.shiny.app(countyID = 2, barID = 3,outcomeID = 2,demogrID = 1, yaxisID =1)
-
-
 
 # Parameter description
 # barID: 1-future years,2-scenarios
