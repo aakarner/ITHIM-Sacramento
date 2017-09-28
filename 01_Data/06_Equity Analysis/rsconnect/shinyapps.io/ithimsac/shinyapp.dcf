@@ -1,0 +1,12 @@
+name: shinyapp
+title: shiny app
+username:
+account: ithimsac
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 217630
+bundleId: 1000164
+url: https://ithimsac.shinyapps.io/shinyapp/
+when: 1506532228.37403
+asMultiple: FALSE
+asStatic: FALSE
