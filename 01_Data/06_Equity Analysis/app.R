@@ -1,11 +1,18 @@
+###################### ITHIM application for Equity Analysis - Web Interface - Shiny App ######################
 
+# read R scripts for physical activity module and traffic injury module
+#setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/00_R scripts")
+#source('EquityAnalysis_ITHIM_PA.R')
+
+#setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/00_R scripts")
+#source('EquityAnalysis_ITHIM_Injuries_TwoRaces.R')
 
 ###################### ITHIM application for Equity Analysis - Physical Activity Module ######################
 #library definition
 library(ggplot2)
 
-# #set your working directory
-# setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/01_Data/06_Equity Analysis/")
+#set your working directory
+#setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/01_Data/06_Equity Analysis/")
 
 # Prevent scientific notation
 options(scipen = 100)
@@ -1479,181 +1486,15 @@ RawReductionOutcome <- Reduction.output(c(1:6))
 # compute the age.std reduction of health burdens
 AgeStdReductionOutcome <- AgeStdHealthOutcome(c(1:6))
 
-############################# Plots ############################################
 
-#countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
-#dbID: 1-death,2-DALYs
-#typeID: 1-raw,2-age.std,3-physical activity
-#demogrID: 1-race,2-income
-#barID: 1- future years,2-scenarios,3-customized
-plot.shiny.app.PA(countyID = 1,dbID = 1, typeID = 2, demogrID = 1,barID = 1)
-
-
-
-
-
-####################### TEST CODE ###########################
-# DFforFigure <- function(OutcomeMatrix,demogrID){
-#   #test
-#   OutcomeMatrix <- RawReductionOutcome[[1]]
-#   demogrID <- 1
-#   #county names
-#   county <- rep(rownames(OutcomeMatrix),each=4)
-#   #race group names
-#   raceGroup <- rep(c("1.White",'2.Black','3.Hisp','4.Other'),nrow(OutcomeMatrix))
-#   #income group names
-#   incomeGroup <- rep(incomeGroupNames,nrow(OutcomeMatrix))
-#   
-#   if (demogrID==1) {
-#     demogrGroup = raceGroup
-#     #shape the outcome as data.frame
-#     outcome <- outcome.update<-as.data.frame(matrix(t(OutcomeMatrix),nDemoClass*nrow(OutcomeMatrix),1))
-#     for (i in 1:6){
-#       outcome.update[4*i-1,1]<-outcome[4*i,1]
-#       outcome.update[4*i,1]<-outcome[4*i-1,1]
-#     }
-#     
-#     df <- data.frame(County=county,DemogrGroup=demogrGroup,v =(-outcome.update))
-#     
-#   }else{
-#     demogrGroup = incomeGroup
-#     #shape the outcome as data.frame
-#     outcome <- as.data.frame(matrix(t(OutcomeMatrix),nDemoClass*nrow(OutcomeMatrix),1))
-#     df <- data.frame(County=county,DemogrGroup=demogrGroup,v =(-outcome))
-#     
-#     }
-#     
-#   return(df=df)
-# }
-
-
-#ggplot(data = df, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
-#        geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Health Burden Reduction Rate (per 100,000 population)')+
-#      ggtitle("Reduction in health burden")
-
-# plot.shiny.app <- function(ScenarioID,dbID,typeID,demogrID){
-#   if(typeID==1){
-#     df.result <- DFforFigure(RawReductionOutcome[[4*demogrID+2*ScenarioID+dbID-6]],demogrID)
-#     ggplot(data = df.result, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
-#       geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Total Health Burden Reduction')+
-#       ggtitle("Reduction in health burden")
-#   }else{
-#     df.result <- DFforFigure(AgeStdReductionOutcome[[4*demogrID+2*ScenarioID+dbID-6]],demogrID)
-#     ggplot(data = df.result, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
-#       geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Health Burden Reduction Rate (per 100,000 population)')+
-#       ggtitle("Age-std reduction in health burden")
-#   }
-# }
-
-#scenarioID: 1-2020,2-2036
-#dbID: 1-death,2-DALYs
-#typeID: 1-raw,2-age.std
-#demogrID: 1-race,2-income
-#plot.shiny.app(ScenarioID = 2,dbID = 1, typeID = 2,demogrID = 1)
-
-# #Plot age-std reduction by race in total deaths compare baseline to 2020
-# df.death.race.2020 <- DFforFigure(AgeStdOutcome$AgeStdDeath.matrix.race.2020,demogrID = 1)
-# ggplot(data = df.death.race.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
-#   geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Death Reduction Rate (per 100,000 population)')+
-#   ggtitle("Age-std reduction in total deaths by race/ethnicity (scenario 2020)")
-# 
-# #Plot absolute reduction by race in total deaths compare baseline to 2020
-# df.reduction.death.race.2020 <- DFforFigure(AbsReductionOutcome$Reduction.Death.matrix.race.2020,demogrID = 1)
-# ggplot(data = df.reduction.death.race.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
-#   geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Total Death Reduction')+
-#   ggtitle("Reduction in total deaths by race/ethnicity (scenario 2020)")
-# 
-# #Plot age-std reduction by race in total deaths compare baseline to 2036
-# df.death.race.2036 <- DFforFigure(AgeStdOutcome$AgeStdDeath.matrix.race.2036,demogrID = 1)
-# ggplot(data = df.death.race.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
-#   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Death Reduction Rate (per 100,000 population)')+
-#   ggtitle("Age-std reduction in total deaths by race/ethnicity (scenario 2036)")
-# 
-# #Plot absolute reduction by race in total deaths compare baseline to 2036
-# df.reduction.death.race.2036 <- DFforFigure(AbsReductionOutcome$Reduction.Death.matrix.race.2036,demogrID = 1)
-# ggplot(data = df.reduction.death.race.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
-#   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Total Death Reduction')+
-#   ggtitle("Reduction in total deaths by race/ethnicity (scenario 2036)")
-# 
-# #Plot age-std reduction by income in total deaths compare baseline to 2020
-# df.death.income.2020 <- DFforFigure(AgeStdOutcome$AgeStdDeath.matrix.income.2020,demogrID = 2)
-# ggplot(data = df.death.income.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
-#   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Death Reduction Rate (per 100,000 population)')+
-#   ggtitle("Age-std reduction in total deaths by household income (scenario 2020)")
-# 
-# #Plot absolute reduction by income in total deaths compare baseline to 2020
-# df.reduction.death.income.2020 <- DFforFigure(AbsReductionOutcome$Reduction.Death.matrix.income.2020,demogrID = 2)
-# ggplot(data = df.reduction.death.income.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
-#   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Total Death Reduction')+
-#   ggtitle("Reduction in total deaths by household income (scenario 2020)")
-# 
-# #Plot age-std reduction by income in total deaths compare baseline to 2036
-# df.death.income.2036 <- DFforFigure(AgeStdOutcome$AgeStdDeath.matrix.income.2036,demogrID = 2)
-# ggplot(data = df.death.income.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
-#   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Death Reduction Rate (per 100,000 population)')+
-#   ggtitle("Age-std reduction in total deaths by household income (scenario 2036)")
-# 
-# #Plot absolute reduction by income in total deaths compare baseline to 2036
-# df.reduction.death.income.2036 <- DFforFigure(AbsReductionOutcome$Reduction.Death.matrix.income.2036,demogrID = 2)
-# ggplot(data = df.reduction.death.income.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
-#   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Total Death Reduction')+
-#   ggtitle("Reduction in total deaths by household income (scenario 2036)")
-# 
-# #Plot age-std reduction by race in total DALYs compare baseline to 2020
-# df.DALYs.race.2020 <- DFforFigure(AgeStdOutcome$AgeStdDALYs.matrix.race.2020,demogrID = 1)
-# ggplot(data = df.DALYs.race.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
-#   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('DALYs Reduction Rate (per 100,000 population)')+
-#   ggtitle("Age-std reduction in total DALYs by race/ethnicity (scenario 2020)")
-# 
-# #Plot absolute reduction by race in total DALYs compare baseline to 2020
-# df.reduction.DALYs.race.2020 <- DFforFigure(AbsReductionOutcome$Reduction.DALYs.matrix.race.2020,demogrID = 1)
-# ggplot(data = df.reduction.DALYs.race.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
-#   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Total DALYs Reduction')+
-#   ggtitle("Reduction in total DALYs by race/ethnicity (scenario 2020)")
-# 
-# #Plot age-std reduction by race in total DALYs compare baseline to 2036
-# df.DALYs.race.2036 <- DFforFigure(AgeStdOutcome$AgeStdDALYs.matrix.race.2036,demogrID = 1)
-# ggplot(data = df.DALYs.race.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
-#   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('DALYs Reduction Rate (per 100,000 population)')+
-#   ggtitle("Age-std reduction in total DALYs by race/ethnicity (scenario 2036)")
-# 
-# #Plot absolute reduction by race in total DALYs compare baseline to 2036
-# df.reduction.DALYs.race.2036 <- DFforFigure(AbsReductionOutcome$Reduction.DALYs.matrix.race.2036,demogrID = 1)
-# ggplot(data = df.reduction.DALYs.race.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
-#   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Total DALYs Reduction')+
-#   ggtitle("Reduction in total DALYs by race/ethnicity (scenario 2036)")
-# 
-# #Plot absolute reduction by income in total DALYs compare baseline to 2020
-# df.DALYs.income.2020 <- DFforFigure(AgeStdOutcome$AgeStdDALYs.matrix.income.2020,demogrID = 2)
-# ggplot(data = df.DALYs.income.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
-#   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('DALYs Reduction Rate (per 100,000 population)')+
-#   ggtitle("Age-std reduction in total DALYs by household income (scenario 2020)")
-# 
-# #Plot absolute reduction by income in total DALYs compare baseline to 2020
-# df.reduction.DALYs.income.2020 <- DFforFigure(AbsReductionOutcome$Reduction.DALYs.matrix.income.2020,demogrID = 2)
-# ggplot(data = df.reduction.DALYs.income.2020, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
-#   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Total DALYs Reduction')+
-#   ggtitle("Reduction in total DALYs by household income (scenario 2020)")
-# 
-# #Plot absolute reduction by income in total DALYs compare baseline to 2036
-# df.DALYs.income.2036 <- DFforFigure(AgeStdOutcome$AgeStdDALYs.matrix.income.2036,demogrID = 2)
-# ggplot(data = df.DALYs.income.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
-#   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('DALYs Reduction Rate (per 100,000 population)')+
-#   ggtitle("Age-std reduction in total DALYs by household income (scenario 2036)")
-# 
-# #Plot absolute reduction by income in total DALYs compare baseline to 2036
-# df.reduction.DALYs.income.2036 <- DFforFigure(AbsReductionOutcome$Reduction.DALYs.matrix.income.2036,demogrID = 2)
-# ggplot(data = df.reduction.DALYs.income.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
-#   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Total DALYs Reduction Rate')+
-#   ggtitle("Reduction in total DALYs by household income (scenario 2036)")
 
 
 ###################### ITHIM application for Equity Analysis - Injury Module ################
 ############################ Two Race Categories Version ######################
 library(ggplot2)
 
-# #set your working directory
-# setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/01_Data/06_Equity Analysis")
+#set your working directory
+#setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/01_Data/06_Equity Analysis")
 
 # Prevent scientific notation
 options(scipen = 100)
@@ -1673,9 +1514,9 @@ dbNames <- c('Deaths','DALYs')
 countyNames <- c("El Dorado","Placer","Sacramento","Sutter","Yolo","Yuba")
 
 # input the vehicle distance data
-PersonVehicleDist.2012 <- read.csv('06_PersonVehicleDistance/00_PersonVehicleDistance_Baseline.csv')
-PersonVehicleDist.2020 <- read.csv('06_PersonVehicleDistance/01_PersonVehicleDistance_2020.csv')
-PersonVehicleDist.2036 <- read.csv('06_PersonVehicleDistance/02_PersonVehicleDistance_2036.csv')
+PersonVehicleDist.C1 <- read.csv('06_PersonVehicleDistance/07_PersonVehicleDistance_Custom1.csv')
+PersonVehicleDist.C2 <- read.csv('06_PersonVehicleDistance/08_PersonVehicleDistance_Custom2.csv')
+PersonVehicleDist.C3 <- read.csv('06_PersonVehicleDistance/09_PersonVehicleDistance_Custom3.csv')
 
 # input the population data for each race group
 Pop.file.race <- read.csv("01_Population/02_Population_byRace_2012.csv")
@@ -1703,7 +1544,7 @@ input.csv <- function(countyID,scenarioID){
   
   #test
   #countyID = 2
-  #scenarioID = 0
+  #scenarioID = 7
   #pop.file.names <- list.files(path = "01_Population")
   
   #filenames.injury <- readLines("05_baseline injury/01_filenames_twoRaces.txt")
@@ -1729,9 +1570,19 @@ input.csv <- function(countyID,scenarioID){
   # }
   # names(person.vehicle.distance_input.list)<- c('NHW','Others')
   
-  filenames.dist <- list.files(path='06_PersonVehicleDistance')
   person.vehicle.distance_input.matrix <- matrix(NA,34,2)
-  person.vehicle.distance_input <- read.csv(paste0('06_PersonVehicleDistance/',filenames.dist[scenarioID+1]))
+  if (scenarioID<=6){
+    filenames.dist <- list.files(path='06_PersonVehicleDistance')
+    person.vehicle.distance_input <- read.csv(paste0('06_PersonVehicleDistance/',filenames.dist[scenarioID+1]))
+  }else if (scenarioID==7){
+    person.vehicle.distance_input <- PersonVehicleDist.C1
+  }else if (scenarioID==8){
+    person.vehicle.distance_input <- PersonVehicleDist.C2
+  }else if(scenarioID==9){
+    person.vehicle.distance_input <- PersonVehicleDist.C3
+  }
+  
+  
   colnames(person.vehicle.distance_input.matrix)<- c('NHW','Others')
   
   #NHW
@@ -2339,33 +2190,6 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
   }
 }
 
-############################calculation example#################################
-
-
-# barID: 1-future years,2-Scenarios,3-customized
-# df.result.injury <- DFforFigure.injury(barID = 1,countyID = 3)
-# ggplot(data = df.result.injury$df.serious, mapping = aes(x = factor(DemogrGroup), y = v,fill = Scenario)) + 
-#   geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Fatalities')+
-#   ggtitle("Reduction in total injuries")
-
-plot.shiny.app.injury(countyID = 3, barID = 1,yaxisID = 1)
-
-#write.csv(output.result(countyID=1),file = '00_HealthOutcome/00_Injury/11 year SWITRS updated/ELD.injuryresult_twoRaces.csv')
-#write.csv(output.result(countyID=2),file = '00_HealthOutcome/00_Injury/11 year SWITRS updated/PLA.injuryresult_twoRaces.csv')
-#write.csv(output.result(countyID=3),file = '00_HealthOutcome/00_Injury/11 year SWITRS updated/SAC.injuryresult_twoRaces.csv')
-#write.csv(output.result(countyID=4),file = '00_HealthOutcome/00_Injury/11 year SWITRS updated/SUT.injuryresult_twoRaces.csv')
-#write.csv(output.result(countyID=5),file = '00_HealthOutcome/00_Injury/11 year SWITRS updated/YOL.injuryresult_twoRaces.csv')
-#write.csv(output.result(countyID=6),file = '00_HealthOutcome/00_Injury/11 year SWITRS updated/YUB.injuryresult_twoRaces.csv')
-
-###################### ITHIM application for Equity Analysis - Web Interface - Shiny App Functions ######################
-
-# # read R scripts for physical activity module and traffic injury module
-# setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/00_R scripts")
-# source('EquityAnalysis_ITHIM_PA.R')
-# 
-# setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/00_R scripts")
-# source('EquityAnalysis_ITHIM_Injuries_TwoRaces.R')
-
 # Parameter description
 # countyID: 1-ELD; 2-PLA; 3-SAC; 4-SUT; 5-YOL; 6-YUB; 7-All
 # barID: 1-future years,2-scenarios,3-customized
@@ -2405,7 +2229,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
     if (countyID%in%(1:6)){
       
       value <- NULL
-      
+
       if (yaxisID==1){ #total deaths
         #test
         #countyID=1
@@ -2601,14 +2425,14 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
           facet_wrap(~county,scales = "free") +ggtitle("Region-Wide: Reduction of Total Deaths ")
         
         #return(df.region = df.region)
-        
+      
       }else if (yaxisID==2){#death age.std
         
         for (countyID in c(1:6)){
           value <- NULL
           
           df.result.PA <- DFforFigure(AgeStdReductionOutcome[c((1*18+2*9-26):(1*18+2*9-18))],1,countyID,barID)
-          
+  
           df.result.PA.aggr.white <- df.result.PA[c(1,5,9),]
           for (i in 1:3) {
             value[i] <- sum(df.result.PA[((i+1):(i+3)),3])
@@ -2716,8 +2540,8 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
       }else{
         message('wrong input')
       }
-      
-      
+    
+
     }
     
   }
@@ -2730,12 +2554,13 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
 # demogrID: 1-Race/ethnicty; 2-household income
 # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std; 5-physical activity data
 
-
 aggr.outcome.shiny.app <- function(barID,yaxisID){
   
   #TEST
   #barID =1
   #yaxisID=1
+  
+  #demogr.name <- c('white','others')
   
   if(barID==1){
     scenario.name.sep <- c('2020','2027','2036')
@@ -2751,46 +2576,63 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
     
     PA.disaggr <- DFforRegionWide(ReductionOutcome = RawReductionOutcome,demogrID = 1,dbID = 1,barID = barID)
     
-    for (i in 1:18){
-      value[i]<-sum(PA.disaggr[(4*i-3):(4*i),3])
-    }
+    PA.disaggr.white <- PA.disaggr[seq(from=1,to=69,by=4),]
     
-    df.PA.aggr.temp <- data.frame(Scenario = scenairo.name,county = rep(countyNames,each=3),V1=value,type='physical activity')
-    
-    value <- NULL
     for (i in 1:3){
-      value[i]<-sum(df.PA.aggr.temp[c(i,i+3,i+6,i+9,i+12,i+15),3])
+      value[i] <-sum(PA.disaggr.white[c(i,i+3,i+6,i+9,i+12,i+15),3]) 
     }
+    PA.disaggr.white.temp <- data.frame(Scenario = scenario.name.sep,DemogrGroup = '1. white',V1=value)
     
-    df.PA.aggr <- data.frame(Scenario = scenario.name.sep,type = 'a. physical activity',V1=value)
+    value<-value.temp<-NULL
+    for (i in 1:18){
+      #value[i]<-sum(PA.disaggr[(4*i-3):(4*i),3])
+      value[i] <- sum(PA.disaggr[(4*i-2):(4*i),3])
+    }
+    for (j in 1:3){
+      value.temp[j]<-sum(value[c(j,j+3,j+6,j+9,j+12,j+15)])
+    }
+    PA.disaggr.other.temp <- data.frame(Scenario = scenario.name.sep,DemogrGroup = '2. other',V1=value.temp)
+    
+    df.PA.aggr <- rbind(PA.disaggr.white.temp,PA.disaggr.other.temp)
+    df.PA.aggr <- df.PA.aggr[order(df.PA.aggr$Scenario),]
+    df.PA.aggr$type <- 'a. physical activity'
+    
+    #df.PA.aggr.temp <- data.frame(Scenario = scenairo.name,county = rep(countyNames,each=3),V1=value,type='physical activity')
+    # value <- NULL
+    # for (i in 1:3){
+    #   value[i]<-sum(df.PA.aggr.temp[c(i,i+3,i+6,i+9,i+12,i+15),3])
+    # }
+    # 
+    # df.PA.aggr <- data.frame(Scenario = scenario.name.sep,type = 'a. physical activity',V1=value)
     
     ####injury module
     df.injury.region <- NULL
     
     for (i in 1:6){ #county
-      value <-NULL
+      #value <-NULL
       
       df.temp <- DFforFigure.injury(barID = barID,i,typeID = 1)
       
-      for (j in 1:3){
-        value[j] <- sum(df.temp$df.fatality[(2*j-1):(2*j),3]) 
-      }
+      #for (j in 1:3){
+       # value[j] <- sum(df.temp$df.fatality[(2*j-1):(2*j),3]) 
+      #}
       
-      df.injury.aggr.temp <- data.frame(V1=value,type='b. traffic injury')
+      df.injury.aggr.temp <- df.temp$df.fatality
       
       df.injury.region <- rbind(df.injury.region,df.injury.aggr.temp)
       
     }
     
-    df.injury.region<-data.frame(county = rep(countyNames,each=3),df.injury.region)
-    df.injury.region<-data.frame(Scenario = scenairo.name,df.injury.region)
+    df.injury.region<-data.frame(df.injury.region,county = rep(countyNames,each=6))
+    #df.injury.region<-data.frame(Scenario = scenairo.name,df.injury.region)
     
     value <- NULL
-    for (i in 1:3){
-      value[i]<-sum(df.injury.region[c(i,i+3,i+6,i+9,i+12,i+15),3])
+    for (i in 1:6){
+      value[i]<-sum(df.injury.region[c(i,i+6,i+12,i+18,i+24,i+30),3])
     }
     
-    df.injury.aggr <- data.frame(Scenario = scenario.name.sep,type = 'b. traffic injury',V1=value)
+    df.injury.aggr <- data.frame(Scenario = rep(scenario.name.sep,each = 2),DemogrGroup = rep(c('1. white','2. other'),3),V1=value, type = 'b. traffic injury')
+    
     
     # sum of two module
     df.result.integration.temp <- df.PA.aggr[,1:2]
@@ -2799,10 +2641,10 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
     
     df.integration.aggr <- rbind(df.PA.aggr,df.injury.aggr,df.result.integration.temp)
     
-    ggplot(data = df.integration.aggr, mapping = aes(x = factor(type), y = V1,fill = Scenario)) + 
-      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Module')+ylab('Total Deaths Reduction')+
+    ggplot(data = df.integration.aggr, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demograhic Group')+ylab('Total Deaths Reduction')+
       geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
-      ggtitle("Region-Wide: Reduction in Total Deaths")
+      facet_grid(.~type,scales = "free")+ggtitle("Region-Wide: Reduction in Total Deaths")
     
     
     
@@ -2812,46 +2654,63 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
     
     PA.disaggr <- DFforRegionWide(ReductionOutcome = AgeStdReductionOutcome,demogrID = 1,dbID = 1,barID = barID)
     
-    for (i in 1:18){
-      value[i]<-sum(PA.disaggr[(4*i-3):(4*i),3])
-    }
+    PA.disaggr.white <- PA.disaggr[seq(from=1,to=69,by=4),]
     
-    df.PA.aggr.temp <- data.frame(Scenario = scenairo.name,county = rep(countyNames,each=3),V1=value,type='physical activity')
-    
-    value <- NULL
     for (i in 1:3){
-      value[i]<-sum(df.PA.aggr.temp[c(i,i+3,i+6,i+9,i+12,i+15),3])
+      value[i] <-sum(PA.disaggr.white[c(i,i+3,i+6,i+9,i+12,i+15),3]) 
     }
+    PA.disaggr.white.temp <- data.frame(Scenario = scenario.name.sep,DemogrGroup = '1. white',V1=value)
     
-    df.PA.aggr <- data.frame(Scenario = scenario.name.sep,type = 'a. physical activity',V1=value)
+    value<-value.temp<-NULL
+    for (i in 1:18){
+      #value[i]<-sum(PA.disaggr[(4*i-3):(4*i),3])
+      value[i] <- sum(PA.disaggr[(4*i-2):(4*i),3])
+    }
+    for (j in 1:3){
+      value.temp[j]<-sum(value[c(j,j+3,j+6,j+9,j+12,j+15)])
+    }
+    PA.disaggr.other.temp <- data.frame(Scenario = scenario.name.sep,DemogrGroup = '2. other',V1=value.temp)
+    
+    df.PA.aggr <- rbind(PA.disaggr.white.temp,PA.disaggr.other.temp)
+    df.PA.aggr <- df.PA.aggr[order(df.PA.aggr$Scenario),]
+    df.PA.aggr$type <- 'a. physical activity'
+    
+    #df.PA.aggr.temp <- data.frame(Scenario = scenairo.name,county = rep(countyNames,each=3),V1=value,type='physical activity')
+    # value <- NULL
+    # for (i in 1:3){
+    #   value[i]<-sum(df.PA.aggr.temp[c(i,i+3,i+6,i+9,i+12,i+15),3])
+    # }
+    # 
+    # df.PA.aggr <- data.frame(Scenario = scenario.name.sep,type = 'a. physical activity',V1=value)
     
     ####injury module
     df.injury.region <- NULL
     
     for (i in 1:6){ #county
-      value <-NULL
+      #value <-NULL
       
       df.temp <- DFforFigure.injury(barID = barID,i,typeID = 2)
       
-      for (j in 1:3){
-        value[j] <- sum(df.temp$df.fatality[(2*j-1):(2*j),3]) 
-      }
+      #for (j in 1:3){
+      # value[j] <- sum(df.temp$df.fatality[(2*j-1):(2*j),3]) 
+      #}
       
-      df.injury.aggr.temp <- data.frame(V1=value,type='b. traffic injury')
+      df.injury.aggr.temp <- df.temp$df.fatality
       
       df.injury.region <- rbind(df.injury.region,df.injury.aggr.temp)
       
     }
     
-    df.injury.region<-data.frame(county = rep(countyNames,each=3),df.injury.region)
-    df.injury.region<-data.frame(Scenario = scenairo.name,df.injury.region)
+    df.injury.region<-data.frame(df.injury.region,county = rep(countyNames,each=6))
+    #df.injury.region<-data.frame(Scenario = scenairo.name,df.injury.region)
     
     value <- NULL
-    for (i in 1:3){
-      value[i]<-sum(df.injury.region[c(i,i+3,i+6,i+9,i+12,i+15),3])
+    for (i in 1:6){
+      value[i]<-sum(df.injury.region[c(i,i+6,i+12,i+18,i+24,i+30),3])
     }
     
-    df.injury.aggr <- data.frame(Scenario = scenario.name.sep,type = 'b. traffic injury',V1=value)
+    df.injury.aggr <- data.frame(Scenario = rep(scenario.name.sep,each = 2),DemogrGroup = rep(c('1. white','2. other'),3),V1=value, type = 'b. traffic injury')
+    
     
     # sum of two module
     df.result.integration.temp <- df.PA.aggr[,1:2]
@@ -2860,10 +2719,10 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
     
     df.integration.aggr <- rbind(df.PA.aggr,df.injury.aggr,df.result.integration.temp)
     
-    ggplot(data = df.integration.aggr, mapping = aes(x = factor(type), y = V1,fill = Scenario)) + 
-      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Module')+ylab('Deaths reduction rate (per 100,000 population)')+
+    ggplot(data = df.integration.aggr, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demograhic Group')+ylab('Deaths reduction rate (per 100,000 population)')+
       geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
-      ggtitle("Region-Wide: Age-Standardized Reduction in Total Deaths")
+      facet_grid(.~type,scales = "free")+ggtitle("Region-Wide: Age-Standardized Reduction in Total Deaths")
     
   }else if(yaxisID==3){# DALYs total
     # PA module
@@ -2871,46 +2730,63 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
     
     PA.disaggr <- DFforRegionWide(ReductionOutcome = RawReductionOutcome,demogrID = 1,dbID = 2,barID = barID)
     
-    for (i in 1:18){
-      value[i]<-sum(PA.disaggr[(4*i-3):(4*i),3])
-    }
+    PA.disaggr.white <- PA.disaggr[seq(from=1,to=69,by=4),]
     
-    df.PA.aggr.temp <- data.frame(Scenario = scenairo.name,county = rep(countyNames,each=3),V1=value,type='a. physical activity')
-    
-    value <- NULL
     for (i in 1:3){
-      value[i]<-sum(df.PA.aggr.temp[c(i,i+3,i+6,i+9,i+12,i+15),3])
+      value[i] <-sum(PA.disaggr.white[c(i,i+3,i+6,i+9,i+12,i+15),3]) 
     }
+    PA.disaggr.white.temp <- data.frame(Scenario = scenario.name.sep,DemogrGroup = '1. white',V1=value)
     
-    df.PA.aggr <- data.frame(Scenario = scenario.name.sep,type = 'a. physical activity',V1=value)
+    value<-value.temp<-NULL
+    for (i in 1:18){
+      #value[i]<-sum(PA.disaggr[(4*i-3):(4*i),3])
+      value[i] <- sum(PA.disaggr[(4*i-2):(4*i),3])
+    }
+    for (j in 1:3){
+      value.temp[j]<-sum(value[c(j,j+3,j+6,j+9,j+12,j+15)])
+    }
+    PA.disaggr.other.temp <- data.frame(Scenario = scenario.name.sep,DemogrGroup = '2. other',V1=value.temp)
+    
+    df.PA.aggr <- rbind(PA.disaggr.white.temp,PA.disaggr.other.temp)
+    df.PA.aggr <- df.PA.aggr[order(df.PA.aggr$Scenario),]
+    df.PA.aggr$type <- 'a. physical activity'
+    
+    #df.PA.aggr.temp <- data.frame(Scenario = scenairo.name,county = rep(countyNames,each=3),V1=value,type='physical activity')
+    # value <- NULL
+    # for (i in 1:3){
+    #   value[i]<-sum(df.PA.aggr.temp[c(i,i+3,i+6,i+9,i+12,i+15),3])
+    # }
+    # 
+    # df.PA.aggr <- data.frame(Scenario = scenario.name.sep,type = 'a. physical activity',V1=value)
     
     ####injury module
     df.injury.region <- NULL
     
     for (i in 1:6){ #county
-      value <-NULL
+      #value <-NULL
       
       df.temp <- DFforFigure.injury(barID = barID,i,typeID = 1)
       
-      for (j in 1:3){
-        value[j] <- sum(df.temp$df.DALYs[(2*j-1):(2*j),3]) 
-      }
+      #for (j in 1:3){
+      # value[j] <- sum(df.temp$df.fatality[(2*j-1):(2*j),3]) 
+      #}
       
-      df.injury.aggr.temp <- data.frame(V1=value,type='b. traffic injury')
+      df.injury.aggr.temp <- df.temp$df.DALYs
       
       df.injury.region <- rbind(df.injury.region,df.injury.aggr.temp)
       
     }
     
-    df.injury.region<-data.frame(county = rep(countyNames,each=3),df.injury.region)
-    df.injury.region<-data.frame(Scenario = scenairo.name,df.injury.region)
+    df.injury.region<-data.frame(df.injury.region,county = rep(countyNames,each=6))
+    #df.injury.region<-data.frame(Scenario = scenairo.name,df.injury.region)
     
     value <- NULL
-    for (i in 1:3){
-      value[i]<-sum(df.injury.region[c(i,i+3,i+6,i+9,i+12,i+15),3])
+    for (i in 1:6){
+      value[i]<-sum(df.injury.region[c(i,i+6,i+12,i+18,i+24,i+30),3])
     }
     
-    df.injury.aggr <- data.frame(Scenario = scenario.name.sep,type = 'b. traffic injury',V1=value)
+    df.injury.aggr <- data.frame(Scenario = rep(scenario.name.sep,each = 2),DemogrGroup = rep(c('1. white','2. other'),3),V1=value, type = 'b. traffic injury')
+    
     
     # sum of two module
     df.result.integration.temp <- df.PA.aggr[,1:2]
@@ -2919,10 +2795,10 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
     
     df.integration.aggr <- rbind(df.PA.aggr,df.injury.aggr,df.result.integration.temp)
     
-    ggplot(data = df.integration.aggr, mapping = aes(x = factor(type), y = V1,fill = Scenario)) + 
-      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Module')+ylab('Total DALYs Reduction')+
+    ggplot(data = df.integration.aggr, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total DALYs Reduction')+
       geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
-      ggtitle("Region-Wide: Reduction in Total DALYs")
+      facet_grid(.~type,scales = "free")+ggtitle("Region-Wide: Reduction in Total DALYs")
     
   }else if (yaxisID==4){#DALYs age.std
     # PA module
@@ -2930,46 +2806,63 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
     
     PA.disaggr <- DFforRegionWide(ReductionOutcome = AgeStdReductionOutcome,demogrID = 1,dbID = 2,barID = barID)
     
-    for (i in 1:18){
-      value[i]<-sum(PA.disaggr[(4*i-3):(4*i),3])
-    }
+    PA.disaggr.white <- PA.disaggr[seq(from=1,to=69,by=4),]
     
-    df.PA.aggr.temp <- data.frame(Scenario = scenairo.name,county = rep(countyNames,each=3),V1=value,type='a. physical activity')
-    
-    value <- NULL
     for (i in 1:3){
-      value[i]<-sum(df.PA.aggr.temp[c(i,i+3,i+6,i+9,i+12,i+15),3])
+      value[i] <-sum(PA.disaggr.white[c(i,i+3,i+6,i+9,i+12,i+15),3]) 
     }
+    PA.disaggr.white.temp <- data.frame(Scenario = scenario.name.sep,DemogrGroup = '1. white',V1=value)
     
-    df.PA.aggr <- data.frame(Scenario = scenario.name.sep,type = 'a. physical activity',V1=value)
+    value<-value.temp<-NULL
+    for (i in 1:18){
+      #value[i]<-sum(PA.disaggr[(4*i-3):(4*i),3])
+      value[i] <- sum(PA.disaggr[(4*i-2):(4*i),3])
+    }
+    for (j in 1:3){
+      value.temp[j]<-sum(value[c(j,j+3,j+6,j+9,j+12,j+15)])
+    }
+    PA.disaggr.other.temp <- data.frame(Scenario = scenario.name.sep,DemogrGroup = '2. other',V1=value.temp)
+    
+    df.PA.aggr <- rbind(PA.disaggr.white.temp,PA.disaggr.other.temp)
+    df.PA.aggr <- df.PA.aggr[order(df.PA.aggr$Scenario),]
+    df.PA.aggr$type <- 'a. physical activity'
+    
+    #df.PA.aggr.temp <- data.frame(Scenario = scenairo.name,county = rep(countyNames,each=3),V1=value,type='physical activity')
+    # value <- NULL
+    # for (i in 1:3){
+    #   value[i]<-sum(df.PA.aggr.temp[c(i,i+3,i+6,i+9,i+12,i+15),3])
+    # }
+    # 
+    # df.PA.aggr <- data.frame(Scenario = scenario.name.sep,type = 'a. physical activity',V1=value)
     
     ####injury module
     df.injury.region <- NULL
     
     for (i in 1:6){ #county
-      value <-NULL
+      #value <-NULL
       
       df.temp <- DFforFigure.injury(barID = barID,i,typeID = 2)
       
-      for (j in 1:3){
-        value[j] <- sum(df.temp$df.DALYs[(2*j-1):(2*j),3]) 
-      }
+      #for (j in 1:3){
+      # value[j] <- sum(df.temp$df.fatality[(2*j-1):(2*j),3]) 
+      #}
       
-      df.injury.aggr.temp <- data.frame(V1=value,type='b. traffic injury')
+      df.injury.aggr.temp <- df.temp$df.DALYs
       
       df.injury.region <- rbind(df.injury.region,df.injury.aggr.temp)
       
     }
     
-    df.injury.region<-data.frame(county = rep(countyNames,each=3),df.injury.region)
-    df.injury.region<-data.frame(Scenario = scenairo.name,df.injury.region)
+    df.injury.region<-data.frame(df.injury.region,county = rep(countyNames,each=6))
+    #df.injury.region<-data.frame(Scenario = scenairo.name,df.injury.region)
     
     value <- NULL
-    for (i in 1:3){
-      value[i]<-sum(df.injury.region[c(i,i+3,i+6,i+9,i+12,i+15),3])
+    for (i in 1:6){
+      value[i]<-sum(df.injury.region[c(i,i+6,i+12,i+18,i+24,i+30),3])
     }
     
-    df.injury.aggr <- data.frame(Scenario = scenario.name.sep,type = 'b. traffic injury',V1=value)
+    df.injury.aggr <- data.frame(Scenario = rep(scenario.name.sep,each = 2),DemogrGroup = rep(c('1. white','2. other'),3),V1=value, type = 'b. traffic injury')
+    
     
     # sum of two module
     df.result.integration.temp <- df.PA.aggr[,1:2]
@@ -2978,17 +2871,17 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
     
     df.integration.aggr <- rbind(df.PA.aggr,df.injury.aggr,df.result.integration.temp)
     
-    ggplot(data = df.integration.aggr, mapping = aes(x = factor(type), y = V1,fill = Scenario)) + 
-      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Module')+ylab('DALYs reduction rate (per 100,000 population)')+
+    ggplot(data = df.integration.aggr, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
+      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Groups')+ylab('DALYs reduction rate (per 100,000 population)')+
       geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
-      ggtitle("Region-Wide: Age-Standardized Reduction in Total DALYs")
+      facet_grid(.~type,scales = "free")+ggtitle("Region-Wide: Age-Standardized Reduction in Total DALYs")
   }else{
     message('wrong input')
   }
   
   
   
-}
+  }
 
 # Parameter description
 # countyID: 1-ELD; 2-PLA; 3-SAC; 4-SUT; 5-YOL; 6-YUB; 7-All
@@ -2996,21 +2889,26 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
 # outcomeID: 1-physical activity; 2-injury; 3-both
 # demogrID: 1-Race/ethnicty; 2-household income
 # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std; 5-physical activity data
-integrated.shiny.app(countyID = 2, barID = 1,outcomeID = 2,demogrID = 1, yaxisID =1)
+integrated.shiny.app(countyID = 2, barID = 3,outcomeID = 2,demogrID = 1, yaxisID =1)
 
 # Parameter description
 # barID: 1-future years,2-scenarios
 # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std
 aggr.outcome.shiny.app(barID = 1,yaxisID=1)
 
+
 ###################### ITHIM application for Equity Analysis - Web Interface - Shiny App - Server/UI ######################
 
+
+#setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/01_Data/06_Equity Analysis")
+
 require(shiny)
+
 ui <- fluidPage(
   titlePanel("ITHIM APP"),  
   navbarPage("ITHIM APP",
              
-# Pulls About page from Markdown File
+             # Pulls About page from Markdown File
              tabPanel("About",
                       fluidRow(
                         column(6, 
@@ -3018,10 +2916,10 @@ ui <- fluidPage(
                         )
                       )           
              ),
-# Creates simple aggregated plot
+             # Creates simple aggregated plot
              tabPanel("Simple Aggregated Plots",
                       sidebarLayout(
-     # Creates sidebar with Radio buttons
+                        # Creates sidebar with Radio buttons
                         sidebarPanel(
                           # Parameter description
                           # barID: 1-future years,2-scenarios
@@ -3032,7 +2930,7 @@ ui <- fluidPage(
                           radioButtons("selectyaxisID", label = h3("Select Units"), 
                                        choices = list("Deaths - [Total]" = 1, "Death - [Age Standardized]" = 2, 
                                                       "Disability Adjusted Life Years (DALYs) - [Total]" = 3, "DALYs - [Age Standardized]" = 4
-                                                      ), 
+                                       ), 
                                        selected = 1)
                         ),
                         mainPanel(
@@ -3040,84 +2938,90 @@ ui <- fluidPage(
                         )
                       )
              ),
-
-tabPanel("Advanced Plots",
-         sidebarLayout(
-           sidebarPanel(
-             # Parameter description
-             # countyID: 1-ELD; 2-PLA; 3-SAC; 4-SUT; 5-YOL; 6-YUB; 7-All
-             # barID: 1-future years,2-scenarios,3-customized
-             # outcomeID: 1-physical activity; 2-injury; 3-both
-             # demogrID: 1-Race/ethnicty; 2-household income
-             # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std; 5-physical activity data
-             radioButtons("selectCounty", label = h3("Select County"), 
-                          choices = list("El Dorado" = 1, "Placer" = 2, "Sacramento" = 3, "Sutter"= 4, "Yolo"= 5, "Yuba"= 6, "All"= 7), 
-                          selected = 1),
-             radioButtons("selectbarID", label = h3("Select Scenario"), 
-                          choices = list("Future Years" = 1, "Scenarios" = 2, "Customized" = 3), 
-                          selected = 1),
-             radioButtons("selectoutcomeID", label = h3("Select Outcome"), 
-                          choices = list("Physical Activity" = 1, "Injury" = 2, "Both" = 3), 
-                          selected = 1),
-             radioButtons("selectdemogrID", label = h3("Select Demographic"), 
-                          choices = list("Race/Ethnicity" = 1, "Household Income" = 2), 
-                          selected = 1),
-             radioButtons("selectyaxisID", label = h3("Select Units"), 
-                          choices = list("Deaths - [Total]" = 1, "Death - [Age Standardized]" = 2, 
-                                         "Disability Adjusted Life Years (DALYs) - [Total]" = 3, "DALYs - [Age Standardized]" = 4, 
-                                         "Physical Activity Data" = 5), 
-                          selected = 1)
-             # sliderInput(inputId = "mwt",
-             #             label = "Mean Walking Time (min per week)",
-             #             value = 47.49, min = 20, max = 100),
-           ),
-           mainPanel(
-             plotOutput("AdvancedPlot")
-           )
-         )
-),
-#Upload Panel from http://shiny.rstudio.com/gallery/upload-file.html
-# 01_Data/EQ/ActiveTransport/c1-c2-c3
-# 01_Data/EQ/PVD/c1-2-3
-
-tabPanel("Custom Scenarios", 
-         
-         sidebarLayout(
-           sidebarPanel(
-             fileInput('file1', 'Choose file to upload',
-                       accept = c(
-                         '.zip'
-                       )
+             
+             tabPanel("Advanced Plots",
+                      sidebarLayout(
+                        sidebarPanel(
+                          # Parameter description
+                          # countyID: 1-ELD; 2-PLA; 3-SAC; 4-SUT; 5-YOL; 6-YUB; 7-All
+                          # barID: 1-future years,2-scenarios,3-customized
+                          # outcomeID: 1-physical activity; 2-injury; 3-both
+                          # demogrID: 1-Race/ethnicty; 2-household income
+                          # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std; 5-physical activity data
+                          radioButtons("selectCounty", label = h3("Select County"), 
+                                       choices = list("El Dorado" = 1, "Placer" = 2, "Sacramento" = 3, "Sutter"= 4, "Yolo"= 5, "Yuba"= 6, "All"= 7), 
+                                       selected = 1),
+                          radioButtons("selectbarID", label = h3("Select Scenario"), 
+                                       choices = list("Future Years" = 1, "Scenarios" = 2), 
+                                       selected = 1),
+                          radioButtons("selectoutcomeID", label = h3("Select Outcome"), 
+                                       choices = list("Physical Activity" = 1, "Injury" = 2, "Both" = 3), 
+                                       selected = 1),
+                          radioButtons("selectdemogrID", label = h3("Select Demographic"), 
+                                       choices = list("Race/Ethnicity" = 1, "Household Income" = 2), 
+                                       selected = 1),
+                          radioButtons("selectyaxisID", label = h3("Select Units"), 
+                                       choices = list("Deaths - [Total]" = 1, "Death - [Age Standardized]" = 2, 
+                                                      "Disability Adjusted Life Years (DALYs) - [Total]" = 3, "DALYs - [Age Standardized]" = 4, 
+                                                      "Physical Activity Data" = 5), 
+                                       selected = 1)
+                          # sliderInput(inputId = "mwt",
+                          #             label = "Mean Walking Time (min per week)",
+                          #             value = 47.49, min = 20, max = 100),
+                        ),
+                        mainPanel(
+                          plotOutput("AdvancedPlot")
+                        )
+                      )
              ),
-             tags$hr(),
-             p('Please use the following as a template for the data structure of your custom scenarios',
-               a(href = "CustomScenarioTemplate.zip", "CustomScenarioTemplate.zip")
-             ),
-             radioButtons("selectCounty", label = h3("Select County"), 
-                          choices = list("El Dorado" = 1, "Placer" = 2, "Sacramento" = 3, "Sutter"= 4, "Yolo"= 5, "Yuba"= 6, "All"= 7), 
-                          selected = 1),
-             radioButtons("selectbarID", label = h3("Select Scenario"), 
-                          choices = list("Future Years" = 1, "Scenarios" = 2, "Customized" = 3), 
-                          selected = 1),
-             radioButtons("selectoutcomeID", label = h3("Select Outcome"), 
-                          choices = list("Physical Activity" = 1, "Injury" = 2, "Both" = 3), 
-                          selected = 1),
-             radioButtons("selectdemogrID", label = h3("Select Demographic"), 
-                          choices = list("Race/Ethnicity" = 1, "Household Income" = 2), 
-                          selected = 1),
-             radioButtons("selectyaxisID", label = h3("Select Units"), 
-                          choices = list("Deaths - [Total]" = 1, "Death - [Age Standardized]" = 2, 
-                                         "Disability Adjusted Life Years (DALYs) - [Total]" = 3, "DALYs - [Age Standardized]" = 4, 
-                                         "Physical Activity Data" = 5), 
-                          selected = 1)
-           ),
-           mainPanel(
-             plotOutput("CustomizablePlot")
-           )
-
+             #Upload Panel from http://shiny.rstudio.com/gallery/upload-file.html
+             # 01_Data/EQ/ActiveTransport/c1-c2-c3
+             # 01_Data/EQ/PVD/c1-2-3
+             
+             tabPanel("Custom Scenarios", 
+                      
+                      sidebarLayout(
+                        sidebarPanel(
+                          fileInput('file1', 'Choose file to upload',
+                                    multiple = TRUE,
+                                    accept = c(
+                                      'text/csv',
+                                      'text/comma-separated-values',
+                                      'text/tab-separated-values',
+                                      'text/plain',
+                                      '.csv',
+                                      '.tsv'
+                                    )
+                          ),
+                          tags$hr(),
+                          p('Please use the following as a template for the data structure of your custom scenarios',
+                            a(href = "CustomScenarioTemplate.zip", "CustomScenarioTemplate.zip")
+                          ),
+                          radioButtons("selectCounty", label = h3("Select County"), 
+                                       choices = list("El Dorado" = 1, "Placer" = 2, "Sacramento" = 3, "Sutter"= 4, "Yolo"= 5, "Yuba"= 6, "All"= 7), 
+                                       selected = 1),
+                          radioButtons("selectbarID", label = h3("Select Scenario"), 
+                                       choices = list("Future Years" = 1, "Scenarios" = 2, "Customized" = 3), 
+                                       selected = 1),
+                          radioButtons("selectoutcomeID", label = h3("Select Outcome"), 
+                                       choices = list("Physical Activity" = 1, "Injury" = 2, "Both" = 3), 
+                                       selected = 1),
+                          radioButtons("selectdemogrID", label = h3("Select Demographic"), 
+                                       choices = list("Race/Ethnicity" = 1, "Household Income" = 2), 
+                                       selected = 1),
+                          radioButtons("selectyaxisID", label = h3("Select Units"), 
+                                       choices = list("Deaths - [Total]" = 1, "Death - [Age Standardized]" = 2, 
+                                                      "Disability Adjusted Life Years (DALYs) - [Total]" = 3, "DALYs - [Age Standardized]" = 4, 
+                                                      "Physical Activity Data" = 5), 
+                                       selected = 1)
+                        ),
+                        mainPanel(
+                          plotOutput("CustomizablePlot")
+                        )
+                        
+                      )
+             )
   )
-)
-)
 )
 
 server <- function(input, output) {
@@ -3128,6 +3032,20 @@ server <- function(input, output) {
   
   output$CustomizablePlot <- renderPlot({
     
+     inFile <- input$file1
+    
+     if (is.null(inFile))
+       return(NULL)
+  
+    
+    # Re - input the vehicle distance data with Custom Scenarios
+    PersonVehicleDist.C1 <- read.csv(inFile$datapath)
+    AT.file.C1.byRace <- read.csv(inFile$datapath)
+    AT.file.C1.byIncome <- read.csv(inFile$datapath)
+    AT_Pop_MeanTimebyRace.C1 <- read.csv(inFile$datapath)
+    AT_Pop_MeanTimebyIncome.C1 <- read.csv(inFile$datapath)
+
+
     # Parameter description
     # countyID: 1-ELD; 2-PLA; 3-SAC; 4-SUT; 5-YOL; 6-YUB; 7-All
     # barID: 1-future years,2-scenarios,3-customized
@@ -3140,7 +3058,7 @@ server <- function(input, output) {
   })
   
   output$AdvancedPlot <- renderPlot({
-
+    
     # Parameter description
     # countyID: 1-ELD; 2-PLA; 3-SAC; 4-SUT; 5-YOL; 6-YUB; 7-All
     # barID: 1-future years,2-scenarios,3-customized
@@ -3157,7 +3075,6 @@ server <- function(input, output) {
     # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std
     aggr.outcome.shiny.app(barID = as.integer(input$selectbarID),yaxisID = as.integer(input$selectyaxisID))
   })
-  
   
 }
 
