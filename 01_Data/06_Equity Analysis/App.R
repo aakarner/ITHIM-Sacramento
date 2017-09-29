@@ -2889,12 +2889,12 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
 # outcomeID: 1-physical activity; 2-injury; 3-both
 # demogrID: 1-Race/ethnicty; 2-household income
 # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std; 5-physical activity data
-integrated.shiny.app(countyID = 2, barID = 3,outcomeID = 2,demogrID = 1, yaxisID =1)
+#integrated.shiny.app(countyID = 2, barID = 3,outcomeID = 2,demogrID = 1, yaxisID =1)
 
 # Parameter description
 # barID: 1-future years,2-scenarios
 # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std
-aggr.outcome.shiny.app(barID = 1,yaxisID=1)
+#aggr.outcome.shiny.app(barID = 1,yaxisID=1)
 
 
 ###################### ITHIM application for Equity Analysis - Web Interface - Shiny App - Server/UI ######################
