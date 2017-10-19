@@ -22,4 +22,23 @@ Process output from [SACSIM](http://www.sacog.org/sites/main/files/file-attachme
 
 Internet Statewide Integrated Traffic Records System ([SWITRS](https://www.chp.ca.gov/programs-services/services-information/switrs-internet-statewide-integrated-traffic-records-system)): */00_R scripts/Data Process/DataProcess_SWITRS.R*
 
-## Raw data ##
+## Data for a future update ##
+
+Population: *01_Data/06_Equity Analysis/01_Population/*
+
+Active Transport: *01_Data/06_Equity Analysis/02_ActiveTransport/*
+
+non Travel MET: *01_Data/06_Equity Analysis/03_nonTravelMET/*
+
+Global Burden of Disease ([GBD](http://www.healthdata.org/gbd)): *01_Data/06_Equity Analysis/04_GBD/*
+
+Baseline injury: *01_Data/06_Equity Analysis/05_baseline injury/*
+
+Travel distance by each traffic mode: *01_Data/06_Equity Analysis/06_PersonVehicleDistance/*
+
+
+
+
+
+
+
