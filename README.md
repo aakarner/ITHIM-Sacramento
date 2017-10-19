@@ -12,29 +12,31 @@ Traffic injury module: */00_R Scripts/EquityAnalysis_ITHIM_Injuries_TwoRaces.R*
 
 ### Data preparation ###
 
-California Department of Public Health ([CDPH](http://https://www.cdph.ca.gov/Programs/CHSI/Pages/Data-and-Statistics-.aspx)) Statistic Vitals: */00_R scripts/Data Process/DataProcess_CDPH.R*
+1. California Department of Public Health ([CDPH](http://https://www.cdph.ca.gov/Programs/CHSI/Pages/Data-and-Statistics-.aspx)) Statistic Vitals: */00_R scripts/Data Process/DataProcess_CDPH.R*
 
-California Health Interview Survey ([CHIS](http://http://healthpolicy.ucla.edu/chis/Pages/default.aspx)): */00_R scripts/Data Process/DataProcess_CHIS.R*
+2. California Health Interview Survey ([CHIS](http://http://healthpolicy.ucla.edu/chis/Pages/default.aspx)): */00_R scripts/Data Process/DataProcess_CHIS.R*
 
-Hot Deck Imputation of CDPH and SACSIM based on [PUMS](https://www.census.gov/programs-surveys/acs/data/pums.html): */00_R scripts/Data Process/DataProcess_PUMS.R*
+3. Hot Deck Imputation of CDPH and SACSIM based on [PUMS](https://www.census.gov/programs-surveys/acs/data/pums.html): */00_R scripts/Data Process/DataProcess_PUMS.R*
 
-Process output from [SACSIM](http://www.sacog.org/sites/main/files/file-attachments/plnrscmte_sacog_travel_model_wkshp_27mar2014.pdf): */00_R scripts/Data Process/DataProcess_CustomizeSACSIM.R*
+4. Process output from [SACSIM](http://www.sacog.org/sites/main/files/file-attachments/plnrscmte_sacog_travel_model_wkshp_27mar2014.pdf): */00_R scripts/Data Process/DataProcess_CustomizeSACSIM.R*
 
-Internet Statewide Integrated Traffic Records System ([SWITRS](https://www.chp.ca.gov/programs-services/services-information/switrs-internet-statewide-integrated-traffic-records-system)): */00_R scripts/Data Process/DataProcess_SWITRS.R*
+5. Internet Statewide Integrated Traffic Records System ([SWITRS](https://www.chp.ca.gov/programs-services/services-information/switrs-internet-statewide-integrated-traffic-records-system)): */00_R scripts/Data Process/DataProcess_SWITRS.R*
 
 ## Data for a future update ##
 
-Population: *01_Data/06_Equity Analysis/01_Population/*
+For a future data update, the user is required to update the files in the following folders:
 
-Active Transport: *01_Data/06_Equity Analysis/02_ActiveTransport/*
+1. Population: *01_Data/06_Equity Analysis/01_Population/*
 
-non Travel MET: *01_Data/06_Equity Analysis/03_nonTravelMET/*
+2. Active Transport: *01_Data/06_Equity Analysis/02_ActiveTransport/*
 
-Global Burden of Disease ([GBD](http://www.healthdata.org/gbd)): *01_Data/06_Equity Analysis/04_GBD/*
+3. non Travel MET: *01_Data/06_Equity Analysis/03_nonTravelMET/*
 
-Baseline injury: *01_Data/06_Equity Analysis/05_baseline injury/*
+4. Global Burden of Disease ([GBD](http://www.healthdata.org/gbd)): *01_Data/06_Equity Analysis/04_GBD/*
 
-Travel distance by each traffic mode: *01_Data/06_Equity Analysis/06_PersonVehicleDistance/*
+5. Baseline injury: *01_Data/06_Equity Analysis/05_baseline injury/*
+
+6. Travel distance by each traffic mode: *01_Data/06_Equity Analysis/06_PersonVehicleDistance/*
 
 
 
