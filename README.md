@@ -6,7 +6,7 @@ Application of ITHIM for Sacramento County
 
 ### Core functions ###
 
-Physical activity module: <span style="color:blue">*/00_R Scripts/EquityAnalysis_ITHIM_PA.R*</span>
+Physical activity module: */00_R Scripts/EquityAnalysis_ITHIM_PA.R*
 
 Traffic injury module: */00_R Scripts/EquityAnalysis_ITHIM_Injuries_TwoRaces.R*
 
