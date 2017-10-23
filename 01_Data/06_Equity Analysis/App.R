@@ -600,7 +600,7 @@ computeHealthOutcome <- function (RR.PA,BaselineTotalExpo,ScenarioTotalExpo,gbd.
   yld.baseline.firstCol <- gbd.local$yld/sum.RatioDB.Baseline
   yld.baseline <- fun.outcome(RatioDB.Baseline,yld.baseline.firstCol)
   
-  #Compute the ∆Burden, total ∆Burden, and the proportion
+  #Compute the âBurden, total âBurden, and the proportion
   delta.Burden <- (matrix(NA,nrow=nAgeClass*2,ncol=4,dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),c("delta.Deaths","delta.YLL","delta.YLD","DALYS"))))
   
   delta.Burden[,1] <- rowSums(dproj.scenario)-rowSums(dproj.baseline) #deaths
@@ -671,8 +671,8 @@ computeHealthOutcome <- function (RR.PA,BaselineTotalExpo,ScenarioTotalExpo,gbd.
   # yld.baseline.firstCol <- mapply(function(x,y) x$yld/y, gbd.local,sum.RatioDB.Baseline,SIMPLIFY=FALSE)
   # yld.baseline <- mapply(fun.outcome,RatioDB.Baseline,yld.baseline.firstCol,SIMPLIFY=FALSE)
   # 
-  # #Compute the ∆Burden, total ∆Burden, and the proportion
-  # delta.Burden <- rep(list((matrix(NA,nrow=nAgeClass*2,ncol=4,dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),c("∆Deaths","∆YLL","∆YLD","DALYS"))))), length(diseaseNames))
+  # #Compute the âBurden, total âBurden, and the proportion
+  # delta.Burden <- rep(list((matrix(NA,nrow=nAgeClass*2,ncol=4,dimnames = list((c(paste0("maleAgeClass ",1:nAgeClass),paste0("femaleAgeClass ",1:nAgeClass))),c("âDeaths","âYLL","âYLD","DALYS"))))), length(diseaseNames))
   # names(delta.Burden) <- diseaseNames
   # 
   # delta.Burden <- mapply(function (x,a,b,c,d,e,f) {
@@ -2889,12 +2889,12 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
 # outcomeID: 1-physical activity; 2-injury; 3-both
 # demogrID: 1-Race/ethnicty; 2-household income
 # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std; 5-physical activity data
-#integrated.shiny.app(countyID = 2, barID = 3,outcomeID = 2,demogrID = 1, yaxisID =1)
+integrated.shiny.app(countyID = 2, barID = 3,outcomeID = 2,demogrID = 1, yaxisID =1)
 
 # Parameter description
 # barID: 1-future years,2-scenarios
 # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std
-#aggr.outcome.shiny.app(barID = 1,yaxisID=1)
+aggr.outcome.shiny.app(barID = 1,yaxisID=1)
 
 
 ###################### ITHIM application for Equity Analysis - Web Interface - Shiny App - Server/UI ######################
@@ -2952,7 +2952,7 @@ ui <- fluidPage(
                                        choices = list("El Dorado" = 1, "Placer" = 2, "Sacramento" = 3, "Sutter"= 4, "Yolo"= 5, "Yuba"= 6, "All"= 7), 
                                        selected = 1),
                           radioButtons("selectbarID", label = h3("Select Scenario"), 
-                                       choices = list("Future Years" = 1, "Scenarios" = 2, "Customized" = 3), 
+                                       choices = list("Future Years" = 1, "Scenarios" = 2), 
                                        selected = 1),
                           radioButtons("selectoutcomeID", label = h3("Select Outcome"), 
                                        choices = list("Physical Activity" = 1, "Injury" = 2, "Both" = 3), 
@@ -2983,8 +2983,14 @@ ui <- fluidPage(
                       sidebarLayout(
                         sidebarPanel(
                           fileInput('file1', 'Choose file to upload',
+                                    multiple = TRUE,
                                     accept = c(
-                                      '.zip'
+                                      'text/csv',
+                                      'text/comma-separated-values',
+                                      'text/tab-separated-values',
+                                      'text/plain',
+                                      '.csv',
+                                      '.tsv'
                                     )
                           ),
                           tags$hr(),
@@ -3026,6 +3032,20 @@ server <- function(input, output) {
   
   output$CustomizablePlot <- renderPlot({
     
+     inFile <- input$file1
+    
+     if (is.null(inFile))
+       return(NULL)
+  
+    
+    # Re - input the vehicle distance data with Custom Scenarios
+    PersonVehicleDist.C1 <- read.csv(inFile$datapath)
+    AT.file.C1.byRace <- read.csv(inFile$datapath)
+    AT.file.C1.byIncome <- read.csv(inFile$datapath)
+    AT_Pop_MeanTimebyRace.C1 <- read.csv(inFile$datapath)
+    AT_Pop_MeanTimebyIncome.C1 <- read.csv(inFile$datapath)
+
+
     # Parameter description
     # countyID: 1-ELD; 2-PLA; 3-SAC; 4-SUT; 5-YOL; 6-YUB; 7-All
     # barID: 1-future years,2-scenarios,3-customized
@@ -3056,10 +3076,6 @@ server <- function(input, output) {
     aggr.outcome.shiny.app(barID = as.integer(input$selectbarID),yaxisID = as.integer(input$selectyaxisID))
   })
   
-  
 }
 
 shinyApp(ui = ui, server = server)
-
-
-
