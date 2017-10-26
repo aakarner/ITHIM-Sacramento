@@ -1299,7 +1299,7 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
       plot.title <- paste0('Region-Wide',': Reduction in Total ',dbNames[dbID],' from Physical Activity Module')
       ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Health Burden Reduction')+
-        #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
+        geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         facet_wrap(~county)+ggtitle(plot.title)
     }
     
@@ -1319,7 +1319,7 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
       plot.title <- paste0('Region-Wide',': Age-Standardized Reduction in Total ',dbNames[dbID],' from Physical Activity Module')
       ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Health Burden Reduction Rate (per 100,000 population)')+
-        #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
+        geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         facet_wrap(~county)+ggtitle(plot.title)
     }
     
@@ -1346,7 +1346,7 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
       
       ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Active Travel Time (mins per week per capita)')+
-        #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
+        geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         facet_grid(Mode~county,scales = "free") +ggtitle("Region-Wide: Active Travel Time")
       
     }
@@ -1484,9 +1484,7 @@ AgeStdReductionOutcome <- AgeStdHealthOutcome(c(1:6))
 #typeID: 1-raw,2-age.std,3-physical activity
 #demogrID: 1-race,2-income
 #barID: 1- future years,2-scenarios,3-customized
-plot.shiny.app.PA(countyID = 1,dbID = 1, typeID = 2, demogrID = 1,barID = 1)
-
-
+plot.shiny.app.PA(countyID = 7,dbID = 1, typeID = 2, demogrID = 2,barID = 2)
 
 
 
@@ -1644,5 +1642,15 @@ plot.shiny.app.PA(countyID = 1,dbID = 1, typeID = 2, demogrID = 1,barID = 1)
 # ggplot(data = df.reduction.DALYs.income.2036, mapping = aes(x = factor(County), y = V1,fill = DemogrGroup)) + 
 #   geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5))+xlab('County')+ylab('Total DALYs Reduction Rate')+
 #   ggtitle("Reduction in total DALYs by household income (scenario 2036)")
+
+#m=0
+#for (i in 1:6){
+ # a<-output.HealthOutcome(i)
+  #b<-a$HealthOutcome_byRace.S3$`1.NHW`$delta.Burden+a$HealthOutcome_byRace.S3$`2.NHB`$delta.Burden+a$HealthOutcome_byRace.S3$`3.NHO`$delta.Burden+a$HealthOutcome_byRace.S3$`4.HO`$delta.Burden
+  #m=m+b
+#}
+#m
+
+
 
 
