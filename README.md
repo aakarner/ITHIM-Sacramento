@@ -10,6 +10,8 @@ Physical activity module: ***/00_R Scripts/EquityAnalysis_ITHIM_PA.R***
 
 Traffic injury module: ***/00_R Scripts/EquityAnalysis_ITHIM_Injuries_TwoRaces.R***
 
+Shiny app: ***/01_Data/06_EquityAnalysis/App.R***
+
 ### Data preparation ###
 
 1. California Department of Public Health ([CDPH](http://https://www.cdph.ca.gov/Programs/CHSI/Pages/Data-and-Statistics-.aspx)) Statistic Vitals: ***/00_R scripts/Data Process/DataProcess_CDPH.R***
