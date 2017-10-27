@@ -1479,7 +1479,7 @@ AgeStdReductionOutcome <- AgeStdHealthOutcome(c(1:6))
 
 ############################# Plots ############################################
 
-#countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
+#countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB,7-All
 #dbID: 1-death,2-DALYs
 #typeID: 1-raw,2-age.std,3-physical activity
 #demogrID: 1-race,2-income

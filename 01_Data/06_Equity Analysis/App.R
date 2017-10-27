@@ -2926,10 +2926,10 @@ require(shiny)
 
 ui <- fluidPage(
   titlePanel("ITHIM-Sacramento Equity Analysis Tool"),  
-  navbarPage("ITHIM APP",
+  navbarPage("ITHIM-Sac",
              
              # Pulls About page from Markdown File
-             tabPanel("About",
+             tabPanel("About and FAQ",
                       fluidRow(
                         column(6, 
                                includeHTML("ITHIM_About.html")
@@ -2945,11 +2945,13 @@ ui <- fluidPage(
                           # barID: 1-future years,2-scenarios
                           # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std
                           radioButtons("selectbarID", label = h3("Select Scenario"), 
-                                       choices = list("Future Years" = 1, "Scenarios" = 2), 
+                                       choices = list("Preferred Scenario in Future Years" = 1, 
+                                                      "Planning Scenarios in 2036" = 2), 
                                        selected = 1),
                           radioButtons("selectyaxisID", label = h3("Select Units"), 
-                                       choices = list("Deaths - [Total]" = 1, "Death - [Age Standardized]" = 2, 
-                                                      "Disability Adjusted Life Years (DALYs) - [Total]" = 3, "DALYs - [Age Standardized]" = 4
+                                       choices = list("Deaths - total" = 1, "Death - age & pop normalized" = 2, 
+                                                      "Disability-Adjusted Life Years (DALYs) - total" = 3, 
+                                                      "Disability-Adjusted Life Years (DALYs) - age & pop normalized" = 4
                                        ), 
                                        selected = 1)
                         ),

@@ -5,8 +5,8 @@ account: ithimsac
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 217630
-bundleId: 1047175
+bundleId: 1047478
 url: https://ithimsac.shinyapps.io/shinyapp/
-when: 1509057280.15908
+when: 1509077993.83324
 asMultiple: FALSE
 asStatic: FALSE
