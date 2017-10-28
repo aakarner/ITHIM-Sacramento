@@ -13,11 +13,12 @@ This project was funded by a grant from the National Center for Sustainable Tran
 
 The project team includes:   
 
-- Jonathan London, University of California, Davis
-- Alex Karner, The University of Texas at Austin
-- Dana Rowangould, Sustainable Systems Research, LLC
 - Yizheng Wu, University of California, Davis
+- Dana Rowangould, Sustainable Systems Research, LLC
+- Alex Karner, The University of Texas at Austin
 - Ofurhe Igbinedion, University of California, Davis
+- Jonathan London, University of California, Davis
+
 
 ### Frequently Asked Questions:
 
