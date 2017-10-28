@@ -1,6 +1,6 @@
-# ITHIM_Sacramento
+# ITHIM-Sacramento
 
-Application of ITHIM for Sacramento County
+This repository implements the [Integrated Transport and Health Impact Model (ITHIM)](http://www.cedar.iph.cam.ac.uk/research/modelling/ithim/) for the six-county [Sacramento Area Council of Governments (SACOG)](http://www.sacog.org) region.
 
 ## Source code ##
 
