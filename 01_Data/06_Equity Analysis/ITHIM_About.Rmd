@@ -7,31 +7,41 @@ This ITHIM-Sacramento equity analysis tool website:
 1. Presents the health effects of different regional planning scenarios due to changes in physical activity and injury risk
 2. Presents these effects for different counties and race/ethnicity and income groups</li>
 
-For more information about the project background, analysis methods and results, and model source code and data, please refer to [ITHIM-Sacramento GitHub](https://github.com/aakarner)
+For more information about the project background, analysis methods and results, and model source code and data, please refer to [ITHIM-Sacramento GitHub](https://github.com/aakarner/ITHIM-Sacramento)
 
 This project was funded by a grant from the National Center for Sustainable Transportation (NCST), supported by USDOT and Caltrans through the University Transportation Centers program. 
 
 The project team includes:   
 
-- Jonathan London, University of California, Davis
-- Alex Karner, The University of Texas at Austin
-- Dana Rowangould, Sustainable Systems Research, LLC
 - Yizheng Wu, University of California, Davis
+- Dana Rowangould, Sustainable Systems Research, LLC
+- Alex Karner, The University of Texas at Austin
 - Ofurhe Igbinedion, University of California, Davis
+- Jonathan London, University of California, Davis
+
 
 ### Frequently Asked Questions:
 
-**1. How can I view the estimated health impacts of the regional transportation plan?**
+1. [How can I view the estimated health impacts of the regional transportation plan?](#q1)
+2. [What is shown in the Simple Aggregated Plot tab?](#q2)
+3. [What is shown in the Advanced Plots tab?](#q3)
+4. [What scenarios and years are shown?](#q4)
+5. [What are the health risk values shown?](#q5)
+6. [What else is in the works?](#q6)
+7. [Where can I find the source code, information about the methods used to estimate impacts, the project report, and webinar materials?](#q7)
+8. [Who can I contact with other questions?](#q8)
+
+##### **1. How can I view the estimated health impacts of the regional transportation plan?** {#q1}
 
 A: The simple and advanced plot tabs at the top of this page allow you to view the estimated health impacts of the SACOG 2016 Metropolitan Transportation Plan/Sustainable Communities Strategy (2016 MTP/SCS).
 
-**2. What is shown in the Simple Aggregated Plot tab?**
+##### **2. What is shown in the Simple Aggregated Plot tab?** {#q2}
 
 A: The Simple Aggregated Plots tab shows estimated health impacts due to physical activity and injury effects for the entire population of the Sacramento region (including all six SACOG counties). You can tailor the outputs by scenario and units shown:
 
   * Scenario:
     + Future Years: This shows the preferred scenario outcomes modeled in three future years.  Results are shown relative to the 2012 baseline.
-    + Scenarios: This shows three alternative scenario outcomes modeled in 2036. Results are shown relative to the 2012 baseline.
+    + Scenarios: This shows three alternative scenario outcomes modeled in 2036. Scenario 2 is the preferred scenario. Results are shown relative to the 2012 baseline.
   * Units shown:
     + Deaths indicate expected mortality.
     +	DALYs indicate expected disability-adjusted life years, which is a measure of disease burden.
@@ -39,7 +49,7 @@ A: The Simple Aggregated Plots tab shows estimated health impacts due to physica
     +	Normalized values are age-standardized per capita results; these allow for a comparison of risks experienced by individuals of different race/ethnicity or income or living in different geographic areas.
     +	Physical Activity Data show minutes per week per capita walking or biking.
 
-**3. What is shown in the Advanced Plots tab?**
+##### **3. What is shown in the Advanced Plots tab?** {#q3}
 
 A: The Advanced Plots tab shows estimated health impacts for several subpopulations in the region (broken out by race/ethnicity, income, county) and also allows the user to view health impacts by physical activity, injury, or both. You can tailor the outputs by the geographic area, scenario, demographic group, outcome, and units shown:
 
@@ -47,7 +57,7 @@ A: The Advanced Plots tab shows estimated health impacts for several subpopulati
     + Option of six counties or “all” which shows all six counties.
   * Scenario:
     + Future year: This shows the preferred scenario outcomes modeled in three future years.  Results are shown relative to the 2012 baseline.
-    + Scenarios: This shows three alternative scenario outcomes modeled in 2036. Results are shown relative to the 2012 baseline.
+    + Scenarios: This shows three alternative scenario outcomes modeled in 2036. Scenario 2 is the preferred scenario. Results are shown relative to the 2012 baseline.
   * Demographic Group:
     1. Race/Ethnicity:
       - For “physical activity” outcomes this includes four categories. “White” is non-Hispanic White, “Black” is non-Hispanic Black, “Other” is non-Hispanic Other, “Hispanic” is Hispanic of all races.
@@ -65,13 +75,25 @@ A: The Advanced Plots tab shows estimated health impacts for several subpopulati
     + Normalized values are age-standardized per capita results; these allow for a comparison of risks experienced by individuals of different race/ethnicity or income or living in different geographic areas.
     + Physical Activity Data show minutes per week per capita walking or biking. Only available for “physical activity” outcomes.
     
-**4. What scenarios and years are shown?**  
+##### **4. What scenarios and years are shown?** {#q4}
 
-A: Outputs shown are estimates of health effects of the SACOG 2016 MTP/SCS. The Simple and Advanced tabs both allow you to specify two types of scenario outputs form the: scenarios and years.  Selecting “scenarios” shows XX S1, S2, S3 (?describe) in year XX (relative to the 2012 baseline).  Selecting “Future Years” shows the preferred scenario in years 2020, 2027, and 2036 (relative to the 2012 baseline).
+A: Outputs shown are estimates of health effects of the SACOG 2016 MTP/SCS. The Simple and Advanced tabs both allow you to specify two types of scenario outputs form the: scenarios and years.  Selecting “scenarios” shows the result for S1, S2, S3 for plan horizon year 2036 (relative to the 2012 baseline). S2 is the preferred scenario. S1 is developed with a lower density, high auto investment, and S3 is developed with a higher density, high multimodal investment. Detail description could be found at [SACOG 2016 MTP/SCS Appendix G-1] (https://www.sacog.org/sites/main/files/file-attachments/appendix_g-1_frameworks_for_the_mtpscs_update.pdf). Selecting “Future Years” shows the preferred scenario in years 2020, 2027, and 2036 (relative to the 2012 baseline).
 
-**5. What are the health risk values shown?**
+##### **5. What are the health risk values shown?** {#q5}
 
 A: The health risk reductions shown on the y-axis are presented as relative to the preferred scenario in the baseline year of 2012. Deaths indicate expected mortality. DALYs indicate expected disability adjusted life-years, which is a measure of disease burden. Total values indicate the total impact to a population or geographic area. Normalized values are age-standardized per capita results; these allow for a comparison of risks faced by individuals of different race/ethnicity or income or living in different geographic areas. Physical Activity Data show minutes per week per capita walking or biking.
+
+##### **6. What else is in the works?** {#q6}
+
+A: Phase II of this work (underway in 2017-2018) will include the capability to 1) enter user-defined scenario data (based on outputs from the regional travel demand model or modifications to the scenarios shown here) and 2) evaluate health outcomes at smaller (sub-county) geographic areas.
+
+##### **7. Where can I find the source code, information about the methods used to estimate impacts, the project report, and webinar materials?** {#q7}
+
+A: All source code and model documentation (including the project report and webinar materials) are available at [ITHIM-Sacramento GitHub](https://github.com/aakarner/ITHIM-Sacramento).
+
+##### **8.	Who can I contact with other questions?** {#q8}
+
+A: Please contact Dr. Alex Karner (alex <dot> karner <at> utexas <dot> edu).
 
 
 

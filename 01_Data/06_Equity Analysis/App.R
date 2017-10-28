@@ -400,7 +400,7 @@ List_TotalExposure <- function(df_PopMeanWalkTime, df_PopMeanCycleTime,InputPara
   )
 }
 
-#function for computing relative risks of physical activity  
+# function for computing relative risks of physical activity  
 create.PA.RR <- function(){
   
   RR.lit <- exposure <- matrix(NA,nrow=nAgeClass,ncol=2,dimnames=list(paste0("agClass",1:nAgeClass),c("F","M")))
@@ -1378,7 +1378,7 @@ nAgeClass <- 8L
 nRaceClass <- nIncomeClass <- nDemoClass <- 4L
 
 # paramter of Physical Activity Risk Function (power)
-k<-0.5
+k <- 0.5
 
 # disease names
 #diseaseNames <- c("BreastCancer","ColonCancer","CVD","Dementia","Depression","Diabetes")
@@ -2501,7 +2501,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
         ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
           geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Demographic Group')+ylab('Total Death Reduction')+
           #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
-          facet_wrap(~county,scales = "free") +ggtitle("Region-Wide: Reduction of Total Deaths ")
+          facet_wrap(~county,scales = "free") +ggtitle("Region-Wide: Reduction in Total Deaths ")
         
         #return(df.region = df.region)
         
@@ -2706,12 +2706,19 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
     
     df.integration.aggr <- rbind(df.PA.aggr,df.injury.aggr,df.result.integration.temp)
     
-    ggplot(data = df.integration.aggr, mapping = aes(x = factor(type), y = V1,fill = Scenario)) + 
-      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Module')+ylab('Total Deaths Reduction')+
-      geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
-      ggtitle("Region-Wide: Reduction in Total Deaths")
-    
-    
+    ggplot(data = df.integration.aggr, aes(x = factor(type), y = V1, fill = Scenario)) + 
+      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5)) + 
+      scale_fill_brewer(palette = "Set1") + 
+      xlab(NULL) + 
+      ylab('Reduced total deaths')+
+      geom_text(aes(label = round(V1, 1)), color = "black", size = 6, vjust = "inward", 
+                position = position_dodge(width = 0.5)) +
+      ggtitle("Region-Wide: Reduction in Total Deaths") + 
+      theme_bw(base_size = 18) +
+      theme(legend.position = "bottom",
+            plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
+      labs(caption = "Planning scenarios and future years are shown relative to the preferred scenario in the baseline year in 2012.")
+      
     
   }else if (yaxisID==2){#death age.std
     # PA module
@@ -2767,10 +2774,14 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
     
     df.integration.aggr <- rbind(df.PA.aggr,df.injury.aggr,df.result.integration.temp)
     
-    ggplot(data = df.integration.aggr, mapping = aes(x = factor(type), y = V1,fill = Scenario)) + 
-      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab('Module')+ylab('Deaths reduction rate (per 100,000 population)')+
-      geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
-      ggtitle("Region-Wide: Age-Standardized Reduction in Total Deaths")
+    ggplot(data = df.integration.aggr, aes(x = factor(type), y = V1, fill = Scenario)) + 
+      geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+
+      xlab(NULL) + 
+      ylab('Deaths reduced (per 100,000 population)')+
+      geom_text(aes(label = round(V1, 1)), color="black",size=8, vjust = -0.5, position = position_dodge(0.5)) +
+      ggtitle("Region-Wide: Age-Standardized Reduction in Total Deaths") + 
+      theme_bw(base_size = 20) +
+      theme(legend.position = "bottom")
     
   }else if(yaxisID==3){# DALYs total
     # PA module
@@ -2949,9 +2960,9 @@ ui <- fluidPage(
                                                       "Planning Scenarios in 2036" = 2), 
                                        selected = 1),
                           radioButtons("selectyaxisID", label = h3("Select Units"), 
-                                       choices = list("Deaths - total" = 1, "Death - age & pop normalized" = 2, 
+                                       choices = list("Deaths - total" = 1, "Death - age & pop. normalized" = 2, 
                                                       "Disability-Adjusted Life Years (DALYs) - total" = 3, 
-                                                      "Disability-Adjusted Life Years (DALYs) - age & pop normalized" = 4
+                                                      "Disability-Adjusted Life Years (DALYs) - age & pop. normalized" = 4
                                        ), 
                                        selected = 1)
                         ),
@@ -2974,7 +2985,7 @@ ui <- fluidPage(
                                        choices = list("El Dorado" = 1, "Placer" = 2, "Sacramento" = 3, "Sutter"= 4, "Yolo"= 5, "Yuba"= 6, "All"= 7), 
                                        selected = 1),
                           radioButtons("selectbarID_Adv", label = h3("Select Scenario"), 
-                                       choices = list("Future Years" = 1, "Scenarios" = 2), 
+                                       choices = list("Preferred Scenario in Future Years" = 1, "Planning Scenarios in 2036" = 2), 
                                        selected = 1),
                           # checkboxGroupInput("selectoutcomeID",label = h3("Select Outcome"), choices = list("Physical Activity" = 1, "Injury" = 2), 
                           #                                  selected = 1),
@@ -3031,9 +3042,9 @@ ui <- fluidPage(
                           #              choices = list("Race/Ethnicity" = 1, "Household Income" = 2), 
                           #              selected = 1),
                           radioButtons("selectyaxisID_Adv", label = h3("Select Units"), 
-                                       choices = list("Deaths - [Total]" = 1, "Death - [Age Standardized]" = 2, 
-                                                      "Disability Adjusted Life Years (DALYs) - [Total]" = 3, "DALYs - [Age Standardized]" = 4, 
-                                                      "Physical Activity Data" = 5), 
+                                       choices = list("Deaths - total" = 1, "Deaths - age & pop. normalized" = 2, 
+                                                      "Disability Adjusted Life Years (DALYs) - total" = 3, "DALYs - age & pop. normalized" = 4, 
+                                                      "'Physical Activity' outcome only" = 5), 
                                        selected = 1)
                           # sliderInput(inputId = "mwt",
                           #             label = "Mean Walking Time (min per week)",
