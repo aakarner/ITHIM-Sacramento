@@ -1,6 +1,10 @@
 # ITHIM-Sacramento
 
+<<<<<<< HEAD
 This repository implements the [Integrated Transport and Health Impact Model (ITHIM)](http://www.cedar.iph.cam.ac.uk/research/modelling/ithim/) for the six-county [Sacramento Area Council of Governments (SACOG)](http://www.sacog.org) region.
+=======
+This repository implements the [Integrated Transport and Health Impact Model (ITHIM)](http://www.cedar.iph.cam.ac.uk/research/modelling/ithim/) for the six-county [Sacramento](http://www.sacog.org) Area Council of Governments (SACOG) region.
+>>>>>>> bc0cebc9e6b0feea630e1dc629ccc15e66e8a8d0
 
 ## Source code ##
 
