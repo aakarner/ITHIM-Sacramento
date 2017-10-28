@@ -2317,7 +2317,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
         df.result.PA <- DFforFigure(RawReductionOutcome[c((1*18+1*9-26):(1*18+1*9-18))],1,countyID,barID)
         df.result.PA.aggr.white <- df.result.PA[c(1,5,9),]
         for (i in 1:3) {
-          value[i] <- sum(df.result.PA[((i+1):(i+3)),3])
+          value[i] <- sum(df.result.PA[((4*i-2):(4*i)),3])
         }
         df.result.PA.aggr.other <- data.frame(Scenario=unique(df.result.PA[,1]),DemogrGroup=rep('2.Other',3),V1 =(value))
         
@@ -2365,7 +2365,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
         
         df.result.PA.aggr.white <- df.result.PA[c(1,5,9),]
         for (i in 1:3) {
-          value[i] <- sum(df.result.PA[((i+1):(i+3)),3])
+          value[i] <- sum(df.result.PA[((4*i-2):(4*i)),3])
         }
         df.result.PA.aggr.other <- data.frame(Scenario=unique(df.result.PA[,1]),DemogrGroup=rep('2.Other',3),V1 =(value))
         
@@ -2398,7 +2398,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
         
         df.result.PA.aggr.white <- df.result.PA[c(1,5,9),]
         for (i in 1:3) {
-          value[i] <- sum(df.result.PA[((i+1):(i+3)),3])
+          value[i] <- sum(df.result.PA[((4*i-2):(4*i)),3])
         }
         df.result.PA.aggr.other <- data.frame(Scenario=unique(df.result.PA[,1]),DemogrGroup=rep('2.Other',3),V1 =(value))
         
@@ -2431,7 +2431,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
         
         df.result.PA.aggr.white <- df.result.PA[c(1,5,9),]
         for (i in 1:3) {
-          value[i] <- sum(df.result.PA[((i+1):(i+3)),3])
+          value[i] <- sum(df.result.PA[((4*i-2):(4*i)),3])
         }
         df.result.PA.aggr.other <- data.frame(Scenario=unique(df.result.PA[,1]),DemogrGroup=rep('2.Other',3),V1 =(value))
         
@@ -2473,7 +2473,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
           df.result.PA <- DFforFigure(RawReductionOutcome[c((1*18+1*9-26):(1*18+1*9-18))],1,countyID,barID)
           df.result.PA.aggr.white <- df.result.PA[c(1,5,9),]
           for (i in 1:3) {
-            value[i] <- sum(df.result.PA[((i+1):(i+3)),3])
+            value[i] <- sum(df.result.PA[((4*i-2):(4*i)),3])
           }
           df.result.PA.aggr.other <- data.frame(Scenario=unique(df.result.PA[,1]),DemogrGroup=rep('2.Other',3),V1 =(value))
           
@@ -2514,7 +2514,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
           
           df.result.PA.aggr.white <- df.result.PA[c(1,5,9),]
           for (i in 1:3) {
-            value[i] <- sum(df.result.PA[((i+1):(i+3)),3])
+            value[i] <- sum(df.result.PA[((4*i-2):(4*i)),3])
           }
           df.result.PA.aggr.other <- data.frame(Scenario=unique(df.result.PA[,1]),DemogrGroup=rep('2.Other',3),V1 =(value))
           
@@ -2554,7 +2554,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
           
           df.result.PA.aggr.white <- df.result.PA[c(1,5,9),]
           for (i in 1:3) {
-            value[i] <- sum(df.result.PA[((i+1):(i+3)),3])
+            value[i] <- sum(df.result.PA[((4*i-2):(4*i)),3])
           }
           df.result.PA.aggr.other <- data.frame(Scenario=unique(df.result.PA[,1]),DemogrGroup=rep('2.Other',3),V1 =(value))
           
@@ -2591,7 +2591,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
           
           df.result.PA.aggr.white <- df.result.PA[c(1,5,9),]
           for (i in 1:3) {
-            value[i] <- sum(df.result.PA[((i+1):(i+3)),3])
+            value[i] <- sum(df.result.PA[((4*i-2):(4*i)),3])
           }
           df.result.PA.aggr.other <- data.frame(Scenario=unique(df.result.PA[,1]),DemogrGroup=rep('2.Other',3),V1 =(value))
           
