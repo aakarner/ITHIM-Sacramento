@@ -1,6 +1,6 @@
 ### About:
 
-This site is an application of the [ITHIM model](http://www.cedar.iph.cam.ac.uk/research/modelling/ithim/) created at the [UK Center for Diet and Activity Research](http://www.cedar.iph.cam.ac.uk/) and subsequently applied in California by Dr. Neil Maizlish. The ITHIM-Sacramento equity analysis tool combines the region’s population and its baseline health, injury, and physical activity rates with research-based relationships about the risks and benefits of changes in how much people walk, bike, take transit, and drive to estimate the health effects of future regional transportation planning scenarios. 
+This site is an application of the [Integrated Transport and Health Impact Model (ITHIM)](http://www.cedar.iph.cam.ac.uk/research/modelling/ithim/) created at the [UK Center for Diet and Activity Research](http://www.cedar.iph.cam.ac.uk/) and subsequently applied in California by Dr. Neil Maizlish. The ITHIM-Sacramento equity analysis tool combines the region’s population and its baseline health, injury, and physical activity rates with research-based relationships about the risks and benefits of changes in how much people walk, bike, take transit, and drive to estimate the health effects of future regional transportation planning scenarios. 
 
 This ITHIM-Sacramento equity analysis tool website:
 
