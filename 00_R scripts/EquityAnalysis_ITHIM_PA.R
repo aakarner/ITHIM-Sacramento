@@ -974,6 +974,45 @@ computeAgeStdOutput <- function(All.InputPara_byDemo,HealthOutcome_byDemo){
   ))
 }
 
+
+computeAgeStdOutput.twoRaces <- function(All.InputPara_byDemo,HealthOutcome_byDemo){
+  #test
+  #All.InputPara<-read.csv.files(1)
+  #All.InputPara_byDemo <- All.InputPara$InputPara_byRace
+  #HealthOutcome <- output.HealthOutcome(1)
+  #HealthOutcome_byDemo<-HealthOutcome$HealthOutcome_byRace.2020
+  
+  # input the US population as the reference
+  US.pop <- All.InputPara_byDemo$allPop
+  
+  #shape the matrix 
+  local.pop <- sapply(All.InputPara_byDemo$Pop_List_byDemo,function(i) matrix(i,nrow = 16,ncol = 1))
+  local.pop.twoRaces<- cbind(local.pop[,1],rowSums(local.pop[,c(2,3,4)]))
+  
+  delta.death <- cbind(HealthOutcome_byDemo[[1]]$delta.Burden[,1],HealthOutcome_byDemo[[2]]$delta.Burden[,1],HealthOutcome_byDemo[[3]]$delta.Burden[,1],HealthOutcome_byDemo[[4]]$delta.Burden[,1])
+  delta.death.twoRaces <- cbind(delta.death[,1],rowSums(delta.death[,c(2,3,4)]))
+  
+  delta.DALYs <- cbind(HealthOutcome_byDemo[[1]]$delta.Burden[,4],HealthOutcome_byDemo[[2]]$delta.Burden[,4],HealthOutcome_byDemo[[3]]$delta.Burden[,4],HealthOutcome_byDemo[[4]]$delta.Burden[,4])
+  delta.DALYs.twoRaces <- cbind(delta.DALYs[,1],rowSums(delta.DALYs[,c(2,3,4)]))
+  
+  death.rate <- replace(delta.death.twoRaces/local.pop.twoRaces*100000,is.na(delta.death.twoRaces/local.pop.twoRaces),0) 
+  DALYs.rate <- replace(delta.DALYs.twoRaces/local.pop.twoRaces*100000,is.na(delta.DALYs.twoRaces/local.pop.twoRaces),0) 
+  
+  age.std.death.twoRaces <- age.std.DALYs.twoRaces <- matrix(NA,1,2)
+  
+  #scale process
+  for (i in 1:2){
+    age.std.death.twoRaces[1,i]=sum(death.rate[,i]*US.pop)/sum(US.pop)
+    age.std.DALYs.twoRaces[1,i]=sum(DALYs.rate[,i]*US.pop)/sum(US.pop)
+  }
+  
+  return(list(
+    age.std.death.twoRaces = age.std.death.twoRaces,
+    age.std.DALYs.twoRaces = age.std.DALYs.twoRaces
+  ))
+}
+
+
 #output the age.std health outcome
 AgeStdHealthOutcome <- function(countyID) {
   
@@ -1108,6 +1147,83 @@ AgeStdHealthOutcome <- function(countyID) {
   
 }
 
+AgeStdHealthOutcome.twoRaces <- function(countyID){
+  #test
+  #countyID<-1
+  
+  AgeStdDeath.matrix.race.2020 <- AgeStdDeath.matrix.race.2036 <-AgeStdDeath.matrix.race.2027<-
+    AgeStdDeath.matrix.race.S1<-AgeStdDeath.matrix.race.S2<-AgeStdDeath.matrix.race.S3<-
+    AgeStdDeath.matrix.race.C1<-AgeStdDeath.matrix.race.C2<-AgeStdDeath.matrix.race.C3<-
+    matrix(NA,nrow = length(countyID),ncol = 2,dimnames = list(countyNames[countyID],c('1.NHW','2.Others')))
+  
+  AgeStdDALYs.matrix.race.2020 <- AgeStdDALYs.matrix.race.2036 <-AgeStdDALYs.matrix.race.2027<-
+    AgeStdDALYs.matrix.race.S1<-AgeStdDALYs.matrix.race.S2<-AgeStdDALYs.matrix.race.S3<-
+    AgeStdDALYs.matrix.race.C1<-AgeStdDALYs.matrix.race.C2<-AgeStdDALYs.matrix.race.C3<-
+    matrix(NA,nrow = length(countyID),ncol = 2,dimnames = list(countyNames[countyID],c('1.NHW','2.Others')))
+  
+  j=1
+  for (i in countyID){
+    
+    HealthOutcome <- output.HealthOutcome(i)
+    All.InputPara <- read.csv.files(i)
+    
+    temp.race.2020 <- computeAgeStdOutput.twoRaces(All.InputPara$InputPara_byRace,HealthOutcome$HealthOutcome_byRace.2020)
+    temp.race.2036 <- computeAgeStdOutput.twoRaces(All.InputPara$InputPara_byRace,HealthOutcome$HealthOutcome_byRace.2036)
+    temp.race.2027 <- computeAgeStdOutput.twoRaces(All.InputPara$InputPara_byRace,HealthOutcome$HealthOutcome_byRace.2027)
+    temp.race.S1 <- computeAgeStdOutput.twoRaces(All.InputPara$InputPara_byRace,HealthOutcome$HealthOutcome_byRace.S1)
+    temp.race.S2 <- computeAgeStdOutput.twoRaces(All.InputPara$InputPara_byRace,HealthOutcome$HealthOutcome_byRace.S2)
+    temp.race.S3 <- computeAgeStdOutput.twoRaces(All.InputPara$InputPara_byRace,HealthOutcome$HealthOutcome_byRace.S3)
+    temp.race.C1 <- computeAgeStdOutput.twoRaces(All.InputPara$InputPara_byRace,HealthOutcome$HealthOutcome_byRace.C1)
+    temp.race.C2 <- computeAgeStdOutput.twoRaces(All.InputPara$InputPara_byRace,HealthOutcome$HealthOutcome_byRace.C2)
+    temp.race.C3 <- computeAgeStdOutput.twoRaces(All.InputPara$InputPara_byRace,HealthOutcome$HealthOutcome_byRace.C3)
+    
+    AgeStdDeath.matrix.race.2020[j,] <- temp.race.2020$age.std.death
+    AgeStdDeath.matrix.race.2036[j,] <- temp.race.2036$age.std.death
+    AgeStdDeath.matrix.race.2027[j,] <- temp.race.2027$age.std.death
+    AgeStdDeath.matrix.race.S1[j,] <- temp.race.S1$age.std.death
+    AgeStdDeath.matrix.race.S2[j,] <- temp.race.S2$age.std.death
+    AgeStdDeath.matrix.race.S3[j,] <- temp.race.S3$age.std.death
+    AgeStdDeath.matrix.race.C1[j,] <- temp.race.C1$age.std.death
+    AgeStdDeath.matrix.race.C2[j,] <- temp.race.C2$age.std.death
+    AgeStdDeath.matrix.race.C3[j,] <- temp.race.C3$age.std.death
+    
+    AgeStdDALYs.matrix.race.2020[j,] <- temp.race.2020$age.std.DALYs
+    AgeStdDALYs.matrix.race.2036[j,] <- temp.race.2036$age.std.DALYs
+    AgeStdDALYs.matrix.race.2027[j,] <- temp.race.2027$age.std.DALYs
+    AgeStdDALYs.matrix.race.S1[j,] <- temp.race.S1$age.std.DALYs
+    AgeStdDALYs.matrix.race.S2[j,] <- temp.race.S2$age.std.DALYs
+    AgeStdDALYs.matrix.race.S3[j,] <- temp.race.S3$age.std.DALYs
+    AgeStdDALYs.matrix.race.C1[j,] <- temp.race.C1$age.std.DALYs
+    AgeStdDALYs.matrix.race.C2[j,] <- temp.race.C2$age.std.DALYs
+    AgeStdDALYs.matrix.race.C3[j,] <- temp.race.C3$age.std.DALYs
+    
+    j=j+1
+  }
+  
+  return(list(
+    AgeStdDeath.matrix.race.2020.twoRaces=AgeStdDeath.matrix.race.2020,
+    AgeStdDeath.matrix.race.2027.twoRaces=AgeStdDeath.matrix.race.2027,
+    AgeStdDeath.matrix.race.2036.twoRaces=AgeStdDeath.matrix.race.2036,
+    AgeStdDeath.matrix.race.S1.twoRaces=AgeStdDeath.matrix.race.S1,
+    AgeStdDeath.matrix.race.S2.twoRaces=AgeStdDeath.matrix.race.S2,
+    AgeStdDeath.matrix.race.S3.twoRaces=AgeStdDeath.matrix.race.S3,
+    AgeStdDeath.matrix.race.C1.twoRaces=AgeStdDeath.matrix.race.C1,
+    AgeStdDeath.matrix.race.C2.twoRaces=AgeStdDeath.matrix.race.C2,
+    AgeStdDeath.matrix.race.C3.twoRaces=AgeStdDeath.matrix.race.C3,
+    
+    AgeStdDALYs.matrix.race.2020.twoRaces=AgeStdDALYs.matrix.race.2020,
+    AgeStdDALYs.matrix.race.2027.twoRaces=AgeStdDALYs.matrix.race.2027,
+    AgeStdDALYs.matrix.race.2036.twoRaces=AgeStdDALYs.matrix.race.2036,
+    AgeStdDALYs.matrix.race.S1.twoRaces=AgeStdDALYs.matrix.race.S1,
+    AgeStdDALYs.matrix.race.S2.twoRaces=AgeStdDALYs.matrix.race.S2,
+    AgeStdDALYs.matrix.race.S3.twoRaces=AgeStdDALYs.matrix.race.S3,
+    AgeStdDALYs.matrix.race.C1.twoRaces=AgeStdDALYs.matrix.race.C1,
+    AgeStdDALYs.matrix.race.C2.twoRaces=AgeStdDALYs.matrix.race.C2,
+    AgeStdDALYs.matrix.race.C3.twoRaces=AgeStdDALYs.matrix.race.C3
+    
+  ))
+}
+
 # shape the outcomes for ggplot
 # race: demogrID = 1; income: demogrID=2
 DFforFigure <- function(OutcomeMatrix.list,demogrID,countyID,barID){
@@ -1170,6 +1286,53 @@ DFforFigure <- function(OutcomeMatrix.list,demogrID,countyID,barID){
   return(df=df)
 }
 
+DFforFigure.PA.twoRaces<-function(OutcomeMatrix.list,countyID,barID){
+  #test
+  #countyID = 1
+  #dbID = 1
+  #barID=1
+  #OutcomeMatrix.list <- AgeStdReductionOutcome.twoRaces[c((demogrID*18+1*9-26):(demogrID*18+1*9-18))]
+  
+  if(barID==1){
+    OutcomeMatrix.Scenario.1 <- OutcomeMatrix.list[[1]]
+    OutcomeMatrix.Scenario.2 <- OutcomeMatrix.list[[2]]
+    OutcomeMatrix.Scenario.3 <- OutcomeMatrix.list[[3]]
+    
+    scenario.name <- rep(c('2020','2027','2036'),each=2)
+    
+  }else if(barID==2){
+    OutcomeMatrix.Scenario.1 <- OutcomeMatrix.list[[4]]
+    OutcomeMatrix.Scenario.2 <- OutcomeMatrix.list[[5]]
+    OutcomeMatrix.Scenario.3 <- OutcomeMatrix.list[[6]]
+    
+    scenario.name <- rep(c('S1','S2','S3'),each=2)
+  }else if(barID==3){
+    OutcomeMatrix.Scenario.1 <- OutcomeMatrix.list[[7]]
+    OutcomeMatrix.Scenario.2 <- OutcomeMatrix.list[[8]]
+    OutcomeMatrix.Scenario.3 <- OutcomeMatrix.list[[9]]
+    
+    scenario.name <- rep(c('C1','C2','C3'),each=2)
+  }
+  
+  OutcomeMatrix <- rbind(OutcomeMatrix.Scenario.1[countyID,],OutcomeMatrix.Scenario.2[countyID,],OutcomeMatrix.Scenario.3[countyID,])
+  
+  #county names
+  #county <- rep(rownames(OutcomeMatrix),each=4)
+  #race group names
+  raceGroup <- rep(c("1.White",'2.Others'),3)
+  
+  demogrGroup = raceGroup
+  #shape the outcome as data.frame
+  outcome <- as.data.frame(matrix(t(OutcomeMatrix),2*nrow(OutcomeMatrix),1))
+  
+  df <- data.frame(Scenario=scenario.name,DemogrGroup=demogrGroup,v =(-outcome))
+  
+  
+  return(df.twoRaces=df)
+}
+
+
+
 # data frame for region-wide results
 DFforRegionWide <- function(ReductionOutcome,demogrID,dbID,barID){
   # TEST
@@ -1177,6 +1340,7 @@ DFforRegionWide <- function(ReductionOutcome,demogrID,dbID,barID){
   #dbID = 1
   #barID=1
   #ReductionOutcome <- RawReductionOutcome
+ 
   df.region <- NULL
   
   for (i in 1:6){# countyID
@@ -1476,6 +1640,9 @@ nonTravelMET_Input_byIncome <- read.csv("03_nonTravelMET/02_nonTravelMET_byIncom
 RawReductionOutcome <- Reduction.output(c(1:6))
 # compute the age.std reduction of health burdens
 AgeStdReductionOutcome <- AgeStdHealthOutcome(c(1:6))
+# compute the age.std reduction of health burdens for two races
+AgeStdReductionOutcome.twoRaces <- AgeStdHealthOutcome.twoRaces(c(1:6))
+
 
 ############################# Plots ############################################
 

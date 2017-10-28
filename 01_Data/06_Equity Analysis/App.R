@@ -1749,6 +1749,15 @@ Pop.file.race <- read.csv("01_Population/02_Population_byRace_2012.csv")
 Pop.file.twoRaces <- cbind(Pop.file.race[,c(2,3)],rowSums(Pop.file.race[,c(4,6,8)]),rowSums(Pop.file.race[,c(5,7,9)]))
 colnames(Pop.file.twoRaces) <- c('male.white','female.white','male.other','female.other')
 
+# regionwide population
+Pop.file.region<-NULL
+for (j in 1:2){
+  for(i in 1:8){
+    Pop.file.region[8*j-8+i] <- temp.Pop.file.region[i,j]+temp.Pop.file.region[i+9,j]+temp.Pop.file.region[i+18,j]+
+      temp.Pop.file.region[i+27,j]+temp.Pop.file.region[i+36,j]+temp.Pop.file.region[i+45,j]
+  }
+}
+
 # input the US population
 US.pop <- read.csv("01_Population/01_Population_US_EA.csv")
 US.pop <- matrix(cbind(US.pop[,2],US.pop[,3]),16,1)
@@ -2814,7 +2823,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
 aggr.outcome.shiny.app <- function(barID,yaxisID){
   
   #TEST
-  #barID =1
+  #barID =2
   #yaxisID=1
   
   if(barID==1){
@@ -2891,54 +2900,163 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
       theme(legend.position = "bottom",
             plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
       labs(caption = "Planning scenarios and future years are shown relative to the preferred scenario in the baseline year in 2012.")
-      
+    
     
   }else if (yaxisID==2){#death age.std
     # PA module
     value<-NULL
+    value.injury <- NULL
     
-    PA.disaggr <- DFforRegionWide(ReductionOutcome = AgeStdReductionOutcome,demogrID = 1,dbID = 1,barID = barID)
-    
-    for (i in 1:18){
-      value[i]<-sum(PA.disaggr[(4*i-3):(4*i),3])
+    #aggragation
+    if(barID ==1 ){#future years
+      
+      sum.temp <- 0
+      sum.temp.injury <- 0
+      
+      for (i in 1:6){# six counties
+        temp.a <- output.HealthOutcome(i)
+        temp.b <- temp.a$HealthOutcome_byRace.2020$`1.NHW`$delta.Burden+temp.a$HealthOutcome_byRace.2020$`2.NHB`$delta.Burden+
+          temp.a$HealthOutcome_byRace.2020$`3.NHO`$delta.Burden+temp.a$HealthOutcome_byRace.2020$`4.HO`$delta.Burden
+        sum.temp <- sum.temp+temp.b
+        
+        temp.a.injury <- createInjuryResults(countyID =  i,scenarioID =  1)
+        temp.b.injury <- temp.a.injury$Reduction.Death.white.disaggr+temp.a.injury$Reduction.Death.other.disaggr
+        sum.temp.injury <- sum.temp.injury+temp.b.injury
+      }
+      
+      value[1]=-sum(sum.temp[,1]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      value.injury[1]=sum(sum.temp.injury[,1]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      
+      sum.temp <- 0
+      sum.temp.injury <- 0
+      
+      for (i in 1:6){# six counties
+        temp.a <- output.HealthOutcome(i)
+        temp.b <- temp.a$HealthOutcome_byRace.2027$`1.NHW`$delta.Burden+temp.a$HealthOutcome_byRace.2027$`2.NHB`$delta.Burden+
+          temp.a$HealthOutcome_byRace.2027$`3.NHO`$delta.Burden+temp.a$HealthOutcome_byRace.2027$`4.HO`$delta.Burden
+        sum.temp <- sum.temp+temp.b
+        
+        temp.a.injury <- createInjuryResults(countyID =  i,scenarioID =  3)
+        temp.b.injury <- temp.a.injury$Reduction.Death.white.disaggr+temp.a.injury$Reduction.Death.other.disaggr
+        sum.temp.injury <- sum.temp.injury+temp.b.injury
+      }
+      
+      value[2]=-sum(sum.temp[,1]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      value.injury[2]=sum(sum.temp.injury[,1]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      
+      sum.temp <- 0
+      sum.temp.injury <- 0
+      
+      for (i in 1:6){# six counties
+        temp.a <- output.HealthOutcome(i)
+        temp.b <- temp.a$HealthOutcome_byRace.2036$`1.NHW`$delta.Burden+temp.a$HealthOutcome_byRace.2036$`2.NHB`$delta.Burden+
+          temp.a$HealthOutcome_byRace.2036$`3.NHO`$delta.Burden+temp.a$HealthOutcome_byRace.2036$`4.HO`$delta.Burden
+        sum.temp <- sum.temp+temp.b
+        
+        temp.a.injury <- createInjuryResults(countyID =  i,scenarioID =  2)
+        temp.b.injury <- temp.a.injury$Reduction.Death.white.disaggr+temp.a.injury$Reduction.Death.other.disaggr
+        sum.temp.injury <- sum.temp.injury+temp.b.injury
+        
+      }
+      
+      value[3]=-sum(sum.temp[,1]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      value.injury[3]=sum(sum.temp.injury[,1]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      
+    }else{#scenarios
+      sum.temp <- 0
+      sum.temp.injury <- 0
+      
+      for (i in 1:6){# six counties
+        temp.a <- output.HealthOutcome(i)
+        temp.b <- temp.a$HealthOutcome_byRace.S1$`1.NHW`$delta.Burden+temp.a$HealthOutcome_byRace.S1$`2.NHB`$delta.Burden+
+          temp.a$HealthOutcome_byRace.S1$`3.NHO`$delta.Burden+temp.a$HealthOutcome_byRace.S1$`4.HO`$delta.Burden
+        sum.temp <- sum.temp+temp.b
+        
+        temp.a.injury <- createInjuryResults(countyID =  i,scenarioID =  4)
+        temp.b.injury <- temp.a.injury$Reduction.Death.white.disaggr+temp.a.injury$Reduction.Death.other.disaggr
+        sum.temp.injury <- sum.temp.injury+temp.b.injury
+      }
+      
+      value[1]=-sum(sum.temp[,1]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      value.injury[1]=sum(sum.temp.injury[,1]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      
+      sum.temp <- 0
+      sum.temp.injury <- 0
+      
+      for (i in 1:6){# six counties
+        temp.a <- output.HealthOutcome(i)
+        temp.b <- temp.a$HealthOutcome_byRace.S2$`1.NHW`$delta.Burden+temp.a$HealthOutcome_byRace.S2$`2.NHB`$delta.Burden+
+          temp.a$HealthOutcome_byRace.S2$`3.NHO`$delta.Burden+temp.a$HealthOutcome_byRace.S2$`4.HO`$delta.Burden
+        sum.temp <- sum.temp+temp.b
+        
+        temp.a.injury <- createInjuryResults(countyID =  i,scenarioID =  5)
+        temp.b.injury <- temp.a.injury$Reduction.Death.white.disaggr+temp.a.injury$Reduction.Death.other.disaggr
+        sum.temp.injury <- sum.temp.injury+temp.b.injury
+      }
+      
+      value[2]=-sum(sum.temp[,1]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      value.injury[2]=sum(sum.temp.injury[,1]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      
+      sum.temp <- 0
+      sum.temp.injury <- 0
+      
+      for (i in 1:6){# six counties
+        temp.a <- output.HealthOutcome(i)
+        temp.b <- temp.a$HealthOutcome_byRace.S3$`1.NHW`$delta.Burden+temp.a$HealthOutcome_byRace.S3$`2.NHB`$delta.Burden+
+          temp.a$HealthOutcome_byRace.S3$`3.NHO`$delta.Burden+temp.a$HealthOutcome_byRace.S3$`4.HO`$delta.Burden
+        sum.temp <- sum.temp+temp.b
+        
+        temp.a.injury <- createInjuryResults(countyID =  i,scenarioID =  6)
+        temp.b.injury <- temp.a.injury$Reduction.Death.white.disaggr+temp.a.injury$Reduction.Death.other.disaggr
+        sum.temp.injury <- sum.temp.injury+temp.b.injury
+      }
+      
+      value[3]=-sum(sum.temp[,1]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      value.injury[3]=sum(sum.temp.injury[,1]/Pop.file.region*100000*US.pop)/sum(US.pop)
     }
     
-    df.PA.aggr.temp <- data.frame(Scenario = scenairo.name,county = rep(countyNames,each=3),V1=value,type='physical activity')
-    
-    value <- NULL
-    for (i in 1:3){
-      value[i]<-sum(df.PA.aggr.temp[c(i,i+3,i+6,i+9,i+12,i+15),3])
-    }
+    # PA.disaggr <- DFforRegionWide(ReductionOutcome = AgeStdReductionOutcome,demogrID = 1,dbID = 1,barID = barID)
+    # 
+    # for (i in 1:18){
+    #   value[i]<-sum(PA.disaggr[(4*i-3):(4*i),3])
+    # }
+    # 
+    # df.PA.aggr.temp <- data.frame(Scenario = scenairo.name,county = rep(countyNames,each=3),V1=value,type='physical activity')
+    # 
+    # value <- NULL
+    # for (i in 1:3){
+    #   value[i]<-sum(df.PA.aggr.temp[c(i,i+3,i+6,i+9,i+12,i+15),3])
+    # }
     
     df.PA.aggr <- data.frame(Scenario = scenario.name.sep,type = 'a. physical activity',V1=value)
     
     ####injury module
-    df.injury.region <- NULL
+    # df.injury.region <- NULL
+    # 
+    # for (i in 1:6){ #county
+    #   value <-NULL
+    #   
+    #   df.temp <- DFforFigure.injury(barID = barID,i,typeID = 2)
+    #   
+    #   for (j in 1:3){
+    #     value[j] <- sum(df.temp$df.fatality[(2*j-1):(2*j),3]) 
+    #   }
+    #   
+    #   df.injury.aggr.temp <- data.frame(V1=value,type='b. traffic injury')
+    #   
+    #   df.injury.region <- rbind(df.injury.region,df.injury.aggr.temp)
+    #   
+    # }
+    # 
+    # df.injury.region<-data.frame(county = rep(countyNames,each=3),df.injury.region)
+    # df.injury.region<-data.frame(Scenario = scenairo.name,df.injury.region)
+    # 
+    # value <- NULL
+    # for (i in 1:3){
+    #   value[i]<-sum(df.injury.region[c(i,i+3,i+6,i+9,i+12,i+15),3])
+    # }
     
-    for (i in 1:6){ #county
-      value <-NULL
-      
-      df.temp <- DFforFigure.injury(barID = barID,i,typeID = 2)
-      
-      for (j in 1:3){
-        value[j] <- sum(df.temp$df.fatality[(2*j-1):(2*j),3]) 
-      }
-      
-      df.injury.aggr.temp <- data.frame(V1=value,type='b. traffic injury')
-      
-      df.injury.region <- rbind(df.injury.region,df.injury.aggr.temp)
-      
-    }
-    
-    df.injury.region<-data.frame(county = rep(countyNames,each=3),df.injury.region)
-    df.injury.region<-data.frame(Scenario = scenairo.name,df.injury.region)
-    
-    value <- NULL
-    for (i in 1:3){
-      value[i]<-sum(df.injury.region[c(i,i+3,i+6,i+9,i+12,i+15),3])
-    }
-    
-    df.injury.aggr <- data.frame(Scenario = scenario.name.sep,type = 'b. traffic injury',V1=value)
+    df.injury.aggr <- data.frame(Scenario = scenario.name.sep,type = 'b. traffic injury',V1=value.injury)
     
     # sum of two module
     df.result.integration.temp <- df.PA.aggr[,1:2]
@@ -3018,49 +3136,160 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
   }else if (yaxisID==4){#DALYs age.std
     # PA module
     value<-NULL
+    value.injury <- NULL
     
-    PA.disaggr <- DFforRegionWide(ReductionOutcome = AgeStdReductionOutcome,demogrID = 1,dbID = 2,barID = barID)
-    
-    for (i in 1:18){
-      value[i]<-sum(PA.disaggr[(4*i-3):(4*i),3])
+    #aggragation
+    if(barID ==1 ){#future years
+      
+      sum.temp <- 0
+      sum.temp.injury <- 0
+      
+      for (i in 1:6){# six counties
+        temp.a <- output.HealthOutcome(i)
+        temp.b <- temp.a$HealthOutcome_byRace.2020$`1.NHW`$delta.Burden+temp.a$HealthOutcome_byRace.2020$`2.NHB`$delta.Burden+
+          temp.a$HealthOutcome_byRace.2020$`3.NHO`$delta.Burden+temp.a$HealthOutcome_byRace.2020$`4.HO`$delta.Burden
+        sum.temp <- sum.temp+temp.b
+        
+        temp.a.injury <- createInjuryResults(countyID =  i,scenarioID =  1)
+        temp.b.injury <- temp.a.injury$Reduction.DALYs.white.disaggr+temp.a.injury$Reduction.DALYs.other.disaggr
+        sum.temp.injury <- sum.temp.injury+temp.b.injury
+      }
+      
+      value[1]=-sum(sum.temp[,4]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      value.injury[1]=sum(sum.temp.injury[,1]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      
+      sum.temp <- 0
+      sum.temp.injury <- 0
+      
+      for (i in 1:6){# six counties
+        temp.a <- output.HealthOutcome(i)
+        temp.b <- temp.a$HealthOutcome_byRace.2027$`1.NHW`$delta.Burden+temp.a$HealthOutcome_byRace.2027$`2.NHB`$delta.Burden+
+          temp.a$HealthOutcome_byRace.2027$`3.NHO`$delta.Burden+temp.a$HealthOutcome_byRace.2027$`4.HO`$delta.Burden
+        sum.temp <- sum.temp+temp.b
+        
+        temp.a.injury <- createInjuryResults(countyID =  i,scenarioID =  3)
+        temp.b.injury <- temp.a.injury$Reduction.DALYs.white.disaggr+temp.a.injury$Reduction.DALYs.other.disaggr
+        sum.temp.injury <- sum.temp.injury+temp.b.injury
+      }
+      
+      value[2]=-sum(sum.temp[,4]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      value.injury[2]=sum(sum.temp.injury[,1]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      
+      sum.temp <- 0
+      sum.temp.injury <- 0
+      
+      for (i in 1:6){# six counties
+        temp.a <- output.HealthOutcome(i)
+        temp.b <- temp.a$HealthOutcome_byRace.2036$`1.NHW`$delta.Burden+temp.a$HealthOutcome_byRace.2036$`2.NHB`$delta.Burden+
+          temp.a$HealthOutcome_byRace.2036$`3.NHO`$delta.Burden+temp.a$HealthOutcome_byRace.2036$`4.HO`$delta.Burden
+        sum.temp <- sum.temp+temp.b
+        
+        temp.a.injury <- createInjuryResults(countyID =  i,scenarioID =  2)
+        temp.b.injury <- temp.a.injury$Reduction.DALYs.white.disaggr+temp.a.injury$Reduction.DALYs.other.disaggr
+        sum.temp.injury <- sum.temp.injury+temp.b.injury
+        
+      }
+      
+      value[3]=-sum(sum.temp[,4]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      value.injury[3]=sum(sum.temp.injury[,1]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      
+    }else{#scenarios
+      sum.temp <- 0
+      sum.temp.injury <- 0
+      
+      for (i in 1:6){# six counties
+        temp.a <- output.HealthOutcome(i)
+        temp.b <- temp.a$HealthOutcome_byRace.S1$`1.NHW`$delta.Burden+temp.a$HealthOutcome_byRace.S1$`2.NHB`$delta.Burden+
+          temp.a$HealthOutcome_byRace.S1$`3.NHO`$delta.Burden+temp.a$HealthOutcome_byRace.S1$`4.HO`$delta.Burden
+        sum.temp <- sum.temp+temp.b
+        
+        temp.a.injury <- createInjuryResults(countyID =  i,scenarioID =  4)
+        temp.b.injury <- temp.a.injury$Reduction.DALYs.white.disaggr+temp.a.injury$Reduction.DALYs.other.disaggr
+        sum.temp.injury <- sum.temp.injury+temp.b.injury
+      }
+      
+      value[1]=-sum(sum.temp[,4]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      value.injury[1]=sum(sum.temp.injury[,1]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      
+      sum.temp <- 0
+      sum.temp.injury <- 0
+      
+      for (i in 1:6){# six counties
+        temp.a <- output.HealthOutcome(i)
+        temp.b <- temp.a$HealthOutcome_byRace.S2$`1.NHW`$delta.Burden+temp.a$HealthOutcome_byRace.S2$`2.NHB`$delta.Burden+
+          temp.a$HealthOutcome_byRace.S2$`3.NHO`$delta.Burden+temp.a$HealthOutcome_byRace.S2$`4.HO`$delta.Burden
+        sum.temp <- sum.temp+temp.b
+        
+        temp.a.injury <- createInjuryResults(countyID =  i,scenarioID =  5)
+        temp.b.injury <- temp.a.injury$Reduction.DALYs.white.disaggr+temp.a.injury$Reduction.DALYs.other.disaggr
+        sum.temp.injury <- sum.temp.injury+temp.b.injury
+      }
+      
+      value[2]=-sum(sum.temp[,4]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      value.injury[2]=sum(sum.temp.injury[,1]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      
+      sum.temp <- 0
+      sum.temp.injury <- 0
+      
+      for (i in 1:6){# six counties
+        temp.a <- output.HealthOutcome(i)
+        temp.b <- temp.a$HealthOutcome_byRace.S3$`1.NHW`$delta.Burden+temp.a$HealthOutcome_byRace.S3$`2.NHB`$delta.Burden+
+          temp.a$HealthOutcome_byRace.S3$`3.NHO`$delta.Burden+temp.a$HealthOutcome_byRace.S3$`4.HO`$delta.Burden
+        sum.temp <- sum.temp+temp.b
+        
+        temp.a.injury <- createInjuryResults(countyID =  i,scenarioID =  6)
+        temp.b.injury <- temp.a.injury$Reduction.DALYs.white.disaggr+temp.a.injury$Reduction.DALYs.other.disaggr
+        sum.temp.injury <- sum.temp.injury+temp.b.injury
+      }
+      
+      value[3]=-sum(sum.temp[,4]/Pop.file.region*100000*US.pop)/sum(US.pop)
+      value.injury[3]=sum(sum.temp.injury[,1]/Pop.file.region*100000*US.pop)/sum(US.pop)
     }
     
-    df.PA.aggr.temp <- data.frame(Scenario = scenairo.name,county = rep(countyNames,each=3),V1=value,type='a. physical activity')
     
-    value <- NULL
-    for (i in 1:3){
-      value[i]<-sum(df.PA.aggr.temp[c(i,i+3,i+6,i+9,i+12,i+15),3])
-    }
+    
+    # PA.disaggr <- DFforRegionWide(ReductionOutcome = AgeStdReductionOutcome,demogrID = 1,dbID = 2,barID = barID)
+    # 
+    # for (i in 1:18){
+    #   value[i]<-sum(PA.disaggr[(4*i-3):(4*i),3])
+    # }
+    # 
+    # df.PA.aggr.temp <- data.frame(Scenario = scenairo.name,county = rep(countyNames,each=3),V1=value,type='a. physical activity')
+    # 
+    # value <- NULL
+    # for (i in 1:3){
+    #   value[i]<-sum(df.PA.aggr.temp[c(i,i+3,i+6,i+9,i+12,i+15),3])
+    # }
     
     df.PA.aggr <- data.frame(Scenario = scenario.name.sep,type = 'a. physical activity',V1=value)
     
     ####injury module
-    df.injury.region <- NULL
+    # df.injury.region <- NULL
+    # 
+    # for (i in 1:6){ #county
+    #   value <-NULL
+    #   
+    #   df.temp <- DFforFigure.injury(barID = barID,i,typeID = 2)
+    #   
+    #   for (j in 1:3){
+    #     value[j] <- sum(df.temp$df.DALYs[(2*j-1):(2*j),3]) 
+    #   }
+    #   
+    #   df.injury.aggr.temp <- data.frame(V1=value,type='b. traffic injury')
+    #   
+    #   df.injury.region <- rbind(df.injury.region,df.injury.aggr.temp)
+    #   
+    # }
+    # 
+    # df.injury.region<-data.frame(county = rep(countyNames,each=3),df.injury.region)
+    # df.injury.region<-data.frame(Scenario = scenairo.name,df.injury.region)
+    # 
+    # value <- NULL
+    # for (i in 1:3){
+    #   value[i]<-sum(df.injury.region[c(i,i+3,i+6,i+9,i+12,i+15),3])
+    # }
     
-    for (i in 1:6){ #county
-      value <-NULL
-      
-      df.temp <- DFforFigure.injury(barID = barID,i,typeID = 2)
-      
-      for (j in 1:3){
-        value[j] <- sum(df.temp$df.DALYs[(2*j-1):(2*j),3]) 
-      }
-      
-      df.injury.aggr.temp <- data.frame(V1=value,type='b. traffic injury')
-      
-      df.injury.region <- rbind(df.injury.region,df.injury.aggr.temp)
-      
-    }
-    
-    df.injury.region<-data.frame(county = rep(countyNames,each=3),df.injury.region)
-    df.injury.region<-data.frame(Scenario = scenairo.name,df.injury.region)
-    
-    value <- NULL
-    for (i in 1:3){
-      value[i]<-sum(df.injury.region[c(i,i+3,i+6,i+9,i+12,i+15),3])
-    }
-    
-    df.injury.aggr <- data.frame(Scenario = scenario.name.sep,type = 'b. traffic injury',V1=value)
+    df.injury.aggr <- data.frame(Scenario = scenario.name.sep,type = 'b. traffic injury',V1=value.injury)
     
     # sum of two module
     df.result.integration.temp <- df.PA.aggr[,1:2]
@@ -3076,8 +3305,6 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
   }else{
     message('wrong input')
   }
-  
-  
   
 }
 
