@@ -1458,6 +1458,7 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
       
       ggplot(data = df.result, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
         geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
+        scale_fill_brewer(palette = "Set1") +
         xlab(NULL) + 
         ylab('Total Reduction in Health Burden')+
         geom_text(aes(label = round(V1, 1)), color = "black", size = 6, vjust = "inward", 
@@ -2828,10 +2829,19 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
         
         df.region$county <- rep(countyNames,each = 6)
         
-        ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
-          geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab(NULL)+ylab('Total Death Reduction')+
+        ggplot(data = df.region, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
+          geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
+          scale_fill_brewer(palette = "Set1") + 
+          xlab(NULL) + 
+          ylab('Reduction in deaths (total)') +
           #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
-          facet_wrap(~county,scales = "free") +ggtitle("Region-Wide: Reduction in Total Deaths")
+          theme_bw(base_size = 18) +
+          theme(legend.position = "bottom",
+                plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
+          labs(caption = plot.caption.text) +
+          ggtitle("Region-Wide: Reduction in Total Deaths") +
+          facet_wrap(~ county, scales = "free")
+        
         
         #return(df.region = df.region)
         
@@ -2869,14 +2879,22 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
         
         df.region$county <- rep(countyNames,each = 6)
         
-        ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
-          geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab(NULL)+ylab('Death reduction rate (per 100,000 population)')+
+        ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
+          geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
+          scale_fill_brewer(palette = "Set1") + 
+          xlab(NULL) + 
+          ylab('Reduction in deaths (per 100,000 population)') +
           #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
-          facet_wrap(~county,scales = "free") +ggtitle("Region-Wide: Age-Standardized Reduction in Total Deaths")
+          theme_bw(base_size = 18) +
+          theme(legend.position = "bottom",
+                plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
+          labs(caption = plot.caption.text) +
+          ggtitle("Region-Wide: Age-Standardized Reduction in Total Deaths") +
+          facet_wrap(~county,scales = "free")
         
         #return(df.region = df.region)
         
-      }else if (yaxisID==3){# total DALYs
+      }else if (yaxisID == 3){# total DALYs
         
         for(countyID in 1:6){
           
@@ -2908,13 +2926,21 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
         df.region$county <- rep(countyNames,each = 6)
         
         ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
-          geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+xlab(NULL)+ylab('Total DALYs Reduction')+
+          geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
+          scale_fill_brewer(palette = "Set1") + 
+          xlab(NULL) + 
+          ylab('Reduction in DALYs (total)')+
           #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
-          facet_wrap(~county,scales = "free") +ggtitle("Region-Wide: Reduction of Total DALYs ")
+          theme_bw(base_size = 18) +
+          theme(legend.position = "bottom",
+                plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
+          labs(caption = plot.caption.text) +
+          ggtitle("Region-Wide: Reduction in Total DALYs ") +
+          facet_wrap(~ county, scales = "free") 
         
         #return(df.region = df.region)
         
-      }else if (yaxisID==4){#age.std DALYs
+      }else if (yaxisID == 4){#age.std DALYs
         
         for (countyID in 1:6){
           value <- NULL
@@ -2949,10 +2975,18 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
         df.region$county <- rep(countyNames,each = 6)
         
         ggplot(data = df.region, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-          geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5))+
-          xlab(NULL)+ylab('DALYs reduction rate (per 100,000 population)')+
+          geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
+          scale_fill_brewer(palette = "Set1") +
+          xlab(NULL) +
+          ylab('DALYs reduction rate (per 100,000 population)') +
           #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
-          facet_wrap(~county,scales = "free") +ggtitle("Region-Wide: Age-Standardized Reduction in Total DALYs")
+          theme_bw(base_size = 18) +
+          theme(legend.position = "bottom",
+                plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
+          labs(caption = plot.caption.text) +
+          ggtitle("Region-Wide: Age-Standardized Reduction in Total DALYs") +
+          facet_wrap(~county,scales = "free") 
+        
         
         #return(df.region = df.region)
         
