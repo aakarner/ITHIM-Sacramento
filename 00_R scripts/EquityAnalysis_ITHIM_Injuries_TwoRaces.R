@@ -39,6 +39,17 @@ Pop.file.race <- read.csv("01_Population/02_Population_byRace_2012.csv")
 Pop.file.twoRaces <- cbind(Pop.file.race[,c(2,3)],rowSums(Pop.file.race[,c(4,6,8)]),rowSums(Pop.file.race[,c(5,7,9)]))
 colnames(Pop.file.twoRaces) <- c('male.white','female.white','male.other','female.other')
 
+temp.Pop.file.region <- cbind(rowSums(Pop.file.race[,c(2,4,6,8)]),rowSums(Pop.file.race[,c(3,5,7,9)])) 
+
+Pop.file.region<-NULL
+for (j in 1:2){
+  for(i in 1:8){
+    Pop.file.region[8*j-8+i] <- temp.Pop.file.region[i,j]+temp.Pop.file.region[i+9,j]+temp.Pop.file.region[i+18,j]+
+      temp.Pop.file.region[i+27,j]+temp.Pop.file.region[i+36,j]+temp.Pop.file.region[i+45,j]
+  }
+}
+
+
 # input the US population
 US.pop <- read.csv("01_Population/01_Population_US_EA.csv")
 US.pop <- matrix(cbind(US.pop[,2],US.pop[,3]),16,1)
