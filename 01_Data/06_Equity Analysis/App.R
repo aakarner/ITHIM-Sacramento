@@ -1819,6 +1819,8 @@ colnames(Pop.file.twoRaces) <- c('male.white','female.white','male.other','femal
 
 # regionwide population
 Pop.file.region<-NULL
+temp.Pop.file.region <- cbind(rowSums(Pop.file.twoRaces[,c(1,3)]),rowSums(Pop.file.twoRaces[,c(2,4)]))
+
 for (j in 1:2){
   for(i in 1:8){
     Pop.file.region[8*j-8+i] <- temp.Pop.file.region[i,j]+temp.Pop.file.region[i+9,j]+temp.Pop.file.region[i+18,j]+
