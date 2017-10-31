@@ -1476,6 +1476,7 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
       
       ggplot(data = df.result, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
         geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
+        scale_fill_brewer(palette = "Set1") + 
         xlab(NULL) +
         ylab('Total Reduction in Health Burden') +
         # geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
