@@ -1502,8 +1502,9 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
       
       ggplot(data = df.result, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
         geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
+        scale_fill_brewer(palette = "Set1") +
         xlab(NULL) + 
-        ylab('Reduction in Health Buden\n(per 100,000 population)')+
+        ylab('Reduction in Health Burden\n(per 100,000 population)')+
         geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
                   position = position_dodge(width = 0.5)) +
         theme_bw(base_size = 15) +
@@ -1520,6 +1521,7 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
       
       ggplot(data = df.result, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
         geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
+        scale_fill_brewer(palette = "Set1") +
         xlab(NULL) + 
         ylab('Reduction in Health Buden\n(per 100,000 population)')+
         # geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
@@ -1541,7 +1543,8 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
       plot.title <- paste0(countyNames[countyID],': Active Travel Time')
       
       ggplot(data = df.at, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-        geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5)) + 
+        geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
+        scale_fill_brewer(palette = "Set1") +
         xlab(NULL) + 
         ylab('Active Travel Time\n(mins per week per capita)') +
         geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
@@ -1554,7 +1557,7 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
         ggtitle(plot.title) +
         facet_grid(Mode ~ ., scales = "free")
       
-    }else if (countyID == 7){
+    }else if (countyID == 7) {
       
       df.region <- NULL
       
@@ -2420,7 +2423,7 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
         geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
         scale_fill_brewer(palette = "Set1") + 
         xlab(NULL) + 
-        ylab('Reduction in deaths (per 100,000 population)') +
+        ylab('Reduction in deaths\n(per 100,000 population)') +
         geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
                   position = position_dodge(width = 0.5)) +
         theme_bw(base_size = 15) +
@@ -2447,7 +2450,7 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
         geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
         scale_fill_brewer(palette = "Set1") + 
         xlab(NULL) + 
-        ylab('Reduction in deaths (per 100,000 population)') +
+        ylab('Reduction in deaths\n(per 100,000 population)') +
         #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
         theme_bw(base_size = 15) +
         theme(legend.position = "bottom",
@@ -2519,7 +2522,7 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
         geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
         scale_fill_brewer(palette = "Set1") + 
         xlab(NULL) + 
-        ylab('Reduction in DALYs (per 100,000 population)') +
+        ylab('Reduction in DALYs\n(per 100,000 population)') +
         geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
                   position = position_dodge(width = 0.5)) +
         theme_bw(base_size = 15) +
@@ -2546,7 +2549,7 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
         geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
         scale_fill_brewer(palette = "Set1") + 
         xlab(NULL) + 
-        ylab('Reduction in DALYs (per 100,000 population)')+
+        ylab('Reduction in DALYs\n(per 100,000 population)')+
         theme_bw(base_size = 15) +
         theme(legend.position = "bottom",
               plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
@@ -2807,6 +2810,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
         
         ggplot(data = df.result.integration, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
           geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5)) +
+          scale_fill_brewer(palette = "Set1") +
           xlab(NULL) + 
           ylab('Reduction in DALYs\n(per 100,000 population)')+
           geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
@@ -2914,7 +2918,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
           geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
           scale_fill_brewer(palette = "Set1") + 
           xlab(NULL) + 
-          ylab('Reduction in deaths (per 100,000 population)') +
+          ylab('Reduction in deaths\n(per 100,000 population)') +
           #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
           theme_bw(base_size = 15) +
           theme(legend.position = "bottom",
@@ -3009,7 +3013,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
           geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
           scale_fill_brewer(palette = "Set1") +
           xlab(NULL) +
-          ylab('DALYs reduction rate (per 100,000 population)') +
+          ylab('DALYs reduction rate\n(per 100,000 population)') +
           #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
           theme_bw(base_size = 15) +
           theme(legend.position = "bottom",
@@ -3288,7 +3292,7 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
       geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5)) + 
       scale_fill_brewer(palette = "Set1") + 
       xlab(NULL) + 
-      ylab('Deaths reduced (per 100,000 population)')+
+      ylab('Deaths reduced\n(per 100,000 population)')+
       geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
                 position = position_dodge(width = 0.5)) +
       ggtitle("Region-Wide: Reduction in Total Deaths\nStandardized by Age and Population") + 
@@ -3535,7 +3539,7 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
       geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5)) + 
       scale_fill_brewer(palette = "Set1") + 
       xlab(NULL) + 
-      ylab('Reduction in DALYs (per 100,000 population)') +
+      ylab('Reduction in DALYs\n(per 100,000 population)') +
       geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
                 position = position_dodge(width = 0.5)) +
       ggtitle("Region-Wide: Reduction in Total DALYs\nStandardized by Age and Population") + 
