@@ -47,7 +47,7 @@ A: The Simple Aggregated Plots tab shows estimated health impacts due to physica
     + Deaths indicate expected mortality.
     +	DALYs indicate expected disability-adjusted life years, which is a measure of disease burden.
     + Total values indicate the total impact to a population or geographic area. 
-    +	Normalized values are age-standardized per capita results; these allow for a comparison of risks experienced by individuals of different race/ethnicity or income or living in different geographic areas.
+    +	Standardized values by age and population allow for a comparison of risks experienced by individuals in different race/ethnicity or income groups or those living in different geographic areas.
     +	Physical Activity Data show minutes per week per capita walking or biking.
 
 ##### **3. What is shown in the Advanced Plots tab?** {#q3}
@@ -56,8 +56,8 @@ A: The Advanced Plots tab shows estimated health impacts for several subpopulati
 
   * Geographic Area:
     + Option of six counties or “all” which shows all six counties.
+
   * Scenario:
-* Scenario:
       + 2016 MTP/SCS Adopted Plan in Future Years: This shows the 2016 adopted plan modeled in three future years.        Results are shown relative to the 2012 baseline.
       + Planning Scenarios in 2036: This shows three alternative scenario outcomes modeled in 2036. Scenario 2 is         the preferred scenario and is similar to the adopted plan. When compared with S2, S1 has lower density            housing and is car-oriented while S3 has higher density housing and is more multi-modal oriented. Results are       shown relative to the 2012 baseline.
   * Demographic Group:
@@ -83,11 +83,11 @@ A: Outputs shown are estimates of health effects of the adopted SACOG 2016 MTP/S
 
 ##### **5. What are the health risk values shown?** {#q5}
 
-A: The health risk reductions shown on the y-axis are presented as relative to the preferred scenario in the baseline year of 2012. Deaths indicate expected mortality. DALYs indicate expected disability adjusted life-years, which is a measure of disease burden. Physical Activity Data show minutes per week per capita walking or biking. Positive values indicate reductions in health burdens relative to the base year, while negative values indicate that health conditions worsen over time. 
+A: The health risk reductions shown on the y-axis are presented as relative to the baseline year of 2012. Deaths indicate expected mortality. DALYs indicate expected disability adjusted life-years, which is a measure of disease burden. Physical Activity Data show minutes per week per capita walking or biking. Positive values indicate reductions in health burdens relative to the base year, while negative values indicate that health conditions worsen over time. 
 
-Total values indicate the total impact to a population or geographic area. Normalized values are age-standardized per capita results; these allow for a comparison of risks faced by individuals of different race/ethnicity or income or living in different geographic areas. In other words, normalized values provide an indication of the changes in risks faced by the average resident of each community whereas the total values reflect the changes in impact to each community as a whole (which depends on the average risk to each resident and the total population and its distribution of ages and genders).
+Total values indicate the total impact to a population or geographic area. Standardized values by age and population allow for a comparison of risks faced by individuals in different race/ethnicity or income groups or those living in different geographic areas. In other words, standardized values provide an indication of the changes in risks faced by the average resident of each community whereas the total values reflect the changes in impact to each community as a whole (which depends on the average risk to each resident and the total population and its distribution of ages and genders).
 
-For example, suppose that community A’s residents are all in their twenties and community B’s residents are all in their sixties and both communities have the same baseline travel behavior and experience identical travel behavior changes. The change in total deaths will be greater in community B while the change in normalized deaths will be the same in both communities. Similarly, if community C has a population of 10 and community D has a population of 100,000 (and they have the same baseline and change in travel behavior) then the change in total deaths will be greater in community D while the change in normalized deaths will be the same in both communities. Thus, normalized estimates facilitate comparisons of the change in risk across communities holding their population size and age-gender distributions constant.
+For example, suppose that community A’s residents are all in their twenties and community B’s residents are all in their sixties and both communities have the same baseline travel behavior and experience identical travel behavior changes. The change in total deaths will be greater in community B while the change in standardized deaths will be the same in both communities. Similarly, if community C has a population of 10 and community D has a population of 100,000 (and they have the same baseline and change in travel behavior) then the change in total deaths will be greater in community D while the change in standardized deaths will be the same in both communities. Thus, standardized estimates facilitate comparisons of the change in risk across communities holding their population size and age-gender distributions constant.
 
 ##### **6. What else is in the works?** {#q6}
 
