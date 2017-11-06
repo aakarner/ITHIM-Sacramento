@@ -1,7 +1,18 @@
+# This file is part of ITHIM Sacramento.
 
+# File: 01_Functions_PA.R
+# Purpose: Functions for calculating the estimated change of health burden related to physical activity
 
+# Structure:
+# Part 1: Function Definition - Data Inputs
+# Part 2: Function Definition - Data Process (GBD + Total Exposure + Relative Risk)
+# Part 3: Function Definition - Computing Health Burden
+# Part 4: Function Definition - Output (ggplot)
+# Part 5: Read external data sources and define parameter
+# Part 6: Computation for ggplot
 
-###################### Function Definition ##############################
+###################### Part 1 Function Definition - Data Inputs ##############################
+
 # function for reading .csv files by countyID
 read.csv.files <- function(countyID){
   
@@ -157,6 +168,8 @@ InputPara <- function (Pop_Input,nonTravelMET_Input,gbd_Input){
   )
   )
 }
+
+###################### Part 2 Function Definition - Data Process ##############################
 
 # function for creating total exposure matrix 
 TotalExposure <- function(PopMeanWalkTime, PopMeanCycleTime, AT_Input, PopProp, nonTravelMET){
@@ -343,6 +356,8 @@ List_LocalGBD <- function(InputPara){
     LocalGBD_List_byDemo=LocalGBD_List_byDemo)
   
 }
+
+###################### Part 3 Function Definition - Computing Health Burden ##############################
 
 #functions for computing health outcome
 computeHealthOutcome <- function (RR.PA,BaselineTotalExpo,ScenarioTotalExpo,gbd.local){
@@ -701,7 +716,6 @@ computeAgeStdOutput <- function(All.InputPara_byDemo,HealthOutcome_byDemo){
   ))
 }
 
-
 computeAgeStdOutput.twoRaces <- function(All.InputPara_byDemo,HealthOutcome_byDemo){
   
   # input the US population as the reference
@@ -733,7 +747,6 @@ computeAgeStdOutput.twoRaces <- function(All.InputPara_byDemo,HealthOutcome_byDe
     age.std.DALYs.twoRaces = age.std.DALYs.twoRaces
   ))
 }
-
 
 #output the age.std health outcome
 AgeStdHealthOutcome <- function(countyID) {
@@ -945,6 +958,8 @@ AgeStdHealthOutcome.twoRaces <- function(countyID){
     
   ))
 }
+
+###################### Part 4 Function Definition - Output (ggplot) ##############################
 
 # shape the outcomes for ggplot
 # race: demogrID = 1; income: demogrID=2
@@ -1322,7 +1337,7 @@ write.csv.func <- function(HealthOutcome){
   return(temp)
 }
 
-###################### Input Parameter ##############################
+###################### Part 5 Read external data sources and define parameter ##############################
 
 # Number of age & demographic categories
 nAgeClass <- 8L
@@ -1409,40 +1424,16 @@ AT.file.C3.byIncome <- read.csv("01_Data/02_ActiveTransport/10_ActiveTransport_C
 AT_Pop_MeanTimebyRace.C3 <- read.csv("01_Data/02_ActiveTransport/10_ActiveTransport_C3_EA/03_PopulationMeanATTimebyRace.C3.csv")
 AT_Pop_MeanTimebyIncome.C3 <- read.csv("01_Data/02_ActiveTransport/10_ActiveTransport_C3_EA/04_PopulationMeanATTimebyIncome.C3.csv")
 
-#AT_Pop_MeanTimebyRace <- read.csv("02_ActiveTransport/test/PopulationMeanATTimebyRace.csv")
-#AT_Pop_MeanTimebyIncome <- read.csv("02_ActiveTransport/test/PopulationMeanATTimebyIncome.csv")
-
 # input the matrix of Non-travel METs 
 # source: CHIS2005 (Per capita weekly non-travel related physical activity expressed as metabolic equivalent tasks (kcal/kg body weight/hr of activity))
 nonTravelMET_Input_byRace <- read.csv("01_Data/03_nonTravelMET/01_nonTravelMET_byRace.csv")
 nonTravelMET_Input_byIncome <- read.csv("01_Data/03_nonTravelMET/02_nonTravelMET_byIncome.csv")
 
-###################### Calculation ##############################
+###################### Part 6 Computation for ggplot ##############################
 
-# #output as .csv file
-# write.csv(cbind(write.csv.func(HealthOutcome_byRace.2020),c('NHW',rep('',18),'NHB',rep('',18),'NHO',rep('',18),'HO',rep('',18))),
-#           file = '00_HealthOutcome/YUB.healthoutcome.byRace.2020.csv')
-# write.csv(cbind(write.csv.func(HealthOutcome_byRace.2036),c('NHW',rep('',18),'NHB',rep('',18),'NHO',rep('',18),'HO',rep('',18))),
-#           file = '00_HealthOutcome/YUB.healthoutcome.byRace.2036.csv')
-# write.csv(cbind(write.csv.func(HealthOutcome_byIncome.2020),c('catQ1',rep('',18),'catQ2',rep('',18),'catQ3',rep('',18),'catQ4',rep('',18))),
-#           file = '00_HealthOutcome/YUB.healthoutcome.byIncome.2020.csv')
-# write.csv(cbind(write.csv.func(HealthOutcome_byIncome.2036),c('catQ1',rep('',18),'catQ2',rep('',18),'catQ3',rep('',18),'catQ4',rep('',18))),
-#           file = '00_HealthOutcome/YUB.healthoutcome.byIncome.2036.csv')
-
-# countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
 # compute the raw total reduction of health burdens
 RawReductionOutcome <- Reduction.output(c(1:6))
 # compute the age.std reduction of health burdens
 AgeStdReductionOutcome <- AgeStdHealthOutcome(c(1:6))
 # compute the age.std reduction of health burdens for two races
 AgeStdReductionOutcome.twoRaces <- AgeStdHealthOutcome.twoRaces(c(1:6))
-
-
-############################# Plots ############################################
-
-#countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
-#dbID: 1-death,2-DALYs
-#typeID: 1-raw,2-age.std,3-physical activity
-#demogrID: 1-race,2-income
-#barID: 1- future years,2-scenarios,3-customized
-plot.shiny.app.PA(countyID = 1,dbID = 1, typeID = 2, demogrID = 1,barID = 1)
