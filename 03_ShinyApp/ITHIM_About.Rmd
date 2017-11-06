@@ -1,0 +1,119 @@
+### About:
+
+This site is an application of the [Integrated Transport and Health Impact Model (ITHIM)](http://www.cedar.iph.cam.ac.uk/research/modelling/ithim/) created at the [UK Center for Diet and Activity Research](http://www.cedar.iph.cam.ac.uk/) and subsequently applied in California by Dr. Neil Maizlish. The ITHIM-Sacramento equity analysis tool combines the region’s population and its baseline health, injury, and physical activity rates with research-based relationships about the risks and benefits of changes in how much people walk, bike, take transit, and drive to estimate the health effects of future regional transportation planning scenarios. 
+
+This ITHIM-Sacramento equity analysis tool website:
+
+1. Presents the health effects of different regional planning scenarios due to changes in physical activity and injury risk
+2. Presents these effects for different counties and race/ethnicity and income groups</li>
+
+For more information about the project background, analysis methods and results, and model source code and data, please refer to the [ITHIM-Sacramento GitHub repository](https://github.com/aakarner/ITHIM-Sacramento)
+
+This project was funded by a grant from the National Center for Sustainable Transportation (NCST), supported by USDOT and Caltrans through the University Transportation Centers program. 
+
+The project team includes:   
+
+- Yizheng Wu, University of California, Davis
+- Dana Rowangould, Sustainable Systems Research, LLC
+- Alex Karner, The University of Texas at Austin
+- Ofurhe Igbinedion, University of California, Davis
+- Jonathan London, University of California, Davis
+
+
+### Frequently Asked Questions:
+
+1. [How can I view the estimated health impacts of the regional transportation plan?](#q1)
+2. [What is shown in the Simple Aggregated Plot tab?](#q2)
+3. [What is shown in the Advanced Plots tab?](#q3)
+4. [What scenarios and years are shown?](#q4)
+5. [What are the health risk values shown?](#q5)
+6. [What else is in the works?](#q6)
+7. [Where can I find the source code, information about the methods used to estimate impacts, the project report, and webinar materials?](#q7)
+8. [Who can I contact with other questions?](#q8)
+
+##### **1. How can I view the estimated health impacts of the regional transportation plan?** {#q1}
+
+A: The simple and advanced plot tabs at the top of this page allow you to view the estimated health impacts of the SACOG 2016 Metropolitan Transportation Plan/Sustainable Communities Strategy (2016 MTP/SCS).
+
+##### **2. What is shown in the Simple Aggregated Plot tab?** {#q2}
+
+A: The Simple Aggregated Plots tab shows estimated health impacts due to physical activity and injury effects for the entire population of the Sacramento region (including all six SACOG counties). You can tailor the outputs by scenario and units shown:
+
+  * Scenario:
+      + 2016 MTP/SCS Adopted Plan in Future Years: This shows the 2016 adopted plan modeled in three future years.        Results are shown relative to the 2012 baseline.
+      + Planning Scenarios in 2036: This shows three alternative scenario outcomes modeled in 2036. Scenario 2 is         the preferred scenario and is similar to the adopted plan. When compared with S2, S1 has lower density            housing and is car-oriented while S3 has higher density housing and is more multi-modal oriented. Results are       shown relative to the 2012 baseline.
+
+  * Units shown:
+    + Deaths indicate expected mortality.
+    +	DALYs indicate expected disability-adjusted life years, which is a measure of disease burden.
+    + Total values indicate the total impact to a population or geographic area. 
+    +	Standardized values by age and population allow for a comparison of risks experienced by individuals in different race/ethnicity or income groups or those living in different geographic areas.
+    +	Physical Activity Data show minutes per week per capita walking or biking.
+
+##### **3. What is shown in the Advanced Plots tab?** {#q3}
+
+A: The Advanced Plots tab shows estimated health impacts for several subpopulations in the region (broken out by race/ethnicity, income, county) and also allows the user to view health impacts by physical activity, injury, or both. You can tailor the outputs by the geographic area, scenario, demographic group, outcome, and units shown:
+
+  * Geographic Area:
+    + Option of six counties or “all” which shows all six counties.
+
+  * Scenario:
+      + 2016 MTP/SCS Adopted Plan in Future Years: This shows the 2016 adopted plan modeled in three future years.        Results are shown relative to the 2012 baseline.
+      + Planning Scenarios in 2036: This shows three alternative scenario outcomes modeled in 2036. Scenario 2 is         the preferred scenario and is similar to the adopted plan. When compared with S2, S1 has lower density            housing and is car-oriented while S3 has higher density housing and is more multi-modal oriented. Results are       shown relative to the 2012 baseline.
+  * Demographic Group:
+    1. Race/Ethnicity:
+      - For “physical activity” outcomes this includes four categories. “White” is non-Hispanic White, “Black” is non-Hispanic Black, “Other” is non-Hispanic Other, “Hispanic” is Hispanic of all races.
+      - For “traffic injury” and “both” outcomes this includes two categories. “White” is non-Hispanic White, “People of color” is all other races (Hispanic and non-Hispanic) plus Hispanic White.
+    2. Income:
+      - Only available for “physical activity” outcomes.  Four region-specific quantiles are shown: Quant 1 is <$32,000/yr, Quant 2 is $32,000 - $62,090/yr, Quant 3 is $62,090 - 105,000/yr, and Quant 4 is >$105,000/yr
+  * Outcome:
+    + Physical Activity
+    + Traffic Injury
+    + Both: Includes both Physical Activity and Traffic Injury
+  * Units shown:
+    +	Deaths indicate expected mortality.
+    +	DALYs indicate expected disability-adjusted life years, which is a measure of disease burden.
+    + Total values indicate the total impact to a population or geographic area. 
+    + Standardized values are adjusted and presented to allow allow for a comparison of risks experienced by individuals of different race/ethnicity or income groups or those living in different geographic areas.
+    + Physical Activity Data show minutes per week per capita walking or biking. Only available for “physical activity” outcomes.
+    
+##### **4. What scenarios and years are shown?** {#q4}
+
+A: Outputs shown are estimates of health effects of the adopted SACOG 2016 MTP/SCS. The Simple and Advanced tabs both allow you to specify two types of scenario outputs.  Selecting “2016 MTP/SCS Adopted Plan in Future Years” shows the adopted plan in 2020, 2027, and 2036 (relative to the 2012 baseline).  Selecting “Planning Scenarios in 2036” shows three alternative scenario outcomes modeled in 2036. Scenario 2 is the preferred scenario and is similar to the adopted plan. When compared with S2, S1 has lower density housing and is car-oriented while S3 has higher density housing and is more multi-modal oriented. Results are shown relative to the 2012 baseline. More detail about the scenarios is available in the [SACOG 2016 MTP/SCS Appendix G-1] (https://www.sacog.org/sites/main/files/file-attachments/appendix_g-1_frameworks_for_the_mtpscs_update.pdf).
+
+##### **5. What are the health risk values shown?** {#q5}
+
+A: The health risk reductions shown on the y-axis are presented as relative to the baseline year of 2012. Deaths indicate expected mortality. DALYs indicate expected disability adjusted life-years, which is a measure of disease burden. Physical Activity Data show minutes per week per capita walking or biking. Positive values indicate reductions in health burdens relative to the base year, while negative values indicate that health conditions worsen over time. 
+
+Total values indicate the total impact to a population or geographic area. Standardized values by age and population allow for a comparison of risks faced by individuals in different race/ethnicity or income groups or those living in different geographic areas. In other words, standardized values provide an indication of the changes in risks faced by the average resident of each community whereas the total values reflect the changes in impact to each community as a whole (which depends on the average risk to each resident and the total population and its distribution of ages and genders).
+
+For example, suppose that community A’s residents are all in their twenties and community B’s residents are all in their sixties and both communities have the same baseline travel behavior and experience identical travel behavior changes. The change in total deaths will be greater in community B while the change in standardized deaths will be the same in both communities. Similarly, if community C has a population of 10 and community D has a population of 100,000 (and they have the same baseline and change in travel behavior) then the change in total deaths will be greater in community D while the change in standardized deaths will be the same in both communities. Thus, standardized estimates facilitate comparisons of the change in risk across communities holding their population size and age-gender distributions constant.
+
+##### **6. What else is in the works?** {#q6}
+
+A: Phase II of this work (underway in 2017-2018) will include the capability to 1) enter user-defined scenario data (based on outputs from the regional travel demand model or modifications to the scenarios shown here) and 2) evaluate health outcomes at smaller (sub-county) geographic areas.
+
+##### **7. Where can I find the source code, information about the methods used to estimate impacts, the project report, and webinar materials?** {#q7}
+
+A: All source code and model documentation (including the project report and webinar materials) are available at the [ITHIM-Sacramento GitHub repository](https://github.com/aakarner/ITHIM-Sacramento).
+
+##### **8.	Who can I contact with other questions?** {#q8}
+
+A: Please contact Dr. Alex Karner (alex <dot> karner <at> utexas <dot> edu).
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
