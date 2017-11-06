@@ -1,3 +1,11 @@
+# This file is part of ITHIM Sacramento.
+
+# File: 03_Functions_Integration.R
+# Purpose: Functions for combining two types of health outcomes from physical activity and traffic injury
+
+# Two functions included: one for 'Advanced Plots' panel, and the other for 'Simple Aggregated Plots' panel
+
+###################### Function 1 Outputs for 'Advanced Plots' panel  ##############################
 integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
   if (outcomeID == 1){ #PA
     if (yaxisID == 1){ # death total
@@ -429,6 +437,7 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
   }
 }
 
+###################### Function 2 Outputs for 'Simple Aggregated Plots' panel ##############################
 aggr.outcome.shiny.app <- function(barID,yaxisID){
   
   #TEST
