@@ -1,6 +1,0 @@
-06_PersonVehicleDistance/ELD_PersonVehicleDistance.csv
-06_PersonVehicleDistance/PLA_PersonVehicleDistance.csv
-06_PersonVehicleDistance/SAC_PersonVehicleDistance.csv
-06_PersonVehicleDistance/SUT_PersonVehicleDistance.csv
-06_PersonVehicleDistance/YOL_PersonVehicleDistance.csv
-06_PersonVehicleDistance/YUB_PersonVehicleDistance.csv

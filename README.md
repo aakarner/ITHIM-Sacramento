@@ -8,11 +8,13 @@ Additional information regarding how the code can be used is available in the [d
 
 ### Core functions ###
 
-Physical activity module: ***/00_R Scripts/EquityAnalysis_ITHIM_PA.R***
+Physical activity module: ***/03_ShinyApp/02_R Scripts/01_Functions_PA.R***
 
-Traffic injury module: ***/00_R Scripts/EquityAnalysis_ITHIM_Injuries_TwoRaces.R***
+Traffic injury module: ***/03_ShinyApp/02_R Scripts/02_Functions_RI.R***
 
-Shiny app: ***/01_Data/06_EquityAnalysis/App.R***
+Integration of two modules: ***/03_ShinyApp/02_R Scripts/03_Functions_Integration.R***
+
+Shiny app: ***/03_ShinyApp/App.R***
 
 ### Data preparation ###
 
@@ -30,17 +32,17 @@ Shiny app: ***/01_Data/06_EquityAnalysis/App.R***
 
 For a future update, the user is required to update the data files in the following folders:
 
-1. Population: ***01_Data/06_Equity Analysis/01_Population/***
+1. Population: ***03_ShinyApp/01_Data/01_Population/***
 
-2. Active Transport: ***01_Data/06_Equity Analysis/02_ActiveTransport/*** (Processed by the script ***DataProcess_CustomizeSACSIM.R***)
+2. Active Transport: ***03_ShinyApp/01_Data/02_ActiveTransport/*** (Processed by the script ***DataProcess_CustomizeSACSIM.R***)
 
-3. non Travel MET: ***01_Data/06_Equity Analysis/03_nonTravelMET/*** (Processed by the script ***DataProcess_CHIS.R***)
+3. non Travel MET: ***03_ShinyApp/01_Data/03_nonTravelMET/*** (Processed by the script ***DataProcess_CHIS.R***)
 
-4. Global Burden of Disease ([GBD](http://www.healthdata.org/gbd)): ***01_Data/06_Equity Analysis/04_GBD/*** (Processed by the script ***DataProcess_CDPH.R***)
+4. Global Burden of Disease ([GBD](http://www.healthdata.org/gbd)): ***03_ShinyApp/01_Data/04_GBD/*** (Processed by the script ***DataProcess_CDPH.R***)
 
-5. Baseline injury: ***01_Data/06_Equity Analysis/05_baseline injury/*** (Processed by the script ***DataProcess_SWITRS.R***)
+5. Baseline injury: ***03_ShinyApp/01_Data/05_baseline injury/*** (Processed by the script ***DataProcess_SWITRS.R***)
 
-6. Travel distance by each traffic mode: ***01_Data/06_Equity Analysis/06_PersonVehicleDistance/*** (Processed by the script ***DataProcess_CustomizeSACSIM.R***)
+6. Travel distance by each traffic mode: ***03_ShinyApp/01_Data/06_PersonVehicleDistance/*** (Processed by the script ***DataProcess_CustomizeSACSIM.R***)
 
 
 
