@@ -18,15 +18,15 @@ Shiny app: ***/03_ShinyApp/App.R***
 
 ### Data preparation ###
 
-1. California Department of Public Health ([CDPH](http://https://www.cdph.ca.gov/Programs/CHSI/Pages/Data-and-Statistics-.aspx)) Statistic Vitals: ***/00_R scripts/Data Process/DataProcess_CDPH.R***
+1. California Department of Public Health ([CDPH](http://https://www.cdph.ca.gov/Programs/CHSI/Pages/Data-and-Statistics-.aspx)) Statistic Vitals: ***/00_R scripts_Data Process/Data Process/DataProcess_CDPH.R***
 
-2. California Health Interview Survey ([CHIS](http://http://healthpolicy.ucla.edu/chis/Pages/default.aspx)): ***/00_R scripts/Data Process/DataProcess_CHIS.R***
+2. California Health Interview Survey ([CHIS](http://http://healthpolicy.ucla.edu/chis/Pages/default.aspx)): ***/00_R scripts_Data Process/Data Process/DataProcess_CHIS.R***
 
-3. Hot Deck Imputation of CDPH and SACSIM based on [PUMS](https://www.census.gov/programs-surveys/acs/data/pums.html): ***/00_R scripts/Data Process/DataProcess_PUMS.R***
+3. Hot Deck Imputation of CDPH and SACSIM based on [PUMS](https://www.census.gov/programs-surveys/acs/data/pums.html): ***/00_R scripts_Data Process/Data Process/DataProcess_PUMS.R***
 
-4. Process output from [SACSIM](http://www.sacog.org/sites/main/files/file-attachments/plnrscmte_sacog_travel_model_wkshp_27mar2014.pdf): ***/00_R scripts/Data Process/DataProcess_CustomizeSACSIM.R***
+4. Process output from [SACSIM](http://www.sacog.org/sites/main/files/file-attachments/plnrscmte_sacog_travel_model_wkshp_27mar2014.pdf): ***/00_R scripts_Data Process/Data Process/DataProcess_CustomizeSACSIM.R***
 
-5. Internet Statewide Integrated Traffic Records System ([SWITRS](https://www.chp.ca.gov/programs-services/services-information/switrs-internet-statewide-integrated-traffic-records-system)): ***/00_R scripts/Data Process/DataProcess_SWITRS.R***
+5. Internet Statewide Integrated Traffic Records System ([SWITRS](https://www.chp.ca.gov/programs-services/services-information/switrs-internet-statewide-integrated-traffic-records-system)): ***/00_R scripts_Data Process/Data Process/DataProcess_SWITRS.R***
 
 ## Data for a future update ##
 
