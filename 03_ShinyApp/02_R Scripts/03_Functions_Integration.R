@@ -18,17 +18,12 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
       plot.shiny.app.PA(countyID = countyID,dbID = 2,typeID = 2,demogrID = demogrID,barID = barID)
     }else if (yaxisID == 5) {
       plot.shiny.app.PA(countyID = countyID,dbID = 1,typeID = 3,demogrID = demogrID,barID = barID)
-    }else{
-      message('wrong input')
     }
     
   }else if (outcomeID == 2){ #injury
     if (yaxisID %in% (1:4)){
       plot.shiny.app.injury(countyID = countyID,barID = barID,yaxisID = yaxisID)
-    }else{
-      message('wrong input')
     }
-    
     
   }else if (outcomeID == 3) { # both
     if (countyID %in% (1:6)) {
@@ -36,11 +31,9 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
       value <- NULL
       
       if (yaxisID == 1) { #total deaths
-        #test
-        #countyID=1
-        #barID = 1
         
         df.result.PA <- DFforFigure(RawReductionOutcome[c((1*18+1*9-26):(1*18+1*9-18))],1,countyID,barID)
+        
         df.result.PA.aggr.white <- df.result.PA[c(1,5,9),]
         for (i in 1:3) {
           value[i] <- sum(df.result.PA[((4*i-2):(4*i)),3])
@@ -49,52 +42,11 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
         
         df.result.PA.aggr <- rbind(df.result.PA.aggr.white,df.result.PA.aggr.other)
         df.result.PA.aggr <- df.result.PA.aggr[order(df.result.PA.aggr$Scenario),]
-        df.result.PA.aggr$type <- 'a.physical activity'
         
         df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 1)
         df.result.injury <- df.result.injury$df.fatality
-        df.result.injury$type <- 'b.traffic injury'
-        
-        df.result.integration.temp <- df.result.PA.aggr[,1:2]
-        df.result.integration.temp$V1 <- df.result.PA.aggr$V1+df.result.injury$V1
-        df.result.integration.temp$type <- 'c. both'
-        
-        df.result.integration <- rbind(df.result.PA.aggr,df.result.injury,df.result.integration.temp)
-        
-        plot.title <- paste0(countyNames[countyID],': Reduction in Total Deaths')
-        
-        # ggplot(data = df.result.integration,mapping = aes(x = factor(DemogrGroup), y = V1,color = factor(Scenario),shape = factor(type)))+
-        #    geom_point(stat = 'identity',size=3,position = position_dodge(0.5))+xlab(NULL)+ylab('Total Death Reduction')+
-        #    ggtitle(plot.title)
-        # 
-        # ggplot(data = df.result.integration,mapping = aes(x = factor(DemogrGroup), y = V1,color = factor(Scenario),shape = factor(type)))+
-        #   geom_point(stat = 'identity',size=3,position = position_dodge(0.5))+xlab(NULL)+ylab('Total Death Reduction')+
-        #   ggtitle(plot.title)
-        
-        # ggplot(data = df.result.integration,mapping = aes(x = factor(DemogrGroup), y = V1,color = factor(Scenario)))+
-        #   geom_dotplot(binaxis = "y",position = 'dodge',binwidth = 0.1)+xlab(NULL)+ylab('Total Death Reduction')+
-        #   ggtitle(plot.title)
-        
-        
-        ggplot(data = df.result.integration, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-          geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
-          scale_fill_brewer(palette = "Set1") + 
-          xlab(NULL) + 
-          ylab('Reduced deaths (total)') +
-          geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
-                    position = position_dodge(width = 0.5)) +
-          ggtitle(plot.title) + 
-          theme_bw(base_size = 15) +
-          theme(legend.position = "bottom",
-                plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
-          labs(caption = plot.caption.text) +
-          facet_grid(.~type, scales = "free")
-        
         
       }else if (yaxisID == 3){ #total DALYs
-        #test
-        #countyID=1
-        #barID = 1
         
         df.result.PA <- DFforFigure(RawReductionOutcome[c((1*18+2*9-26):(1*18+2*9-18))],1,countyID,barID)
         
@@ -106,130 +58,38 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
         
         df.result.PA.aggr <- rbind(df.result.PA.aggr.white,df.result.PA.aggr.other)
         df.result.PA.aggr <- df.result.PA.aggr[order(df.result.PA.aggr$Scenario),]
-        df.result.PA.aggr$type <- 'a. physical activity'
         
         df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 1)
         df.result.injury <- df.result.injury$df.DALYs
-        df.result.injury$type <- 'b. traffic injury'
         
-        df.result.integration.temp <- df.result.PA.aggr[,1:2]
-        df.result.integration.temp$V1 <- df.result.PA.aggr$V1+df.result.injury$V1
-        df.result.integration.temp$type <- 'c. both'
-        
-        df.result.integration <- rbind(df.result.PA.aggr,df.result.injury,df.result.integration.temp)
-        
-        plot.title <- paste0(countyNames[countyID],': Reduction in Total DALYs')
-        
-        ggplot(data = df.result.integration, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-          geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
-          scale_fill_brewer(palette = "Set1") + 
-          xlab(NULL) + 
-          ylab('Reduction in DALYs (total)')+
-          geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
-                    position = position_dodge(width = 0.5)) +
-          theme_bw(base_size = 15) +
-          theme(legend.position = "bottom",
-                plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
-          labs(caption = plot.caption.text) +
-          ggtitle(plot.title) +
-          facet_grid(. ~ type, scales = "free")
       }else if (yaxisID == 2) { # age.std deaths
-        #test
-        #countyID=1
-        #barID = 1
         
         df.result.PA.aggr <- DFforFigure.PA.twoRaces(AgeStdReductionOutcome.twoRaces[c((1*18+1*9-26):(1*18+1*9-18))],countyID,barID)
         
-        # df.result.PA <- DFforFigure(AgeStdReductionOutcome[c((1*18+1*9-26):(1*18+1*9-18))],1,countyID,barID)
-        # 
-        # df.result.PA.aggr.white <- df.result.PA[c(1,5,9),]
-        # for (i in 1:3) {
-        #   value[i] <- sum(df.result.PA[((4*i-2):(4*i)),3])
-        # }
-        # df.result.PA.aggr.other <- data.frame(Scenario=unique(df.result.PA[,1]),DemogrGroup=rep('2.Other',3),V1 =(value))
-        # 
-        # df.result.PA.aggr <- rbind(df.result.PA.aggr.white,df.result.PA.aggr.other)
-        # df.result.PA.aggr <- df.result.PA.aggr[order(df.result.PA.aggr$Scenario),]
-        df.result.PA.aggr$type <- 'a. physical activity'
-        
         df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 2)
         df.result.injury <- df.result.injury$df.fatality
-        df.result.injury$type <- 'b. traffic injury'
-        
-        
-        df.result.integration.temp <- df.result.PA.aggr[,1:2]
-        df.result.integration.temp$V1 <- df.result.PA.aggr$V1+df.result.injury$V1
-        df.result.integration.temp$type <- 'c. both'
-        
-        df.result.integration <- rbind(df.result.PA.aggr,df.result.injury,df.result.integration.temp)
-        
-        plot.title <- paste0(countyNames[countyID],': Reduction in Total Deaths\n',
-                             'Standardized by Age and Population')
-        
-        ggplot(data = df.result.integration, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-          geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
-          scale_fill_brewer(palette = "Set1") + 
-          xlab(NULL) + 
-          ylab('Reduction in deaths\n(per 100,000 population)') +
-          geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
-                    position = position_dodge(width = 0.5)) +
-          theme_bw(base_size = 15) +
-          theme(legend.position = "bottom",
-                plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
-          labs(caption = plot.caption.text) +
-          ggtitle(plot.title) +
-          facet_grid(.~type,scales = "free")
-        
         
       }else if (yaxisID == 4) { #age.std dalys
         
         df.result.PA.aggr <- DFforFigure.PA.twoRaces(AgeStdReductionOutcome.twoRaces[c(10:18)],countyID,barID)
         
-        # df.result.PA <- DFforFigure(AgeStdReductionOutcome[c((1*18+2*9-26):(1*18+2*9-18))],1,countyID,barID)
-        # 
-        # df.result.PA.aggr.white <- df.result.PA[c(1,5,9),]
-        # for (i in 1:3) {
-        #   value[i] <- sum(df.result.PA[((4*i-2):(4*i)),3])
-        # }
-        # df.result.PA.aggr.other <- data.frame(Scenario=unique(df.result.PA[,1]),DemogrGroup=rep('2.Other',3),V1 =(value))
-        # 
-        # df.result.PA.aggr <- rbind(df.result.PA.aggr.white,df.result.PA.aggr.other)
-        # df.result.PA.aggr <- df.result.PA.aggr[order(df.result.PA.aggr$Scenario),]
-        df.result.PA.aggr$type <- 'a. physical activity'
-        
         df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 2)
         df.result.injury <- df.result.injury$df.DALYs
-        df.result.injury$type <- 'b. traffic injury'
-        
-        plot.title <- paste0(countyNames[countyID],': Reduction in Total DALYs\n',
-                             'Standardized by Age and Population')
-        
-        df.result.integration.temp <- df.result.PA.aggr[,1:2]
-        df.result.integration.temp$V1 <- df.result.PA.aggr$V1+df.result.injury$V1
-        df.result.integration.temp$type <- 'c. both'
-        
-        df.result.integration <- rbind(df.result.PA.aggr,df.result.injury,df.result.integration.temp)
-        
-        ggplot(data = df.result.integration, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-          geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5)) +
-          scale_fill_brewer(palette = "Set1") +
-          xlab(NULL) + 
-          ylab('Reduction in DALYs\n(per 100,000 population)')+
-          geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
-                    position = position_dodge(width = 0.5)) +
-          theme_bw(base_size = 15) +
-          theme(legend.position = "bottom",
-                plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
-          labs(caption = plot.caption.text) +
-          ggtitle(plot.title) +
-          facet_grid(.~type,scales = "free")
-        
       }
-    }else if(countyID == 7){ #region wide
-      #test
-      #yaxisID=1
-      #barID=1
       
+      df.result.PA.aggr$type <- 'a. physical activity'
+      df.result.injury$type <- 'b. traffic injury'
+      
+      df.result.integration.temp <- df.result.PA.aggr[,1:2]
+      df.result.integration.temp$V1 <- df.result.PA.aggr$V1+df.result.injury$V1
+      df.result.integration.temp$type <- 'c. both'
+      
+      df.result.integration <- rbind(df.result.PA.aggr,df.result.injury,df.result.integration.temp)
+      
+      return(df.result.integration = df.result.integration)
+      
+    }else if(countyID == 7){ #region wide
+
       df.region <- NULL
       
       if (yaxisID==1){ #death total
@@ -255,32 +115,10 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
           
           df.result.integration.temp <- df.result.PA.aggr[,1:2]
           df.result.integration.temp$V1 <- df.result.PA.aggr$V1+df.result.injury$V1
-          #df.result.integration.temp$type <- 'integration'
-          
-          #df.result.integration <- rbind(df.result.PA.aggr,df.result.injury,df.result.integration.temp)
-          
+       
           df.region <- rbind(df.region,df.result.integration.temp)
           
-          
         }
-        
-        df.region$county <- rep(countyNames,each = 6)
-        
-        ggplot(data = df.region, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-          geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
-          scale_fill_brewer(palette = "Set1") + 
-          xlab(NULL) + 
-          ylab('Reduction in deaths (total)') +
-          #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
-          theme_bw(base_size = 15) +
-          theme(legend.position = "bottom",
-                plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
-          labs(caption = plot.caption.text) +
-          ggtitle("Region-Wide: Reduction in Total Deaths") +
-          facet_wrap(~ county, scales = "free")
-        
-        
-        #return(df.region = df.region)
         
       }else if (yaxisID==2){#death age.std
         
@@ -288,48 +126,17 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
           value <- NULL
           
           df.result.PA.aggr <- DFforFigure.PA.twoRaces(AgeStdReductionOutcome.twoRaces[c((1*18+1*9-26):(1*18+1*9-18))],countyID,barID)
-          
-          # df.result.PA <- DFforFigure(AgeStdReductionOutcome[c((1*18+1*9-26):(1*18+1*9-18))],1,countyID,barID)
-          # 
-          # df.result.PA.aggr.white <- df.result.PA[c(1,5,9),]
-          # for (i in 1:3) {
-          #   value[i] <- sum(df.result.PA[((4*i-2):(4*i)),3])
-          # }
-          # df.result.PA.aggr.other <- data.frame(Scenario=unique(df.result.PA[,1]),DemogrGroup=rep('2.Other',3),V1 =(value))
-          # 
-          # df.result.PA.aggr <- rbind(df.result.PA.aggr.white,df.result.PA.aggr.other)
-          # df.result.PA.aggr <- df.result.PA.aggr[order(df.result.PA.aggr$Scenario),]
           df.result.PA.aggr$type <- 'a. physical activity'
           
           df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 2)
           df.result.injury <- df.result.injury$df.fatality
           df.result.injury$type <- 'b. traffic injury'
           
-          
           df.result.integration.temp <- df.result.PA.aggr[,1:2]
           df.result.integration.temp$V1 <- df.result.PA.aggr$V1+df.result.injury$V1
-          #df.result.integration.temp$type <- 'integration'
           
           df.region <- rbind(df.region,df.result.integration.temp)
         }
-        
-        
-        df.region$county <- rep(countyNames,each = 6)
-        
-        ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-          geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
-          scale_fill_brewer(palette = "Set1") + 
-          xlab(NULL) + 
-          ylab('Reduction in deaths\n(per 100,000 population)') +
-          #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
-          theme_bw(base_size = 15) +
-          theme(legend.position = "bottom",
-                plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
-          labs(caption = plot.caption.text) +
-          ggtitle("Region-Wide: Reduction in Total Deaths\nStandardized by Age and Population") +
-          facet_wrap(~county,scales = "free")
-        
-        #return(df.region = df.region)
         
       }else if (yaxisID == 3){# total DALYs
         
@@ -355,27 +162,9 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
           
           df.result.integration.temp <- df.result.PA.aggr[,1:2]
           df.result.integration.temp$V1 <- df.result.PA.aggr$V1+df.result.injury$V1
-          #df.result.integration.temp$type <- 'integration'
           
           df.region <- rbind(df.region,df.result.integration.temp)
         }
-        
-        df.region$county <- rep(countyNames,each = 6)
-        
-        ggplot(data = df.region, mapping = aes(x = factor(DemogrGroup), y = V1,fill = Scenario)) + 
-          geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
-          scale_fill_brewer(palette = "Set1") + 
-          xlab(NULL) + 
-          ylab('Reduction in DALYs (total)')+
-          #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
-          theme_bw(base_size = 15) +
-          theme(legend.position = "bottom",
-                plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
-          labs(caption = plot.caption.text) +
-          ggtitle("Region-Wide: Reduction in Total DALYs ") +
-          facet_wrap(~ county, scales = "free") 
-        
-        #return(df.region = df.region)
         
       }else if (yaxisID == 4){#age.std DALYs
         
@@ -383,54 +172,22 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
           value <- NULL
           
           df.result.PA.aggr <- DFforFigure.PA.twoRaces(AgeStdReductionOutcome.twoRaces[c(10:18)],countyID,barID)
-          
-          
-          # df.result.PA <- DFforFigure(AgeStdReductionOutcome[c((1*18+2*9-26):(1*18+2*9-18))],1,countyID,barID)
-          # 
-          # df.result.PA.aggr.white <- df.result.PA[c(1,5,9),]
-          # for (i in 1:3) {
-          #   value[i] <- sum(df.result.PA[((4*i-2):(4*i)),3])
-          # }
-          # df.result.PA.aggr.other <- data.frame(Scenario=unique(df.result.PA[,1]),DemogrGroup=rep('2.Other',3),V1 =(value))
-          # 
-          # df.result.PA.aggr <- rbind(df.result.PA.aggr.white,df.result.PA.aggr.other)
-          # df.result.PA.aggr <- df.result.PA.aggr[order(df.result.PA.aggr$Scenario),]
           df.result.PA.aggr$type <- 'a. physical activity'
           
           df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 2)
           df.result.injury <- df.result.injury$df.DALYs
           df.result.injury$type <- 'b. traffic injury'
           
-          #plot.title <- paste0(countyNames[countyID],': Age-Standardized Reduction in Total DALYs')
-          
           df.result.integration.temp <- df.result.PA.aggr[,1:2]
           df.result.integration.temp$V1 <- df.result.PA.aggr$V1+df.result.injury$V1
           
           df.region <- rbind(df.region,df.result.integration.temp)
         }
-        
-        df.region$county <- rep(countyNames,each = 6)
-        
-        ggplot(data = df.region, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-          geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
-          scale_fill_brewer(palette = "Set1") +
-          xlab(NULL) +
-          ylab('DALYs reduction rate\n(per 100,000 population)') +
-          #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
-          theme_bw(base_size = 15) +
-          theme(legend.position = "bottom",
-                plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
-          labs(caption = plot.caption.text) +
-          ggtitle("Region-Wide: Reduction in Total DALYs\nStandardized by Age and Population") +
-          facet_wrap(~ county, scales = "free") 
-        
-        
-        #return(df.region = df.region)
-        
-      }else{
-        message('wrong input')
       }
       
+      df.region$county <- rep(countyNames,each = 6)
+      
+      return(df.region = df.region)
       
     }
     
@@ -948,3 +705,108 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
   }
   
 }
+
+
+plot.advanced.panel<- function(countyID,barID,outcomeID,demogrID,yaxisID){
+  if (outcomeID == 1){
+    
+    message('under construction')
+    
+  }else if (outcomeID == 2){
+    
+    message('under construction')
+    
+  }else if (outcomeID == 3){
+    
+    if (countyID %in% c(1:6)){
+      
+      if (yaxisID == 1){
+        
+        plot.title <- paste0(countyNames[countyID],': Reduction in Total Deaths')
+        ylabel <- 'Reduced deaths (total)'
+        
+      }else if (yaxisID == 2){
+        
+        plot.title <- paste0(countyNames[countyID],': Reduction in Total Deaths\n',
+                             'Standardized by Age and Population')
+        ylabel <- 'Reduction in deaths\n(per 100,000 population)'
+        
+        
+      }else if (yaxisID == 3){
+        
+        plot.title <- paste0(countyNames[countyID],': Reduction in Total DALYs')
+        ylabel <- 'Reduction in DALYs (total)'
+        
+      }else if (yaxisID == 4){
+        
+        plot.title <- paste0(countyNames[countyID],': Reduction in Total DALYs\n',
+                             'Standardized by Age and Population')
+        ylabel <- 'Reduction in DALYs\n(per 100,000 population)'
+          
+      }
+      
+      df.result.integration <- integrated.shiny.app(countyID,barID,outcomeID,demogrID,yaxisID)
+      
+      ggplot(data = df.result.integration, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
+        geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
+        scale_fill_brewer(palette = "Set1") + 
+        xlab(NULL) + 
+        ylab(ylabel) +
+        geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
+                  position = position_dodge(width = 0.5)) +
+        ggtitle(plot.title) + 
+        theme_bw(base_size = 15) +
+        theme(legend.position = "bottom",
+              plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
+        labs(caption = plot.caption.text) +
+        facet_grid(.~type, scales = "free")
+      
+    }else if (countyID == 7){
+      
+      if (yaxisID == 1){
+        
+        plot.title <- 'Region-Wide: Reduction in Total Deaths'
+        ylabel <- 'Reduction in deaths (total)'
+        
+      }else if (yaxisID == 2){
+        
+        plot.title <- 'Region-Wide: Reduction in Total Deaths\nStandardized by Age and Population'
+        ylabel <- 'Reduction in deaths\n(per 100,000 population)'
+        
+      }else if (yaxisID ==3 ){
+        
+        plot.title <- 'Region-Wide: Reduction in Total DALYs'
+        ylabel <- 'Reduction in DALYs (total)'
+        
+      }else if (yaxisID == 4){
+        
+        plot.title <- 'Region-Wide: Reduction in Total DALYs\nStandardized by Age and Population'
+        ylabel <- 'DALYs reduction rate\n(per 100,000 population)'
+        
+      }
+      
+      df.region <- integrated.shiny.app(countyID,barID,outcomeID,demogrID,yaxisID)
+      
+      ggplot(data = df.region, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
+        geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
+        scale_fill_brewer(palette = "Set1") + 
+        xlab(NULL) + 
+        ylab(ylabel) +
+        theme_bw(base_size = 15) +
+        theme(legend.position = "bottom",
+              plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
+        labs(caption = plot.caption.text) +
+        ggtitle(plot.title) +
+        facet_wrap(~ county, scales = "free")
+    }
+    
+  }
+}
+
+plot.advanced.panel(2,1,3,1,1)
+
+
+
+
+
+

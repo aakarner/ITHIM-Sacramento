@@ -1176,13 +1176,7 @@ DFforPhysicalActivity <- function(barID,countyID,demogrID){
 #demogrID: 1-race,2-income
 #barID: 1-future years, 2-scenarios
 plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
-  # #test
-  # demogrID = 1
-  # countyID = 1
-  # dbID = 1
-  # barID=1
-  # df.result <- df
-  
+
   if(typeID == 1){
     
     if (countyID %in% c(1:6)){
