@@ -7,6 +7,19 @@ source("02_R Scripts/02_Functions_RI.R")
 
 source("02_R Scripts/03_Functions_Integration.R")
 
+###################### ITHIM application for Equity Analysis - Web Interface - Shiny App - Server/UI ######################
+# app.R has 2 main components, UI and Server.
+# User Interface (UI)
+#     -About Page
+#     -Simple Aggregated Plots Page
+#     -Advanced Plots Page
+#     -Custom Scenarios Page
+# Server Function
+#     -Simple Plot
+#     -Advanced Plot
+#     -Customizable Plot
+# App Function
+
 # User Interface ============================================================================================================
 # Uses fluidPage and navbar for Layout
 ui <- fluidPage(
