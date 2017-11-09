@@ -386,10 +386,6 @@ computeAgeStdOutput.injury <- function(scenario,countyID){
 # barID: 1-future years,2-Scenarios,3-customized
 # typeID: 1-raw,2-age.std
 DFforFigure.injury <- function(barID,countyID,typeID){
-  #test
-  #barID = 1
-  #countyID = 2
-  #typeID = 1
   
   reduction.fatality.value <- reduction.DALYs.value <-matrix(NA,6,1)
   
@@ -467,138 +463,85 @@ DFforFigure.injury <- function(barID,countyID,typeID){
 # yaxisID: 1-Death total; 2-Death age.std; 3-serious injury total; 4-serious injury age.std
 # typeID : 1-raw,2-age.std
 plot.shiny.app.injury <- function(countyID, barID, yaxisID){
-  #test
-  #countyID = 1
-  #barID = 1
-  #yaxisID = 1
   
-  if (yaxisID == 1){ #death total
+  if (countyID %in% c(1:6)) {
     
-    
-    if (countyID %in% (1:6)){ # for county
+    if (yaxisID == 1){
+      
       df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 1)
+      df.plot <- df.result.injury$df.fatality
       
       plot.title <- paste0(countyNames[countyID],': Reduction in Total Deaths from\n Traffic Injury Module')
+      ylabel <- 'Reduction in deaths (total)'
+
+    }else if (yaxisID == 2){
       
-      ggplot(data = df.result.injury$df.fatality, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-        geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
-        scale_fill_brewer(palette = "Set1") + 
-        xlab(NULL) + 
-        ylab('Reduction in deaths (total)') +
-        geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
-                  position = position_dodge(width = 0.5)) +
-        theme_bw(base_size = 15) +
-        theme(legend.position = "bottom",
-              plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
-        labs(caption = paste("Planning scenarios and future years are shown relative to ", 
-                             "the baseline year 2012.")) +
-        ggtitle(plot.title)
-      
-    }else if (countyID == 7){ #for region wide
-      
-      df.region <- NULL
-      
-      for (i in 1:6){
-        df.temp <- DFforFigure.injury(barID = barID,i,typeID = 1)
-        
-        df.region <- rbind(df.region,df.temp$df.fatality)
-        
-      }
-      df.region$county <- rep(countyNames,each = 6)
-      plot.title <- paste0('Region Wide: Reduction in Total Deaths from\n Traffic Injury Module')
-      
-      ggplot(data = df.region, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-        geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
-        scale_fill_brewer(palette = "Set1") + 
-        xlab(NULL) + 
-        ylab('Reduction in deaths (total)') +
-        #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
-        theme_bw(base_size = 15) +
-        theme(legend.position = "bottom",
-              plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
-        labs(caption = paste("Planning scenarios and future years are shown relative to ", 
-                             "the baseline year 2012.")) +
-        ggtitle(plot.title) +
-        facet_wrap(~county)
-      
-      
-    }
-    
-    
-  }else if (yaxisID == 2){ # death age.std
-    
-    if (countyID %in% c(1:6)){ # for county
       df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 2)
+      df.plot <- df.result.injury$df.fatality
       
       plot.title <- paste0(countyNames[countyID],': Total Deaths from\n Traffic Injury Module',
                            'Standardized by Age and Population')
+      ylabel <- 'Reduction in deaths\n(per 100,000 population)'
       
-      ggplot(data = df.result.injury$df.fatality, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-        geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
-        scale_fill_brewer(palette = "Set1") + 
-        xlab(NULL) + 
-        ylab('Reduction in deaths\n(per 100,000 population)') +
-        geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
-                  position = position_dodge(width = 0.5)) +
-        theme_bw(base_size = 15) +
-        theme(legend.position = "bottom",
-              plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
-        labs(caption = paste("Planning scenarios and future years are shown relative to ",
-                             "the baseline year 2012.")) + 
-        ggtitle(plot.title)
+    }else if (yaxisID == 3){
       
-    }else if (countyID==7){ # for region wide
-      df.region <- NULL
+      df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 1)
+      df.plot <- df.result.injury$df.DALYs
+      
+      plot.title <- paste0(countyNames[countyID],': Reduction in Total DALYs from Traffic Injury Module')
+      ylabel <- 'Reduction in DALYs (total)'
+      
+    }else if (yaxisID == 4){
+      
+      df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 2)
+      df.plot <- df.result.injury$df.DALYs
+      
+      plot.title <- paste0(countyNames[countyID],': Total DALYs from Traffic Injury Module\n',
+                           'Standardized by Age and Population')
+      ylabel <- 'Reduction in DALYs\n(per 100,000 population)'
+
+    }
+    
+    ggplot(data = df.plot, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
+      geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
+      scale_fill_brewer(palette = "Set1") + 
+      xlab(NULL) + 
+      ylab(ylabel) +
+      geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
+                position = position_dodge(width = 0.5)) +
+      theme_bw(base_size = 15) +
+      theme(legend.position = "bottom",
+            plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
+      labs(caption = paste("Planning scenarios and future years are shown relative to ",
+                                     "the baseline year 2012.")) +
+      ggtitle(plot.title)
+    
+  }else if (countyID == 7 ){
+    
+    df.region <- NULL
+    
+    if (yaxisID == 1){
+      
+      for (i in 1:6){
+        df.temp <- DFforFigure.injury(barID = barID,i,typeID = 1)
+        df.region <- rbind(df.region,df.temp$df.fatality)
+      }
+      
+      plot.title <- paste0('Region Wide: Reduction in Total Deaths from\n Traffic Injury Module')
+      ylabel <- 'Reduction in deaths (total)'
+      
+    }else if (yaxisID == 2){
       
       for (i in 1:6){
         df.temp <- DFforFigure.injury(barID = barID,i,typeID = 2)
-        
         df.region <- rbind(df.region,df.temp$df.fatality)
-        
       }
-      df.region$county <- rep(countyNames,each = 6)
+     
       plot.title <- paste0('Region Wide: Deaths from Traffic Injury Module\n',
                            'Standardized by Age and Population')
+      ylabel <- 'Reduction in deaths\n(per 100,000 population)'
       
-      ggplot(data = df.region, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-        geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
-        scale_fill_brewer(palette = "Set1") + 
-        xlab(NULL) + 
-        ylab('Reduction in deaths\n(per 100,000 population)') +
-        #geom_text(aes(label=round(V1,1)),color="black",size=3.5,vjust=-0.5,position = position_dodge(0.5))+
-        theme_bw(base_size = 15) +
-        theme(legend.position = "bottom",
-              plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
-        labs(caption = paste("Planning scenarios and future years are shown relative to ", 
-                             "the baseline year 2012.")) +
-        ggtitle(plot.title) +
-        facet_wrap(~county)
-    }
-    
-    
-  }else if (yaxisID == 3){ # DALYs total
-    
-    if (countyID%in%c(1:6)){
-      df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 1)
-      
-      plot.title <- paste0(countyNames[countyID],': Reduction in Total DALYs from Traffic Injury Module')
-      
-      ggplot(data = df.result.injury$df.DALYs, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-        geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
-        scale_fill_brewer(palette = "Set1") + 
-        xlab(NULL) + 
-        ylab('Reduction in DALYs (total)') +
-        geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
-                  position = position_dodge(width = 0.5)) +
-        theme_bw(base_size = 15) +
-        theme(legend.position = "bottom",
-              plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
-        labs(caption = paste("Planning scenarios and future years are shown relative to ", 
-                             "the baseline year 2012.")) +
-        ggtitle(plot.title)
-      
-    }else if (countyID == 7){
-      df.region <- NULL
+    }else if (yaxisID == 3){
       
       for (i in 1:6){
         df.temp <- DFforFigure.injury(barID = barID,i,typeID = 1)
@@ -606,49 +549,11 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
         df.region <- rbind(df.region,df.temp$df.DALYs)
         
       }
-      df.region$county <- rep(countyNames,each = 6)
+      
       plot.title <- paste0('Region Wide: Reduction in Total DALYs from Traffic Injury Module')
+      ylabel <- 'Reduction in DALYs (total)'
       
-      ggplot(data = df.region, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-        geom_bar(stat = 'identity',width = 0.5, position = position_dodge(0.5)) +
-        xlab(NULL) +
-        ylab('Reduction in DALYs (total)') +
-        theme_bw(base_size = 15) +
-        theme(legend.position = "bottom",
-              plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
-        labs(caption = paste("Planning scenarios and future years are shown relative to ", 
-                             "the baseline year 2012.")) +
-        ggtitle(plot.title) +
-        facet_wrap(~county) 
-      
-    }
-    
-    
-  }else if (yaxisID == 4){ # DALYs age.std
-    
-    if (countyID%in%c(1:6)){
-      df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 2)
-      
-      plot.title <- paste0(countyNames[countyID],': Total DALYs from Traffic Injury Module\n',
-                           'Standardized by Age and Population')
-      
-      ggplot(data = df.result.injury$df.DALYs, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-        geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
-        scale_fill_brewer(palette = "Set1") + 
-        xlab(NULL) + 
-        ylab('Reduction in DALYs\n(per 100,000 population)') +
-        geom_text(aes(label = round(V1, 1)), color = "black", size = 4, vjust = "inward", 
-                  position = position_dodge(width = 0.5)) +
-        theme_bw(base_size = 15) +
-        theme(legend.position = "bottom",
-              plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
-        labs(caption = paste("Planning scenarios and future years are shown relative to ", 
-                             "the baseline year 2012.")) +
-        ggtitle(plot.title)
-      
-    }else if (countyID == 7){
-      
-      df.region <- NULL
+    }else if (yaxisID == 4){
       
       for (i in 1:6){
         df.temp <- DFforFigure.injury(barID = barID,i,typeID = 2)
@@ -656,26 +561,30 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
         df.region <- rbind(df.region,df.temp$df.DALYs)
         
       }
-      df.region$county <- rep(countyNames,each = 6)
-      plot.title <- paste0('Region Wide: Age-Standardized Reduction in Total DALYs from Traffic Injury Module')
       
-      ggplot(data = df.region, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-        geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
-        scale_fill_brewer(palette = "Set1") + 
-        xlab(NULL) + 
-        ylab('Reduction in DALYs\n(per 100,000 population)')+
-        theme_bw(base_size = 15) +
-        theme(legend.position = "bottom",
-              plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
-        labs(caption = paste("Planning scenarios and future years are shown relative to ", 
-                             "the baseline year 2012.")) +
-        ggtitle(plot.title) +
-        facet_wrap(~county)
+      plot.title <- paste0('Region Wide: Age-Standardized Reduction in Total DALYs from Traffic Injury Module')
+      ylabel <- 'Reduction in DALYs\n(per 100,000 population)'
       
     }
     
+    df.region$county <- rep(countyNames,each = 6)
     
-  }else{
-    message('wrong input')
+    ggplot(data = df.region, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
+      geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
+      scale_fill_brewer(palette = "Set1") + 
+      xlab(NULL) + 
+      ylab(ylabel) +
+      theme_bw(base_size = 15) +
+      theme(legend.position = "bottom",
+            plot.caption = element_text(hjust = 0, margin = margin(t = 15))) +
+      labs(caption = paste("Planning scenarios and future years are shown relative to ", 
+                           "the baseline year 2012.")) +
+      ggtitle(plot.title) +
+      facet_wrap(~county)
+    
   }
+  
+  
 }
+
+
