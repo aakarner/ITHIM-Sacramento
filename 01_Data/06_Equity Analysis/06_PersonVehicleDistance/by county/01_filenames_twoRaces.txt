@@ -1,6 +1,0 @@
-06_PersonVehicleDistance/by county/ELD_PersonVehicleDistance_twoRaces.csv
-06_PersonVehicleDistance/by county/PLA_PersonVehicleDistance_twoRaces.csv
-06_PersonVehicleDistance/by county/SAC_PersonVehicleDistance_twoRaces.csv
-06_PersonVehicleDistance/by county/SUT_PersonVehicleDistance_twoRaces.csv
-06_PersonVehicleDistance/by county/YOL_PersonVehicleDistance_twoRaces.csv
-06_PersonVehicleDistance/by county/YUB_PersonVehicleDistance_twoRaces.csv

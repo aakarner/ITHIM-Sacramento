@@ -1,10 +1,20 @@
+# This file is part of ITHIM Sacramento.
+
+# File: App.R
+# Purpose: Reading necessary functions for deploying the shiny.app. And shiny app implementation
+
+# library definitions
 library(shiny)
 library(ggplot2)
 
+# reading functions from external R files
+# functions for physical activity
 source("02_R Scripts/01_Functions_PA.R")
 
+# functions for traffic injury
 source("02_R Scripts/02_Functions_RI.R")
 
+# functions for module integration
 source("02_R Scripts/03_Functions_Integration.R")
 
 ###################### ITHIM application for Equity Analysis - Web Interface - Shiny App - Server/UI ######################
