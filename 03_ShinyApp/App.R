@@ -295,7 +295,7 @@ server <- function(input, output) {
     # barID: 1-future years,2-scenarios
     # yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std
     aggr.outcome.shiny.app(barID = as.integer(input$selectbarID),yaxisID = as.integer(input$selectyaxisID))
-  })
+  },height = 600)
   
   # Plots Advanced Graphs using inputs from Advanced Plot radio buttons
   output$AdvancedPlot <- renderPlot({
@@ -310,7 +310,7 @@ server <- function(input, output) {
                          outcomeID = as.integer(input$selectoutcomeID),demogrID = as.integer(input$selectdemogrID), 
                          yaxisID = as.integer(input$selectyaxisID_Adv)
     )
-  })
+  },height = 600)
   
   # Creates Customizable Plot from Input File
   output$CustomizablePlot <- renderPlot({
