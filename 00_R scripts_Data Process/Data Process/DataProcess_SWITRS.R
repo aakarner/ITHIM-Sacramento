@@ -1,4 +1,5 @@
-# Author: Yizheng Wu
+# This file is part of ITHIM Sacramento.
+
 # File: DataProcess_SWITRS.R
 # Purpose: Obtain the collision and party data 
 # from SWITRS(https://www.chp.ca.gov/programs-services/services-information/switrs-internet-statewide-integrated-traffic-records-system) 
@@ -7,7 +8,7 @@
 # set your working directory
 setwd("/Users/Yizheng/Documents/02_Work/14_GitHub/00_ITHIM/01_Data")
 
-########## Data Preparation ##########
+# Part 1  Data Preparation -------------------------------------------------------------
 
 # input the collision and party data  
 file.names <- list.files(path = "04_SWITRS/00_TIMS_06-16/")
@@ -41,9 +42,8 @@ party.c <- parties.temp[,names(parties.temp)%in%keep.party]
 injury.party.1 <- merge(collision.party.1,party.c,by.x = 'CASEID',by.y = 'CASEID')
 injury.party.2 <- merge(collision.party.2,party.c,by.x = 'CASEID',by.y = 'CASEID')
 injury.party.3 <- merge(collision.party.3,party.c,by.x = 'CASEID',by.y = 'CASEID')
-#head(injury)
 
-########## Function Definition ##########
+# Part 1  Function Definition -------------------------------------------------------------
 
 # function for recoding the traffic mode ID, road type ID, and race ID
 # traffic mode ID
@@ -167,7 +167,7 @@ shape.format.output <- function(countyID){
   return(final.output.byrace)
 }
 
-########## Data Processing ##########
+# Part 3  Output -------------------------------------------------------------
 injury.party.1 <- recode(injury.party.1)
 injury.party.2 <- recode(injury.party.2)
 injury.party.3 <- recode(injury.party.3)
@@ -192,49 +192,6 @@ write.csv(output.YOL,file = "06_Equity Analysis/05_baseline injury/test.yol.INJU
 output.YUB <- shape.format.output(countyID = 6)
 write.csv(output.YUB,file = "06_Equity Analysis/05_baseline injury/test.yub.INJURY.csv")
 
-
-# # output the injury matrix as the input of injury module
-# output.NHW <- get.race.injury(raceID=1,countyID=6) #NHW
-# #write.csv(output.NHW,file = "06_Equity Analysis/05_baseline injury/YUB_01_injury baseline_NHW.csv")
-# 
-# output.NHB <- get.race.injury(2,6)
-# #write.csv(output.NHB,file = "06_Equity Analysis/05_baseline injury/YUB_02_injury baseline_NHB.csv")
-# 
-# output.NHO <- get.race.injury(3,6)
-# #write.csv(output.NHO,file = "06_Equity Analysis/05_baseline injury/YUB_03_injury baseline_NHO.csv")
-# 
-# output.HO <- get.race.injury(4,6)
-# #write.csv(output.HO,file = "06_Equity Analysis/05_baseline injury/YUB_04_injury baseline_HO.csv")
-# 
-#combine other three races (NHB+NHO+HO)
-#matrix.other3 <- as.numeric(output.NHB[,1:7])+as.numeric(output.NHO[,1:7])+as.numeric(output.HO[,1:7])
-#output.other3 <- matrix(matrix.other3,36,7)
-#colnames(output.other3)<- c('bike','walk','motorcycle','car','bus','truck','one-party')
-#rownames(output.other3)<- rep(c('bike','walk','motorcycle','car','bus','truck'),6)
-# 
-# # add the road type and injury type in the .csv file
-# output.other3.t <- cbind(output.other3,1)
-# output.other3.t[1:6,8] <- "local fatal"
-# output.other3.t[7:12,8] <- "arterial fatal"
-# output.other3.t[13:18,8] <- "highway fatal"
-# output.other3.t[19:24,8] <- "local serious"
-# output.other3.t[25:30,8] <- "arterial serious"
-# output.other3.t[31:36,8] <- "highway serious"
-# write.csv(output.other3.t,file = "06_Equity Analysis/05_baseline injury/YUB_05_injury baseline_Other3.csv")
-
-# bus.caseID.1 <- injury.party.1$CASEID[which(injury.party.1$VEHTYPE%in%c('H','I'))]
-# sum(collision.party.1$KILLED[which(collision.party.1$CASEID%in%bus.caseID.1)])
-# sum(collision.party.1$SEVINJ[which(collision.party.1$CASEID%in%bus.caseID.1)])
-# 
-# bus.caseID.2 <- unique(injury.party.2$CASEID[which(injury.party.2$VEHTYPE%in%c('H','I'))])
-# length(bus.caseID.2)
-# sum(collision.party.2$KILLED[which(collision.party.2$CASEID%in%bus.caseID.2)])
-# sum(collision.party.2$SEVINJ[which(collision.party.2$CASEID%in%bus.caseID.2)])
-# 
-# bus.caseID.3 <- unique(injury.party.3$CASEID[which(injury.party.3$VEHTYPE%in%c('H','I'))])
-# length(bus.caseID.3)
-# sum(collision.party.3$KILLED[which(collision.party.3$CASEID%in%bus.caseID.3)])
-# sum(collision.party.3$SEVINJ[which(collision.party.3$CASEID%in%bus.caseID.3)])
 
 
 

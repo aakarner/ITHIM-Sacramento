@@ -1,4 +1,5 @@
-# Author: Alex Karner and Yizheng Wu
+# This file is part of ITHIM Sacramento.
+
 # File: DataProcess_CDPH.R
 # Purpose: Calculate age-sex-race and age-sex-income specific all-cause deathrates by county.
 # NB: The input files specified here must be obtained for a fee from CDPH and are confidential. 
@@ -9,15 +10,10 @@ library(foreign)
 # Set working drectory
 setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/01_Data/02_CDPH")
 
-# -----------------------------------
-# Data preparation
-# -----------------------------------
-
-# use read.spss() in package 'foreign' to input the .sav data
-#cdph <- read.spss('TEMPB.sav',to.data.frame = TRUE)
-#head(cdph)
+# Part 1 Data preparation ----------------------------------------------------------------------------
 
 # load the pre-processed data which includes the income variable estimated by hot-deck imputation
+# processed by the R script "DataProcess_PUMS.R"
 load('cdph.sac.cmplt')
 cdph <- cdph.sac.cmplt
 
@@ -25,9 +21,7 @@ cdph <- cdph.sac.cmplt
 raceGroupNames <- c("NHW","NHB","NHO","HO")
 incomeGroupNames <- c("Quint1","Quint2","Quint3","Quint4")
 
-# -----------------------------------
-# Analysis
-# -----------------------------------
+# Part 2 Function Definition -------------------------------------------------------------------------
 
 processCDPH <- function(local.counties,year){
   
@@ -54,18 +48,10 @@ processCDPH <- function(local.counties,year){
     for (j in 1:2){ #sex
       for (i in 1:8){ # age categories
         temp <- cdph.local.year[which(cdph.local.year$SEX == j & cdph.local.year$age8cat == i & cdph.local.year$raceID == k),]
-        #ontain the all-cause mortality for each group
+        #obtain the all-cause mortality for each group
         local.gdb.race[8*(j-1)+i,k] <- sum(temp$GBDGRP1,temp$GBDGRP2,temp$GBDGRP3,temp$GBDGRP4,
                                            temp$GBDGRP5,temp$GBDGRP6,temp$GBDGRP7,temp$GBDGRP8,temp$GBDGRP9,
                                            temp$GBDGRP10,temp$GBDGRP11,temp$GBDGRP12,temp$GBDGRP13)
-        
-        #local.gdb.race[8*(j-1)+i,k] <- sum(temp$GBDGRP2,temp$GBDGRP1,temp$GBDGRP4,temp$GBDGRP6,temp$GBDGRP8,temp$GBDGRP7)
-        # local.gdb.race[(8*(j-1)+i),k] <- sum(temp$GBDGRP2) # Breast cancer
-        # local.gdb.race[(8*(j-1)+i)+16,k] <- sum(temp$GBDGRP1) # Colon cancer
-        # local.gdb.race[(8*(j-1)+i)+32,k] <- sum(temp$GBDGRP4) # CVD
-        # local.gdb.race[(8*(j-1)+i)+48,k] <- sum(temp$GBDGRP6) # Dementia
-        # local.gdb.race[(8*(j-1)+i)+64,k] <- sum(temp$GBDGRP8) # Depression
-        # local.gdb.race[(8*(j-1)+i)+80,k] <- sum(temp$GBDGRP7) # Diabetes
       }
     }
   }
@@ -79,35 +65,25 @@ processCDPH <- function(local.counties,year){
         local.gdb.income[8*(j-1)+i,k] <- sum(temp$GBDGRP1,temp$GBDGRP2,temp$GBDGRP3,temp$GBDGRP4,
                                              temp$GBDGRP5,temp$GBDGRP6,temp$GBDGRP7,temp$GBDGRP8,temp$GBDGRP9,
                                              temp$GBDGRP10,temp$GBDGRP11,temp$GBDGRP12,temp$GBDGRP13)
-        # local.gdb.income[(8*(j-1)+i),k] <- sum(temp$GBDGRP2) # Breast cancer
-        # local.gdb.income[(8*(j-1)+i)+16,k] <- sum(temp$GBDGRP1) # Colon cancer
-        # local.gdb.income[(8*(j-1)+i)+32,k] <- sum(temp$GBDGRP4) # CVD
-        # local.gdb.income[(8*(j-1)+i)+48,k] <- sum(temp$GBDGRP6) # Dementia
-        # local.gdb.income[(8*(j-1)+i)+64,k] <- sum(temp$GBDGRP8) # Depression
-        # local.gdb.income[(8*(j-1)+i)+80,k] <- sum(temp$GBDGRP7) # Diabetes
       }
     }
   }
   
-  # adjust the format for inputting into equity analysis module
-  #dieaseNamesList <- c(rep("BreastCancer",16),rep("ColonCancer",16),rep("CVD",16),rep("Dementia",16),
-                       #rep("Depression",16),rep("Diabetes",16))
-  
   # defina the dimension names for both matrices
-  dimnames(local.gdb.race) = list(c(paste0("maleAgeClass ",1:8),paste0("femaleAgeClass ",1:8)),paste0("deaths_",raceGroupNames))
-  dimnames(local.gdb.income) = list(c(paste0("maleAgeClass ",1:8),paste0("femaleAgeClass ",1:8)),paste0("deaths_",incomeGroupNames))
+  dimnames(local.gdb.race) = list(c(paste0("maleAgeClass ",1:8),
+                                    paste0("femaleAgeClass ",1:8)),paste0("deaths_",raceGroupNames))
+  dimnames(local.gdb.income) = list(c(paste0("maleAgeClass ",1:8),
+                                      paste0("femaleAgeClass ",1:8)),paste0("deaths_",incomeGroupNames))
   
   # return the matrices
   return(list(
     local.gdb.race = local.gdb.race,
-    local.gdb.income=local.gdb.income)
+    local.gdb.income = local.gdb.income)
     )
   
 }
 
-# -----------------------------------
-# Output
-# -----------------------------------
+# Part 3 Output the result in .csv file --------------------------------------------------------
 
 # define the required areas and year of death
 # county ID:

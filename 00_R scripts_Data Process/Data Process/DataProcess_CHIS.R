@@ -1,7 +1,7 @@
-# Author: Alex Karner and Yizheng Wu
+# This file is part of ITHIM Sacramento.
+
 # File: DataProcess_CHIS.R
 # Purpose: Process data from the 2005 California Heath Interview Survey
-# for the implementation of ITHIM_Sac.
 
 # Library definitions
 library(survey)
@@ -11,9 +11,7 @@ library(foreign)
 # Set working drectory
 setwd("~/Documents/02_Work/14_GitHub/00_ITHIM/01_Data")
 
-# -----------------------------------
-# Data preparation
-# -----------------------------------
+# Part 1 Data preparation -------------------------------------------------------------
 
 # use read.spss() in package 'foreign' to input the .sav data
 chis.2005 <- read.spss('01_CHIS2005/ADULT.sav',to.data.frame = TRUE)
@@ -38,13 +36,11 @@ chis.2005$minwk_walk4fun[chis.2005$ad40 %in% c("INAPPLICABLE", "NO")] <- 0
 chis.2005$minwk_walk4fun[chis.2005$ad42unt == "HOURS"] <- chis.2005$minwk_walk4fun[chis.2005$ad42unt == "HOURS"] * 60
 chis.2005$minday_walk4fun <- chis.2005$minwk_walk4fun / 7 # min/day
 
-
 # Walk for transport
 chis.2005$minwk_walk4transport <- chis.2005$ad39 * chis.2005$ad38 # min/week
 chis.2005$minwk_walk4transport[chis.2005$ad37 %in% c("UNABLE TO WALK", "NO")] <- 0
 chis.2005$minwk_walk4transport[chis.2005$ad39unt == "HOURS"] <- chis.2005$minwk_walk4transport[chis.2005$ad39unt == "HOURS"] * 60
 chis.2005$minday_walk4transport <- chis.2005$minwk_walk4transport / 7 # min/day
-
 
 # Moderate Physical Activity
 chis.2005$minwk_mod <- chis.2005$ae27a * chis.2005$ae27 # min/week
@@ -126,7 +122,6 @@ chis.2005$MET_occ_hrs_wk <-
 # MET hours/week of non-transport physical activity
 chis.2005$MET_hrwk_nt_pa <- chis.2005$MET_mod_hrs_wk + chis.2005$MET_vig_hrs_wk + chis.2005$MET_occ_hrs_wk
 
-
 # Adding variables about race/ethnicity and income
 # srh -> self-reported hispanic; srw -> self-reported white
 # sraa -> self-reported African American
@@ -148,9 +143,8 @@ chis.2005$inc.cat <- ifelse(chis.2005$ak22_p>0 & chis.2005$ak22_p<25000,1,
                                    ifelse(chis.2005$ak22_p>50000 & chis.2005$ak22_p<75000,3,
                                           ifelse(chis.2005$ak22_p>75000 & chis.2005$ak22_p<300000,4,99))))
 
-# -----------------------------------
-# Output
-# -----------------------------------
+# Part 2 output -------------------------------------------------------------
+
 # define a function for shape the output file into the required format
 shape.output <- function(output){
   output.matrix <- matrix(0,64,6,dimnames = 
@@ -185,7 +179,6 @@ names(a.s.table.byRace) <- c("age8cat", "gender","race/ethnicity", "METS_Median"
 output.byRace <- shape.output(a.s.table.byRace)
 output.byIncome <- shape.output(a.s.table.byInc)
 
-
 # out as .csv files 
 cuttingline <- matrix(" ",1,6)
 
@@ -194,11 +187,11 @@ write.csv(rbind(
   output.byRace[17:32,],cuttingline, # NHB
   output.byRace[33:48,],cuttingline, # NHO
   output.byRace[49:64,] # HO
-),file = "06_Equity Analysis/01_nonTravelMET_byRace.csv")
+),file = "01_nonTravelMET_byRace.csv")
 
 write.csv(rbind(
   output.byIncome[1:16,],cuttingline, #Low Income
   output.byIncome[17:32,],cuttingline, # Median Income
   output.byIncome[33:48,],cuttingline, # High Income
   output.byIncome[49:64,] # Other
-),file = "06_Equity Analysis/02_nonTravelMET_byIncome.csv")
+),file = "02_nonTravelMET_byIncome.csv")
