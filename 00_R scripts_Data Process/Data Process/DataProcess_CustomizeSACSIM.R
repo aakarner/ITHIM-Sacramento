@@ -1,7 +1,7 @@
-# customize your own scenario
+# This file is part of ITHIM Sacramento.
 
-# author: Yizheng Wu
-# goal: process the customized SACSIM output into the shape of ITHIM input
+# File: DataProcess_CustomizeSACSIM.R
+# Purpose: process the customized SACSIM output into the shape of ITHIM input
 
 # set working dictionary
 # some files are larger than 100M that exceed the limit of GitHub
@@ -12,8 +12,9 @@ setwd("/Users/Yizheng/Documents/02_Work/13_ITHIM/03_Data")
 library(StatMatch)
 library(foreign)
 
-############################ HOT-DECK IMPUTATION #################################
-##### function definition
+# Part 1 HOT-DECK IMPUTATION -------------------------------------------------------------
+
+# function definition
 # in the output of SACSIM,the unit of location is TAZ
 # here we extract the TAZ list for each county in order to obtain the county-level data
 getTAZ <- function(parc.input){
@@ -66,7 +67,7 @@ hotdeck.imputation <- function(pop){
   # store the result
   pop.cmplt<-NULL
   
-  # 'for' loop to do the Hot-Deck imputation
+  # "for" loop to do the Hot-Deck imputation
   for (i in 1:5){ #countyID
     #print(i)
     for (j in 1:2){ #gender
@@ -97,10 +98,10 @@ update.countyID <- function(pop.cmplt,taz){
 }
 
 
-##### data process for PUMS data
+# data process for PUMS data
 # input the data from PUMS
-pums.h <- read.csv('07_SacSim/PUMS/csv_hca_12/ss12hca.csv') #household data sets
-pums.p <- read.csv('07_SacSim/PUMS/csv_pca_12/ss12pca.csv') # populatin data sets
+pums.h <- read.csv("07_SacSim/PUMS/csv_hca_12/ss12hca.csv") #household data sets
+pums.p <- read.csv("07_SacSim/PUMS/csv_pca_12/ss12pca.csv") # populatin data sets
 
 # keep key variables in each record
 keep.pums.p <- c("SERIALNO","PUMA","AGEP","PWGTP","SEX","SCHL","RAC1P","HISP")
@@ -110,7 +111,7 @@ keep.pums.h <- c("SERIALNO","HINCP")
 pums.h.c <- pums.h[,names(pums.h)%in%keep.pums.h]
 
 # merge two data sets by "SERIALNO"
-pums.h.p <- merge(pums.p.c,pums.h.c,by.x = 'SERIALNO',by.y = 'SERIALNO')
+pums.h.p <- merge(pums.p.c,pums.h.c,by.x = "SERIALNO",by.y = "SERIALNO")
 #head(pums.h.p)
 
 # define puma no. for six counties
@@ -167,7 +168,7 @@ pums.h.p$eduID <- ifelse(pums.h.p$SCHL%in%c(1:11),1,
                                                      ifelse(pums.h.p$SCHL==21,6,
                                                             ifelse(pums.h.p$SCHL==22,7,
                                                                    ifelse(pums.h.p$SCHL%in%c(23,24),8,99))))))))
-# add a column of '1'
+# add a column of "1"
 pums.h.p$ones <- 1
 
 # recode hincID
@@ -184,12 +185,8 @@ pums.h.p$hincID <- ifelse(pums.h.p$HINCP<=inc.quan[1],1,
                           ifelse(pums.h.p$HINCP<=inc.quan[2],2,
                                  ifelse(pums.h.p$HINCP<=inc.quan[3],3,4)))
 
+# Part 2 Process the ABM output -------------------------------------------------------------
 
-############################ Process the ABM output #################################
-
-# -----------------------------------
-# Function Definition
-# -----------------------------------
 # calculate the relative values (relative to the value of "female 15-29" according to ITHIM)
 CalRelativeMatrix <- function(x){
   for (i in 1:4){
@@ -255,7 +252,7 @@ recode.pop <- function(pop){
                                               ifelse(pop$SEX==1&pop$raceID==4,7,8)))))))
   
   # add a column "ID"  for combining household id and person id
-  pop$ID <- paste0('h',pop$SERIALNO,'p',pop$PNUM)
+  pop$ID <- paste0("h",pop$SERIALNO,"p",pop$PNUM)
   return(pop)
 }
 
@@ -265,12 +262,12 @@ prepTripPop <- function(pop,triptable){
   # compute the mean travel time and travel distance per capita by mode
   aggr.by.mode <- aggregate(triptable[,c("TRAVTIME","TRAVDIST")],list(triptable$SAMPN,triptable$PERSN,triptable$MODE),sum)
   # rename the variables
-  names(aggr.by.mode) <- c('SAMPN',"PERSN","MODE","TIME","DISTANCE")
+  names(aggr.by.mode) <- c("SAMPN","PERSN","MODE","TIME","DISTANCE")
   # sort the data by SAMPN, PERSN, and MODE
   aggr.by.mode <- aggr.by.mode[order(aggr.by.mode$SAMPN,aggr.by.mode$PERSN,aggr.by.mode$MODE),]
   
   # add a column "ID" for combining household id and person id
-  aggr.by.mode$ID <- paste0('h',aggr.by.mode$SAMPN,'p',aggr.by.mode$PERSN)
+  aggr.by.mode$ID <- paste0("h",aggr.by.mode$SAMPN,"p",aggr.by.mode$PERSN)
   
   # merge two data sets by ID
   trip.pop <- merge(aggr.by.mode,pop,by.x = "ID",by.y = "ID")
@@ -403,8 +400,10 @@ format.output <- function(pop,trip.pop,demogr){
     format.pop <- rbind(format.pop,Travel.Output.byDemo$pop.age.gender.demo[,1:8],cuttingline[1:8])
   }
   # add a column for county names
-  col.countyname.at<-matrix(c('ELD',rep("",35),'PLA',rep("",35),'SAC',rep("",35),'SUT',rep("",35),'YOL',rep("",35),'YUB',rep("",35)),216,1)
-  col.countyname.pop<-matrix(c('ELD',rep("",8),'PLA',rep("",8),'SAC',rep("",8),'SUT',rep("",8),'YOL',rep("",8),'YUB',rep("",8)),54,1)
+  col.countyname.at<-matrix(c("ELD",rep("",35),"PLA",rep("",35),"SAC",rep("",35),
+                              "SUT",rep("",35),"YOL",rep("",35),"YUB",rep("",35)),216,1)
+  col.countyname.pop<-matrix(c("ELD",rep("",8),"PLA",rep("",8),"SAC",rep("",8),
+                               "SUT",rep("",8),"YOL",rep("",8),"YUB",rep("",8)),54,1)
   final.format.at <- cbind(format.at,col.countyname.at)
   final.format.pop <- cbind(format.pop,col.countyname.pop)
   
@@ -453,43 +452,17 @@ computeVMTbymode <- function(countyID,trip.pop,pop){
     mode.vmt.byrace2[6,i]<-vmt*0.02
   }
   
-  # mode.vmt.byrace <- matrix(NA,nrow = 6,ncol = 4,dimnames = list(ModeNames,c("NHW","NHB","NHO","HO")))
-  # for (i in 1:4){
-  #   pop.race <- length(which(pop$countyID==countyID&pop$raceID==i))
-  #   
-  #   #bike
-  #   mode.vmt.byrace[1,i] <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==8&trip.pop$countyID==countyID&trip.pop$raceID==i)])/pop.race
-  #   #walk
-  #   mode.vmt.byrace[2,i] <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==9&trip.pop$countyID==countyID&trip.pop$raceID==i)])/pop.race
-  #   
-  #   vmt <- sum(trip.pop$DISTANCE[which(trip.pop$MODE==5&trip.pop$countyID==countyID&trip.pop$raceID==i)])/(3.5*pop.race)+sum(trip.pop$DISTANCE[which(trip.pop$MODE==6&trip.pop$countyID==countyID&trip.pop$raceID==i)])/(2*pop.race)+
-  #     sum(trip.pop$DISTANCE[which(trip.pop$MODE==7&trip.pop$countyID==countyID&trip.pop$raceID==i)])/(pop.race)
-  #   
-  #   #motorcycle
-  #   mode.vmt.byrace[3,i]<-vmt*0.02
-  #   
-  #   #car
-  #   mode.vmt.byrace[4,i]<-vmt*0.9
-  #   
-  #   #bus
-  #   mode.vmt.byrace[5,i]<-vmt*0.02
-  #   
-  #   #truck
-  #   mode.vmt.byrace[6,i]<-vmt*0.06
-  #   
-  # }
-  
   return(mode.vmt.byrace2)
 }
 
+# Part 3 Calculation Example -------------------------------------------------------------
 
-############################ Calculation Example #################################
 # read the data (here, 2012 output is selected as an example)
-pop.customized <- read.dbf('07_SacSim/2012_pop_parc_AM1/2012_pop.dbf') # pop - population
-parc.customized <- read.dbf('07_SacSim/2012_pop_parc_AM1/2012_parc.dbf') # parc - parcel information 
+pop.customized <- read.dbf("07_SacSim/2012_pop_parc_AM1/2012_pop.dbf") # pop - population
+parc.customized <- read.dbf("07_SacSim/2012_pop_parc_AM1/2012_parc.dbf") # parc - parcel information 
 
-# use read.dbf() in package 'foreign' to input the .dbf data
-triptable.customized <- read.dbf('07_SacSim/trip_2012.dbf')
+# use read.dbf() in package "foreign" to input the .dbf data
+triptable.customized <- read.dbf("07_SacSim/trip_2012.dbf")
 
 # extrac the taz list for each county
 taz.customized <- getTAZ(parc.customized)
@@ -502,10 +475,6 @@ pop.customized.cmplt <- hotdeck.imputation(pop.customized)
 
 # update the countyID from 5 counties to 6 counties
 pop.customized.cmplt <- update.countyID(pop.customized.cmplt,taz.customized)
-
-#test
-#load('07_SacSim/pop.2012.cmplt')
-#pop.customized.cmplt <- pop.2012.cmplt
 
 #recode the variables in population matrix
 pop.customized <- recode.pop(pop.customized.cmplt)
@@ -526,18 +495,18 @@ write.csv(Pop.AT.para.customized$Pop.AT.para.byIncome,file = "00_output/Populati
 
 # output the detail active transport information for each county and save them as .csv files
 # by race
-Travel.Output.byRace.customized <- format.output(pop.customized,trip.pop.customized,'Race')
-write.csv(Travel.Output.byRace.customized$final.format.at,file = '00_output/ActiveTransport_byRace.customized.csv')
-write.csv(Travel.Output.byRace.customized$final.format.pop,file = '00_output/Population_byRace.customized.csv')
+Travel.Output.byRace.customized <- format.output(pop.customized,trip.pop.customized,"Race")
+write.csv(Travel.Output.byRace.customized$final.format.at,file = "00_output/ActiveTransport_byRace.customized.csv")
+write.csv(Travel.Output.byRace.customized$final.format.pop,file = "00_output/Population_byRace.customized.csv")
 
 #by income
-Travel.Output.byIncome.customized <- format.output(pop.customized,trip.pop.customized,'Income')
-write.csv(Travel.Output.byIncome.customized$final.format.at,file = '00_output/ActiveTransport_byIncome.customized.csv')
-write.csv(Travel.Output.byIncome.customized$final.format.pop,file = '00_output/Population_byIncome.customized.csv')
+Travel.Output.byIncome.customized <- format.output(pop.customized,trip.pop.customized,"Income")
+write.csv(Travel.Output.byIncome.customized$final.format.at,file = "00_output/ActiveTransport_byIncome.customized.csv")
+write.csv(Travel.Output.byIncome.customized$final.format.pop,file = "00_output/Population_byIncome.customized.csv")
 
 # compute VMT by traffic mode for injury module (two races version)
 vmt.customized <- lapply(c(1:6),function(x) computeVMTbymode(x,trip.pop.customized,pop.customized))
-names(vmt.customized)<-c('ELD','PLA','SAC','SUT','YOL','YUB')
+names(vmt.customized)<-c("ELD","PLA","SAC","SUT","YOL","YUB")
 
-write.csv(vmt.customized,file = '00_output/VMT_customized.csv')
+write.csv(vmt.customized,file = "00_output/VMT_customized.csv")
 

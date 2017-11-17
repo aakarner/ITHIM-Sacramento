@@ -9,9 +9,8 @@
 # Part 3: Function Definition - Data Process (Baseline injury + Scenario Injury Multiplier)
 # Part 4: Function Definition - Compute Scenario Injury
 # Part 5: Function Definition - Output (ggplot)
-# Part 6: Computation for ggplot
 
-###################### Part 1 Read External Data Sources and Define Parameter ##############################
+# Part 1 Read External Data Sources and Define Parameter --------------------------------------------------
 
 # number of traffic modes, injuried types, and road types
 nTrafficModeV <- 6L #victim mode
@@ -22,24 +21,26 @@ RoadTypes <- c("local", "arterial", "highway") # road type
 nRoadType <- length(RoadTypes)
 
 # disease burden
-dbNames <- c('Deaths','DALYs')
+dbNames <- c("Deaths","DALYs")
 
 # county names
 countyNames <- c("El Dorado", "Placer", "Sacramento", "Sutter", "Yolo", "Yuba")
 
-
 # input the population data for each race group
 Pop.file.race <- read.csv("01_Data/01_Population/02_Population_byRace_2012.csv")
-Pop.file.twoRaces <- cbind(Pop.file.race[,c(2,3)],rowSums(Pop.file.race[,c(4,6,8)]),rowSums(Pop.file.race[,c(5,7,9)]))
-colnames(Pop.file.twoRaces) <- c('male.white','female.white','male.other','female.other')
+Pop.file.twoRaces <- cbind(Pop.file.race[,c(2,3)],
+                           rowSums(Pop.file.race[,c(4,6,8)]),
+                           rowSums(Pop.file.race[,c(5,7,9)]))
+colnames(Pop.file.twoRaces) <- c("male.white","female.white","male.other","female.other")
 
 # regionwide population
-Pop.file.region<-NULL
+Pop.file.region <- NULL
 temp.Pop.file.region <- cbind(rowSums(Pop.file.twoRaces[,c(1,3)]),rowSums(Pop.file.twoRaces[,c(2,4)]))
 
 for (j in 1:2){
   for(i in 1:8){
-    Pop.file.region[8*j-8+i] <- temp.Pop.file.region[i,j]+temp.Pop.file.region[i+9,j]+temp.Pop.file.region[i+18,j]+
+    Pop.file.region[8*j-8+i] <- temp.Pop.file.region[i,j]+
+      temp.Pop.file.region[i+9,j]+temp.Pop.file.region[i+18,j]+
       temp.Pop.file.region[i+27,j]+temp.Pop.file.region[i+36,j]+temp.Pop.file.region[i+45,j]
   }
 }
@@ -51,7 +52,7 @@ US.pop <- matrix(cbind(US.pop[,2],US.pop[,3]),16,1)
 # input the GBD data
 GBD.injury <- read.csv("01_Data/04_GBD/14_GBD_US_TrafficInjury.csv")
 
-###################### Part 2 Function Definition - Data Inputs ##############################
+# Part 2 Function Definition - Data Inputs ------------------------------------------------------
 
 # function for reading csv files of injury data and VMT
 # data source: SWITRS 2006-2016 (Statewide Integrated Traffic Reporting System)
@@ -60,32 +61,23 @@ GBD.injury <- read.csv("01_Data/04_GBD/14_GBD_US_TrafficInjury.csv")
 input.csv <- function(countyID,scenarioID){
   #scenarioID: 0-2012,1-2020,2-2036,3-2027,4-S1,5-S2,6-S3,7-C1,8-C2,9-C3
   #countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
-  
-  filenames.injury <- list.files(path = '01_Data/05_baseline injury')[1:6]
+  filenames.injury <- list.files(path = "01_Data/05_baseline injury")[1:6]
   
   # build a list to store the baseline injury data sets for all races
   injury.list <- rep(list(matrix(NA,36,7)),2)
-  temp <- read.csv(paste0('01_Data/05_baseline injury/',filenames.injury[countyID])) 
+  temp <- read.csv(paste0("01_Data/05_baseline injury/",filenames.injury[countyID])) 
   injury.list[[1]] <- temp[1:36,2:8] # non hispanic white
   injury.list[[2]] <- temp[38:73,2:8] # other three races
   
-  names(injury.list)<- c('NHW','Others')
+  names(injury.list)<- c("NHW","Others")
   
   # input the person & vehicle distance matrix
   # include the distance distribution for three road types and occupancy for each traffic mode
-  # filenames.vmt <- readLines("06_PersonVehicleDistance/by county/01_filenames_twoRaces.txt")
-  # 
-  # person.vehicle.distance_input <- read.csv(filenames.vmt[countyID])
-  # person.vehicle.distance_input.list <- rep(list(matrix(NA,34,1)),2)
-  # for (i in 1:2){
-  #   person.vehicle.distance_input.list[[i]]<-person.vehicle.distance_input[1:34,(6*i-3):(6*i+1)]
-  # }
-  # names(person.vehicle.distance_input.list)<- c('NHW','Others')
-  
-  filenames.dist <- list.files(path='01_Data/06_PersonVehicleDistance')
+  filenames.dist <- list.files(path="01_Data/06_PersonVehicleDistance")
   person.vehicle.distance_input.matrix <- matrix(NA,34,2)
-  person.vehicle.distance_input <- read.csv(paste0('01_Data/06_PersonVehicleDistance/',filenames.dist[scenarioID+1]))
-  colnames(person.vehicle.distance_input.matrix)<- c('NHW','Others')
+  person.vehicle.distance_input <- read.csv(paste0("01_Data/06_PersonVehicleDistance/",
+                                                   filenames.dist[scenarioID+1]))
+  colnames(person.vehicle.distance_input.matrix)<- c("NHW","Others")
   
   #NHW
   person.vehicle.distance_input.matrix[,1]<-person.vehicle.distance_input[1:34,(4*countyID-1)]
@@ -93,18 +85,22 @@ input.csv <- function(countyID,scenarioID){
   person.vehicle.distance_input.matrix[,2]<-person.vehicle.distance_input[1:34,(4*countyID+1)]
   
   #GBD
-  GBD.local.white <-GBD.injury[,2:5]*matrix(cbind(Pop.file.twoRaces[(9*countyID-8):(9*countyID-1),1],Pop.file.twoRaces[(9*countyID-8):(9*countyID-1),2]),16,1)/US.pop
-  GBD.local.Other <-GBD.injury[,2:5]*matrix(cbind(Pop.file.twoRaces[(9*countyID-8):(9*countyID-1),3],Pop.file.twoRaces[(9*countyID-8):(9*countyID-1),4]),16,1)/US.pop
+  GBD.local.white <- GBD.injury[,2:5] * 
+    matrix(cbind(Pop.file.twoRaces[(9*countyID-8):(9*countyID-1),1],
+                 Pop.file.twoRaces[(9*countyID-8):(9*countyID-1),2]),16,1)/ US.pop
+  GBD.local.Other <- GBD.injury[,2:5] * 
+    matrix(cbind(Pop.file.twoRaces[(9*countyID-8):(9*countyID-1),3],
+                 Pop.file.twoRaces[(9*countyID-8):(9*countyID-1),4]),16,1)/ US.pop
   
   return(list(
-    injury.list=injury.list,
-    person.vehicle.distance_input.matrix=person.vehicle.distance_input.matrix,
+    injury.list = injury.list,
+    person.vehicle.distance_input.matrix = person.vehicle.distance_input.matrix,
     GBD.local.white = GBD.local.white,
     GBD.local.Other = GBD.local.Other
   ))
 }
 
-###################### Part 3 Function Definition - Data Process ##############################
+# Part 3 Function Definition - Data Process --------------------------------------------------
 
 # Function of creating the matrix of baseline injuries
 createBaselineInjury <- function(injury){
@@ -117,7 +113,8 @@ createBaselineInjury <- function(injury){
     row.names(x) <- ModeNames[1:6]
     return (x)
   })
-  names(injury.baseline) <- c("local.fatal","arterial.fatal","highway.fatal","local.serious","arterial.serious","highway.serious")
+  names(injury.baseline) <- c("local.fatal","arterial.fatal","highway.fatal",
+                              "local.serious","arterial.serious","highway.serious")
   
   return(injury.baseline)
 }
@@ -126,42 +123,38 @@ createBaselineInjury <- function(injury){
 
 # create the sheet "Dist by road type" in ITHIM spreadsheet 
 createScenarioInjuryMultiplier <- function(countyID,scenarioID){
-  
-  #test
-  #person.vehicle.distance_input = person.vehicle.distance_input.list$NHW
-  #countyID = 1
-  #scenarioID=2
-  
+
   ### for baseline ###
   # person distance for all modes (miles per day)
-  # source: CHTS2012 & NHTS2009
+  # source: SACSIM15
   t.person.distance.baseline <- input.csv(countyID,scenarioID = 0)
   t.person.distance.baseline.NHW <- t.person.distance.baseline$person.vehicle.distance_input.matrix[1:6,1]
   t.person.distance.baseline.Other <- t.person.distance.baseline$person.vehicle.distance_input.matrix[1:6,2]
   
   # matrix of distance (person) distribution by road types and modes for baseline (%)
-  # data source: for walk and bike, hard coded estimate; for other modes, CHTS2012
-  percent.person.baseline.NHW <- percent.person.baseline.Other <- matrix(NA,nrow=6,ncol=3,dimnames=list(ModeNames,c("local","arterial","highway")))
-  percent.person.baseline.NHW[,1]<-t.person.distance.baseline$person.vehicle.distance_input.matrix[8:13,1]
-  percent.person.baseline.NHW[,2]<-t.person.distance.baseline$person.vehicle.distance_input.matrix[15:20,1]
-  percent.person.baseline.NHW[,3]<-t.person.distance.baseline$person.vehicle.distance_input.matrix[22:27,1]
+  percent.person.baseline.NHW <- 
+    percent.person.baseline.Other <- matrix(NA,nrow = 6,ncol = 3,
+                                            dimnames=list(ModeNames,c("local","arterial","highway")))
+  percent.person.baseline.NHW[,1] <- t.person.distance.baseline$person.vehicle.distance_input.matrix[8:13,1]
+  percent.person.baseline.NHW[,2] <- t.person.distance.baseline$person.vehicle.distance_input.matrix[15:20,1]
+  percent.person.baseline.NHW[,3] <- t.person.distance.baseline$person.vehicle.distance_input.matrix[22:27,1]
   
-  percent.person.baseline.Other[,1]<-t.person.distance.baseline$person.vehicle.distance_input.matrix[8:13,2]
-  percent.person.baseline.Other[,2]<-t.person.distance.baseline$person.vehicle.distance_input.matrix[15:20,2]
-  percent.person.baseline.Other[,3]<-t.person.distance.baseline$person.vehicle.distance_input.matrix[22:27,2]
+  percent.person.baseline.Other[,1] <- t.person.distance.baseline$person.vehicle.distance_input.matrix[8:13,2]
+  percent.person.baseline.Other[,2] <- t.person.distance.baseline$person.vehicle.distance_input.matrix[15:20,2]
+  percent.person.baseline.Other[,3] <- t.person.distance.baseline$person.vehicle.distance_input.matrix[22:27,2]
   
   # matrix of distance (person) by road types and modes for baseline (miles per day)
   distance.baseline.person.NHW <- t.person.distance.baseline.NHW * percent.person.baseline.NHW
   distance.baseline.person.Other <- t.person.distance.baseline.Other * percent.person.baseline.Other
   
   # matrix of occupancy
-  # source: hard coded estimate & CHTS2012
+  # source: hard coded estimate
   occ.baseline.NHW <- t.person.distance.baseline$person.vehicle.distance_input.matrix[29:34,1]
   occ.baseline.Other <- t.person.distance.baseline$person.vehicle.distance_input.matrix[29:34,2]
   
   ### for scenario ###
   # person distance (person) for all road types and all modes (miles per day)
-  # data source: MTC Travel Model One
+  # data source: SACSIM15
   t.person.distance.scenario <-input.csv(countyID,scenarioID = scenarioID)
   
   t.person.distance.scenario.NHW <- t.person.distance.scenario$person.vehicle.distance_input.matrix[1:6,1]
@@ -169,7 +162,9 @@ createScenarioInjuryMultiplier <- function(countyID,scenarioID){
   
   # matrix of distance (person) distribution by road types and modes for scenario (%)
   # data source: for walk and bike, hard coded estimate; for other modes, MTC Travel Model One
-  percent.person.scenario.NHW <- percent.person.scenario.Other <- matrix(NA,nrow=6,ncol=3,dimnames=list(ModeNames,c("local","arterial","highway")))
+  percent.person.scenario.NHW <- 
+    percent.person.scenario.Other <- 
+    matrix(NA,nrow = 6,ncol = 3,dimnames = list(ModeNames,c("local","arterial","highway")))
   percent.person.scenario.NHW[,1] <- t.person.distance.scenario$person.vehicle.distance_input.matrix[8:13,1]
   percent.person.scenario.NHW[,2] <- t.person.distance.scenario$person.vehicle.distance_input.matrix[15:20,1]
   percent.person.scenario.NHW[,3] <- t.person.distance.scenario$person.vehicle.distance_input.matrix[22:27,1]
@@ -183,7 +178,6 @@ createScenarioInjuryMultiplier <- function(countyID,scenarioID){
   distance.scenario.person.Other <- t.person.distance.scenario.Other * percent.person.scenario.Other
   
   # matrix of occupancy
-  # source: hard coded estimate & MTC Travel Model One
   occ.scenario.NHW <- t.person.distance.scenario$person.vehicle.distance_input.matrix[29:34,1]
   occ.scenario.Other <- t.person.distance.scenario$person.vehicle.distance_input.matrix[29:34,2]
   
@@ -217,7 +211,9 @@ createScenarioInjuryMultiplier <- function(countyID,scenarioID){
   victim.safety <- 0.5
   
   # compute the list of scenario injury multiplier (i:row;j:col;k:road type)
-  scenario.multiplier.NHW <- scenario.multiplier.Other <- rep(list((matrix(NA,nrow=nTrafficModeV,ncol=nTrafficModeS,dimnames=list(ModeNames,c(ModeNames,'one.party'))))), nRoadType)
+  scenario.multiplier.NHW <- scenario.multiplier.Other <- 
+    rep(list((matrix(NA,nrow=nTrafficModeV,ncol=nTrafficModeS,
+                     dimnames=list(ModeNames,c(ModeNames,"one.party"))))), nRoadType)
   names(scenario.multiplier.NHW) <- names(scenario.multiplier.Other) <- RoadTypes
   
   # using different calculation method for different party numbers (1vs2)
@@ -239,21 +235,27 @@ createScenarioInjuryMultiplier <- function(countyID,scenarioID){
     }
   }
   return(list(
-    scenario.multiplier.NHW=scenario.multiplier.NHW,
-    scenario.multiplier.Other=scenario.multiplier.Other
+    scenario.multiplier.NHW = scenario.multiplier.NHW,
+    scenario.multiplier.Other = scenario.multiplier.Other
   )
   )
   
 }
 
-###################### Part 4 Function Definition - Compute Scenario Injury ##############################
+# Part 4 Function Definition - Compute Scenario Injury --------------------------------------------------
 
 ##### Scenario Injuries
 #compute the scenario injuries (the product of baseline injury and scenario multiplier)
 computeScenarioInjury <- function(injury.baseline,scenario.multiplier){
   
-  injury.scenario.NHW <- mapply(function(x,y) x*y,injury.baseline$NHW,c(scenario.multiplier$scenario.multiplier.NHW,scenario.multiplier$scenario.multiplier.NHW),SIMPLIFY=FALSE)
-  injury.scenario.Other <- mapply(function(x,y) x*y,injury.baseline$Other,c(scenario.multiplier$scenario.multiplier.Other,scenario.multiplier$scenario.multiplier.Other),SIMPLIFY=FALSE)
+  injury.scenario.NHW <- mapply(function(x,y) x*y,
+                                injury.baseline$NHW,
+                                c(scenario.multiplier$scenario.multiplier.NHW,
+                                  scenario.multiplier$scenario.multiplier.NHW),SIMPLIFY=FALSE)
+  injury.scenario.Other <- mapply(function(x,y) x*y,
+                                  injury.baseline$Other,
+                                  c(scenario.multiplier$scenario.multiplier.Other,
+                                    scenario.multiplier$scenario.multiplier.Other),SIMPLIFY=FALSE)
   
   return(list(
     injury.scenario.NHW = injury.scenario.NHW,
@@ -263,10 +265,7 @@ computeScenarioInjury <- function(injury.baseline,scenario.multiplier){
 
 ##### Injuries results
 createInjuryResults <- function(countyID,scenarioID){
-  #test
-  #countyID=2
-  #scenarioID=1
-  
+
   injury.list <- input.csv(countyID = countyID,scenarioID = 0)[[1]]
   
   # baseline injury
@@ -286,24 +285,16 @@ createInjuryResults <- function(countyID,scenarioID){
   total.injury.scenario.Other <- lapply(injury.scenario.byRace$injury.scenario.Other,sum) 
   
   # compute the relative risk of fatality for each race group
-  RR.fatality.NHW <- (total.injury.scenario.NHW[[1]]+total.injury.scenario.NHW[[2]]+total.injury.scenario.NHW[[3]])/(total.injury.baseline.NHW[[1]]+total.injury.baseline.NHW[[2]]+total.injury.baseline.NHW[[3]])
-  RR.fatality.Other <-(total.injury.scenario.Other[[1]]+total.injury.scenario.Other[[2]]+total.injury.scenario.Other[[3]])/(total.injury.baseline.Other[[1]]+total.injury.baseline.Other[[2]]+total.injury.baseline.Other[[3]])
+  RR.fatality.NHW <- (total.injury.scenario.NHW[[1]]+
+                        total.injury.scenario.NHW[[2]]+total.injury.scenario.NHW[[3]])/
+    (total.injury.baseline.NHW[[1]]+total.injury.baseline.NHW[[2]]+total.injury.baseline.NHW[[3]])
+  RR.fatality.Other <-(total.injury.scenario.Other[[1]]+
+                         total.injury.scenario.Other[[2]]+total.injury.scenario.Other[[3]])/
+    (total.injury.baseline.Other[[1]]+total.injury.baseline.Other[[2]]+total.injury.baseline.Other[[3]])
   
   # compute the relative risk of serious injuries for each race group
   RR.serious.NHW <-(total.injury.scenario.NHW[[4]]+total.injury.scenario.NHW[[5]]+total.injury.scenario.NHW[[6]])/(total.injury.baseline.NHW[[4]]+total.injury.baseline.NHW[[5]]+total.injury.baseline.NHW[[6]])
   RR.serious.Other <- (total.injury.scenario.Other[[4]]+total.injury.scenario.Other[[5]]+total.injury.scenario.Other[[6]])/(total.injury.baseline.Other[[4]]+total.injury.baseline.Other[[5]]+total.injury.baseline.Other[[6]])
-  
-  # Reduction.fatality.NHW <- (total.injury.baseline.NHW[[1]]+total.injury.baseline.NHW[[2]]+total.injury.baseline.NHW[[3]])-
-  #   (total.injury.scenario.NHW[[1]]+total.injury.scenario.NHW[[2]]+total.injury.scenario.NHW[[3]])
-  # 
-  # Reduction.fatality.Other <- total.injury.baseline.Other[[1]]+total.injury.baseline.Other[[2]]+total.injury.baseline.Other[[3]]-
-  #   (total.injury.scenario.Other[[1]]+total.injury.scenario.Other[[2]]+total.injury.scenario.Other[[3]])
-  # 
-  # Reduction.serious.NHW <- total.injury.baseline.NHW[[4]]+total.injury.baseline.NHW[[5]]+total.injury.baseline.NHW[[6]]-
-  #   (total.injury.scenario.NHW[[4]]+total.injury.scenario.NHW[[5]]+total.injury.scenario.NHW[[6]])
-  # 
-  # Reduction.serious.Other <- total.injury.baseline.Other[[4]]+total.injury.baseline.Other[[5]]+total.injury.baseline.Other[[6]]-
-  #   (total.injury.scenario.Other[[4]]+total.injury.scenario.Other[[5]]+total.injury.scenario.Other[[6]])
   
   # GBD by race groups
   GBD.white.temp <- input.csv(countyID = countyID,scenarioID = 0)[[3]]
@@ -323,12 +314,7 @@ createInjuryResults <- function(countyID,scenarioID){
   Reduction.DALYs.other.disaggr <- Reduction.yll.other.disaggr+Reduction.yld.other.disaggr
   
   return(list(
-    # RR.fatality.NHW = RR.fatality.NHW,
-    # RR.fatality.Other = RR.fatality.Other,
-    # 
-    # RR.serious.NHW =RR.serious.NHW,
-    # RR.serious.Other = RR.serious.Other
-    
+
     Reduction.Death.white=sum(Reduction.Death.white.disaggr),
     Reduction.Death.other=sum(Reduction.Death.other.disaggr),
     Reduction.DALYs.white=sum(Reduction.DALYs.white.disaggr),
@@ -338,33 +324,25 @@ createInjuryResults <- function(countyID,scenarioID){
     Reduction.Death.other.disaggr=Reduction.Death.other.disaggr,
     Reduction.DALYs.white.disaggr=Reduction.DALYs.white.disaggr,
     Reduction.DALYs.other.disaggr=Reduction.DALYs.other.disaggr
-    
-    
-    
-    # Reduction.fatality.NHW=Reduction.fatality.NHW,
-    # Reduction.fatality.Other=Reduction.fatality.Other,
-    # Reduction.serious.NHW=Reduction.serious.NHW,
-    # Reduction.serious.Other=Reduction.serious.Other
   ))
 }
 
 # function for computing the age.std results
 computeAgeStdOutput.injury <- function(scenario,countyID){
-  #test
-  #countyID = 2
-  #scenario <- scenario.1
+   
+  fatality.NHW.age.gender <- scenario$Reduction.Death.white.disaggr/matrix(
+    cbind(Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),1],
+          Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),2]),16,1)*100000
+  fatality.Other.age.gender <- scenario$Reduction.Death.other.disaggr/matrix(
+    cbind(Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),3],
+          Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),4]),16,1)*100000
   
-  #fatality.NHW.age.gender <- age.gender.dist.injury[((9*countyID-8):(9*countyID-1)),1:2]*scenario$Reduction.fatality.NHW/Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),1:2]*100000
-  #fatality.Other.age.gender <- age.gender.dist.injury[((9*countyID-8):(9*countyID-1)),3:4]*scenario$Reduction.fatality.Other/Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),3:4]*100000
-  
-  #serious.NHW.age.gender <- age.gender.dist.injury[((9*countyID-8):(9*countyID-1)),1:2]*scenario$Reduction.serious.NHW/Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),1:2]*100000
-  #serious.Other.age.gender <- age.gender.dist.injury[((9*countyID-8):(9*countyID-1)),3:4]*scenario$Reduction.serious.Other/Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),3:4]*100000
-  
-  fatality.NHW.age.gender <- scenario$Reduction.Death.white.disaggr/matrix(cbind(Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),1],Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),2]),16,1)*100000
-  fatality.Other.age.gender <- scenario$Reduction.Death.other.disaggr/matrix(cbind(Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),3],Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),4]),16,1)*100000
-  
-  DALYs.NHW.age.gender <- scenario$Reduction.DALYs.white.disaggr/matrix(cbind(Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),1],Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),2]),16,1)*100000
-  DALYs.Other.age.gender <- scenario$Reduction.DALYs.other.disaggr/matrix(cbind(Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),1],Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),2]),16,1)*100000
+  DALYs.NHW.age.gender <- scenario$Reduction.DALYs.white.disaggr/matrix(
+    cbind(Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),1],
+          Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),2]),16,1)*100000
+  DALYs.Other.age.gender <- scenario$Reduction.DALYs.other.disaggr/matrix(
+    cbind(Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),1],
+          Pop.file.twoRaces[((9*countyID-8):(9*countyID-1)),2]),16,1)*100000
   
   age.std.fatality.NHW <- sum(fatality.NHW.age.gender * US.pop)/sum(US.pop)
   age.std.fatality.other <- sum(fatality.Other.age.gender * US.pop)/sum(US.pop)
@@ -373,15 +351,15 @@ computeAgeStdOutput.injury <- function(scenario,countyID){
   age.std.DALYs.other <- sum(DALYs.Other.age.gender * US.pop)/sum(US.pop)
   
   return(list(
-    age.std.fatality.NHW=age.std.fatality.NHW,
-    age.std.fatality.other=age.std.fatality.other,
-    age.std.DALYs.NHW =age.std.DALYs.NHW,
-    age.std.DALYs.other=age.std.DALYs.other
+    age.std.fatality.NHW = age.std.fatality.NHW,
+    age.std.fatality.other = age.std.fatality.other,
+    age.std.DALYs.NHW = age.std.DALYs.NHW,
+    age.std.DALYs.other = age.std.DALYs.other
   ))
   
 }
 
-###################### Part 5 Function Definition - Output (ggplot) ##############################
+# Part 5 Function Definition - Output (ggplot) --------------------------------------------------
 
 # barID: 1-future years,2-Scenarios,3-customized
 # typeID: 1-raw,2-age.std
@@ -394,21 +372,21 @@ DFforFigure.injury <- function(barID,countyID,typeID){
     scenario.2 <- createInjuryResults(countyID = countyID,scenarioID = 3)#2027
     scenario.3 <- createInjuryResults(countyID = countyID,scenarioID = 2)#2036
     
-    scenario.name  <- rep(c('2020','2027','2036'),each= 2)
+    scenario.name  <- rep(c("2020","2027","2036"),each= 2)
     
   }else if (barID==2){#scenarios
     scenario.1 <- createInjuryResults(countyID = countyID,scenarioID = 4)
     scenario.2 <- createInjuryResults(countyID = countyID,scenarioID = 5)
     scenario.3 <- createInjuryResults(countyID = countyID,scenarioID = 6)
     
-    scenario.name  <- rep(c('S1','S2','S3'),each= 2)
+    scenario.name  <- rep(c("S1","S2","S3"),each= 2)
     
   }else if(barID==3){#customized
     scenario.1 <- createInjuryResults(countyID = countyID,scenarioID = 7)
     scenario.2 <- createInjuryResults(countyID = countyID,scenarioID = 8)
     scenario.3 <- createInjuryResults(countyID = countyID,scenarioID = 9)
     
-    scenario.name  <- rep(c('C1','C2','C3'),each= 2)
+    scenario.name  <- rep(c("C1","C2","C3"),each= 2)
   }
   
   if (typeID == 2){
@@ -432,21 +410,7 @@ DFforFigure.injury <- function(barID,countyID,typeID){
   reduction.DALYs.value[4,1] <-scenario.2[[4]]
   reduction.DALYs.value[5,1] <-scenario.3[[3]]
   reduction.DALYs.value[6,1] <-scenario.3[[4]]
-  
-  # reduction.fatality.value[1,1] <-scenario.1$Reduction.fatality.NHW
-  # reduction.fatality.value[2,1] <-scenario.1$Reduction.fatality.Other
-  # reduction.fatality.value[3,1] <-scenario.2$Reduction.fatality.NHW
-  # reduction.fatality.value[4,1] <-scenario.2$Reduction.fatality.Other
-  # reduction.fatality.value[5,1] <-scenario.3$Reduction.fatality.NHW
-  # reduction.fatality.value[6,1] <-scenario.3$Reduction.fatality.Other
-  # 
-  # reduction.serious.value[1,1] <-scenario.1$Reduction.serious.NHW
-  # reduction.serious.value[2,1] <-scenario.1$Reduction.serious.Other
-  # reduction.serious.value[3,1] <-scenario.2$Reduction.serious.NHW
-  # reduction.serious.value[4,1] <-scenario.2$Reduction.serious.Other
-  # reduction.serious.value[5,1] <-scenario.3$Reduction.serious.NHW
-  # reduction.serious.value[6,1] <-scenario.3$Reduction.serious.Other
-  
+ 
   raceGroup <- rep(c("1.White","2.People of color"),3)
   
   # build the data frame
@@ -471,39 +435,39 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
       df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 1)
       df.plot <- df.result.injury$df.fatality
       
-      plot.title <- paste0(countyNames[countyID],': Reduction in Total Deaths from\n Traffic Injury Module')
-      ylabel <- 'Reduction in deaths (total)'
+      plot.title <- paste0(countyNames[countyID],": Reduction in Total Deaths from\n Traffic Injury Module")
+      ylabel <- "Reduction in deaths (total)"
 
     }else if (yaxisID == 2){
       
       df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 2)
       df.plot <- df.result.injury$df.fatality
       
-      plot.title <- paste0(countyNames[countyID],': Total Deaths from\n Traffic Injury Module',
-                           'Standardized by Age and Population')
-      ylabel <- 'Reduction in deaths\n(per 100,000 population)'
+      plot.title <- paste0(countyNames[countyID],": Total Deaths from\n Traffic Injury Module",
+                           "Standardized by Age and Population")
+      ylabel <- "Reduction in deaths\n(per 100,000 population)"
       
     }else if (yaxisID == 3){
       
       df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 1)
       df.plot <- df.result.injury$df.DALYs
       
-      plot.title <- paste0(countyNames[countyID],': Reduction in Total DALYs from Traffic Injury Module')
-      ylabel <- 'Reduction in DALYs (total)'
+      plot.title <- paste0(countyNames[countyID],": Reduction in Total DALYs from Traffic Injury Module")
+      ylabel <- "Reduction in DALYs (total)"
       
     }else if (yaxisID == 4){
       
       df.result.injury <- DFforFigure.injury(barID = barID,countyID = countyID,typeID = 2)
       df.plot <- df.result.injury$df.DALYs
       
-      plot.title <- paste0(countyNames[countyID],': Total DALYs from Traffic Injury Module\n',
-                           'Standardized by Age and Population')
-      ylabel <- 'Reduction in DALYs\n(per 100,000 population)'
+      plot.title <- paste0(countyNames[countyID],": Total DALYs from Traffic Injury Module\n",
+                           "Standardized by Age and Population")
+      ylabel <- "Reduction in DALYs\n(per 100,000 population)"
 
     }
     
     ggplot(data = df.plot, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-      geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
+      geom_bar(stat = "identity", width = 0.5, position = position_dodge(0.5)) + 
       scale_fill_brewer(palette = "Set1") + 
       xlab(NULL) + 
       ylab(ylabel) +
@@ -527,8 +491,8 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
         df.region <- rbind(df.region,df.temp$df.fatality)
       }
       
-      plot.title <- paste0('Region Wide: Reduction in Total Deaths from\n Traffic Injury Module')
-      ylabel <- 'Reduction in deaths (total)'
+      plot.title <- paste0("Region Wide: Reduction in Total Deaths from\n Traffic Injury Module")
+      ylabel <- "Reduction in deaths (total)"
       
     }else if (yaxisID == 2){
       
@@ -537,9 +501,9 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
         df.region <- rbind(df.region,df.temp$df.fatality)
       }
      
-      plot.title <- paste0('Region Wide: Deaths from Traffic Injury Module\n',
-                           'Standardized by Age and Population')
-      ylabel <- 'Reduction in deaths\n(per 100,000 population)'
+      plot.title <- paste0("Region Wide: Deaths from Traffic Injury Module\n",
+                           "Standardized by Age and Population")
+      ylabel <- "Reduction in deaths\n(per 100,000 population)"
       
     }else if (yaxisID == 3){
       
@@ -550,8 +514,8 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
         
       }
       
-      plot.title <- paste0('Region Wide: Reduction in Total DALYs from Traffic Injury Module')
-      ylabel <- 'Reduction in DALYs (total)'
+      plot.title <- paste0("Region Wide: Reduction in Total DALYs from Traffic Injury Module")
+      ylabel <- "Reduction in DALYs (total)"
       
     }else if (yaxisID == 4){
       
@@ -562,15 +526,15 @@ plot.shiny.app.injury <- function(countyID, barID, yaxisID){
         
       }
       
-      plot.title <- paste0('Region Wide: Age-Standardized Reduction in Total DALYs from Traffic Injury Module')
-      ylabel <- 'Reduction in DALYs\n(per 100,000 population)'
+      plot.title <- paste0("Region Wide: Age-Standardized Reduction in Total DALYs from Traffic Injury Module")
+      ylabel <- "Reduction in DALYs\n(per 100,000 population)"
       
     }
     
     df.region$county <- rep(countyNames,each = 6)
     
     ggplot(data = df.region, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
-      geom_bar(stat = 'identity', width = 0.5, position = position_dodge(0.5)) + 
+      geom_bar(stat = "identity", width = 0.5, position = position_dodge(0.5)) + 
       scale_fill_brewer(palette = "Set1") + 
       xlab(NULL) + 
       ylab(ylabel) +

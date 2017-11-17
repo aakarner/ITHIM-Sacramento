@@ -1,4 +1,5 @@
-# Author: Yizheng Wu
+# This file is part of ITHIM Sacramento.
+
 # File: DataProcess_PUMS.R
 # Purpose: use the PUMS data to do the hot-deck imputation. 
 #          impute the race/ethnicity information for SACSIM synthetic population
@@ -277,12 +278,3 @@ for (i in 1:5){ # counties
 
 # save the output
 save(cdph.sac.cmplt,file = "cdph.sac.cmplt")
-
-
-# population <- matrix(NA,nrow=8,ncol = 2)
-# 
-# for (i in 1:2){
-#   for (j in 1:8){
-#     population[j,i] <- try(svytotal(~ones,subset(svy.pums,countyID==1&age.sex.ID==j&SEX==i&raceID==2),na.rm=TRUE),silent = TRUE)
-#   }
-# }
