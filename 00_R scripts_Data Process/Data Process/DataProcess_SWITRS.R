@@ -1,7 +1,7 @@
 # This file is part of ITHIM Sacramento.
 
 # File: DataProcess_SWITRS.R
-# Purpose: Obtain the collision and party data 
+# Purpose: Obtain the collision, party and victim data 
 # from SWITRS(https://www.chp.ca.gov/programs-services/services-information/switrs-internet-statewide-integrated-traffic-records-system) 
 # and TIMS (https://tims.berkeley.edu)
 
@@ -15,17 +15,22 @@ file.names <- list.files(path = "04_SWITRS/00_TIMS_06-16/")
 
 colnames.collision <- colnames(read.csv(paste0("04_SWITRS/00_TIMS_06-16/",file.names[1])))
 colnames.parties <- colnames(read.csv(paste0("04_SWITRS/00_TIMS_06-16/",file.names[10])))
+colnames.victims <- colnames(read.csv(paste0("04_SWITRS/00_TIMS_06-16/",file.names[19])))
 
 collision.temp <- read.csv(paste0("04_SWITRS/00_TIMS_06-16/",file.names[1]),header = FALSE,skip = 1)
 parties.temp <- read.csv(paste0("04_SWITRS/00_TIMS_06-16/",file.names[10]),header = FALSE,skip = 1)
+victims.temp <- read.csv(paste0("04_SWITRS/00_TIMS_06-16/",file.names[19]),header = FALSE,skip = 1)
 
 for (i in 2:9){
   collision.temp <- rbind(collision.temp,read.csv(paste0("04_SWITRS/00_TIMS_06-16/",file.names[i]),header=FALSE,skip = 1))
   parties.temp <- rbind(parties.temp,read.csv(paste0("04_SWITRS/00_TIMS_06-16/",file.names[i+9]),header=FALSE,skip = 1))
+  victims.temp <- rbind(victims.temp,read.csv(paste0("04_SWITRS/00_TIMS_06-16/",file.names[i+18]),header=FALSE,skip = 1))
+  
 }
 
 colnames(collision.temp)<-colnames.collision
 colnames(parties.temp)<-colnames.parties
+colnames(victims.temp)<-colnames.victims
 
 # keep the required variables in collision
 keep.collision <- c('CASEID','COUNTY','PARTIES','KILLED','SEVINJ','CHPTYPE')
@@ -38,10 +43,18 @@ collision.party.3 <- collision.t[which(collision.t$PARTIES==3),] #three parties 
 keep.party <- c('CASEID','PARNUM','ATFAULT',"VEHTYPE",'PRACE')
 party.c <- parties.temp[,names(parties.temp)%in%keep.party]
 
+# keep the required variables in victims
+keep.victims <- c('CASEID','PARNUM','VSEX','VAGE','VINJURY','county')
+victim.c <- victims.temp[,names(victims.temp)%in%keep.victims]
+victim.c.killed <- victim.c[which(victim.c$VINJURY==1),]
+
 # merge party and collision data by using case ID
 injury.party.1 <- merge(collision.party.1,party.c,by.x = 'CASEID',by.y = 'CASEID')
 injury.party.2 <- merge(collision.party.2,party.c,by.x = 'CASEID',by.y = 'CASEID')
 injury.party.3 <- merge(collision.party.3,party.c,by.x = 'CASEID',by.y = 'CASEID')
+
+# merge party and victims data by using case ID and PARNUM
+victim.party.killed <- merge(victim.c.killed,party.c,by=c('CASEID','PARNUM'))
 
 # Part 1  Function Definition -------------------------------------------------------------
 
@@ -167,6 +180,54 @@ shape.format.output <- function(countyID){
   return(final.output.byrace)
 }
 
+# recode victim.killed
+# race ID
+victim.party.killed$raceID <- ifelse(victim.party.killed$PRACE=='W',1,2)
+
+# county ID
+victim.party.killed$countyID <- ifelse(victim.party.killed$county=='ELD',1,
+                                       ifelse(victim.party.killed$county=='PLA',2,
+                                              ifelse(victim.party.killed$county=='SAC',3,
+                                                     ifelse(victim.party.killed$county=='SUT',4,
+                                                            ifelse(victim.party.killed$county=='YOL',5,
+                                                                   ifelse(victim.party.killed$county=='YUB',6,99))))))
+#age group
+victim.party.killed$age.sex.ID <- ifelse(victim.party.killed$VAGE<=4&victim.party.killed$VSEX=='M',1,
+                                    ifelse(victim.party.killed$VAGE<=14&victim.party.killed$VSEX=='M',2,
+                                           ifelse(victim.party.killed$VAGE<=29&victim.party.killed$VSEX=='M',3,
+                                                  ifelse(victim.party.killed$VAGE<=44&victim.party.killed$VSEX=='M',4,
+                                                         ifelse(victim.party.killed$VAGE<=59&victim.party.killed$VSEX=='M',5,
+                                                                ifelse(victim.party.killed$VAGE<=69&victim.party.killed$VSEX=='M',6,
+                                                                       ifelse(victim.party.killed$VAGE<=79&victim.party.killed$VSEX=='M',7,
+                                                                              ifelse(victim.party.killed$VSEX=='M',8,
+                                                                                     ifelse(victim.party.killed$VAGE<=4&victim.party.killed$VSEX=='F',9,
+                                                                                            ifelse(victim.party.killed$VAGE<=14&victim.party.killed$VSEX=='F',10,
+                                                                                                   ifelse(victim.party.killed$VAGE<=29&victim.party.killed$VSEX=='F',11,
+                                                                                                          ifelse(victim.party.killed$VAGE<=44&victim.party.killed$VSEX=='F',12,
+                                                                                                                 ifelse(victim.party.killed$VAGE<=59&victim.party.killed$VSEX=='F',13,
+                                                                                                                        ifelse(victim.party.killed$VAGE<=69&victim.party.killed$VSEX=='F',14,
+                                                                                                                               ifelse(victim.party.killed$VAGE<=79&victim.party.killed$VSEX=='F',15,16)))))))))))))))
+# count the killed victim number
+victim.killed.matrix <- NULL
+victim.killed.matrix.temp <- matrix(data = NA,nrow = 16,ncol = 2)
+
+for (k in 1:6){
+  for (i in 1:16){
+    for (j in 1:2){
+      victim.killed.matrix.temp[i,j]=nrow(victim.party.killed[which(victim.party.killed$age.sex.ID==i&
+                                                                      victim.party.killed$raceID==j&
+                                                                      victim.party.killed$countyID==k),])/11 #11
+    }
+  }
+  victim.killed.matrix <- cbind(victim.killed.matrix,victim.killed.matrix.temp)
+}
+
+dimnames(victim.killed.matrix) = list(c(paste0("maleAgeClass ",1:8),
+                                  paste0("femaleAgeClass ",1:8)),rep((c('Race1','Race2')),6) )
+
+
+
+
 # Part 3  Output -------------------------------------------------------------
 injury.party.1 <- recode(injury.party.1)
 injury.party.2 <- recode(injury.party.2)
@@ -192,6 +253,6 @@ write.csv(output.YOL,file = "06_Equity Analysis/05_baseline injury/test.yol.INJU
 output.YUB <- shape.format.output(countyID = 6)
 write.csv(output.YUB,file = "06_Equity Analysis/05_baseline injury/test.yub.INJURY.csv")
 
-
+write.csv(victim.killed.matrix,file = "06_Equity Analysis/05_baseline injury/mortality_traffic injury.csv")
 
 
