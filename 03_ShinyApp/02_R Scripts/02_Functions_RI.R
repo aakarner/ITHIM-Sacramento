@@ -13,7 +13,7 @@
 # Part 1 Read External Data Sources and Define Parameter --------------------------------------------------
 
 #test
-setwd('/Users/Yizheng/Documents/02_Work/15_GitHub-Central/ITHIM-Sacramento/03_ShinyApp')
+#setwd('/Users/Yizheng/Documents/02_Work/15_GitHub-Central/ITHIM-Sacramento/03_ShinyApp')
 
 # number of traffic modes, injuried types, and road types
 nTrafficModeV <- 6L #victim mode
