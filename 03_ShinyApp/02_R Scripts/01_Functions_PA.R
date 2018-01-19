@@ -1341,7 +1341,7 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
     }else if(countyID == 7){
       df.result <- DFforRegionWide(RawReductionOutcome,demogrID = demogrID,dbID = dbID,barID = barID)
       
-      plot.title <- paste0("Region-Wide',': Reduction in Total ",
+      plot.title <- paste0("Region-Wide: Reduction in Total ",
                            dbNames[dbID],"\nfrom Physical Activity Module")
       
       ggplot(data = df.result, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
@@ -1384,7 +1384,7 @@ plot.shiny.app.PA <- function(countyID,dbID,typeID,demogrID,barID){
     }else if(countyID==7){
       df.result <- DFforRegionWide(AgeStdReductionOutcome,demogrID = demogrID,dbID = dbID,barID = barID)
       
-      plot.title <- paste0("Region-Wide',': Total ", dbNames[dbID],
+      plot.title <- paste0("Region-Wide: Total ", dbNames[dbID],
                            " from Physical Activity Module\nStandardized by Age and Population")
       
       ggplot(data = df.result, aes(x = factor(DemogrGroup), y = V1, fill = Scenario)) + 
@@ -1491,8 +1491,7 @@ dbNames <- c('Deaths', 'DALYs')
 countyNames <- c("El Dorado", "Placer", "Sacramento", "Sutter", "Yolo", "Yuba")
 
 # plot caption
-plot.caption.text <- paste("Planning scenarios and future years are shown relative to\n",
-                           "the baseline year 2012.\n\n",
+plot.caption.text <- paste("Planning scenarios and future years are shown relative to the baseline year 2012.\n\n",
                            "Income quantiles are defined as follows: Quantile 1 is <$32,000/yr,\n",
                            "Quantile 2 is $32,000 - $62,090/yr, Quantile 3 is $62,090 - 105,000/yr,\n",
                            "and Quantile 4 is >$105,000/yr.")
