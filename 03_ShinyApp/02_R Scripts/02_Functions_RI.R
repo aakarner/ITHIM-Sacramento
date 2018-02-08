@@ -12,6 +12,9 @@
 
 # Part 1 Read External Data Sources and Define Parameter --------------------------------------------------
 
+#test
+#setwd('/Users/Yizheng/Documents/02_Work/15_GitHub-Central/ITHIM-Sacramento/03_ShinyApp')
+
 # number of traffic modes, injuried types, and road types
 nTrafficModeV <- 6L #victim mode
 nTrafficModeS <- 7L #striking mode (include one-party)
@@ -51,6 +54,7 @@ US.pop <- matrix(cbind(US.pop[,2],US.pop[,3]),16,1)
 
 # input the GBD data
 GBD.injury <- read.csv("01_Data/04_GBD/14_GBD_US_TrafficInjury.csv")
+local.mort <- read.csv("01_Data/04_GBD/15_GBD_SACOG_mortality_TrafficInjury.csv")
 
 # Part 2 Function Definition - Data Inputs ------------------------------------------------------
 
@@ -61,6 +65,7 @@ GBD.injury <- read.csv("01_Data/04_GBD/14_GBD_US_TrafficInjury.csv")
 input.csv <- function(countyID,scenarioID){
   #scenarioID: 0-2012,1-2020,2-2036,3-2027,4-S1,5-S2,6-S3,7-C1,8-C2,9-C3
   #countyID: 1-ELD,2-PLA,3-SAC,4-SUT,5-YOL,6-YUB
+  
   filenames.injury <- list.files(path = "01_Data/05_baseline injury")[1:6]
   
   # build a list to store the baseline injury data sets for all races
@@ -85,12 +90,30 @@ input.csv <- function(countyID,scenarioID){
   person.vehicle.distance_input.matrix[,2]<-person.vehicle.distance_input[1:34,(4*countyID+1)]
   
   #GBD
+  local.death.white <- local.mort[,2*countyID]
+  local.death.other <- local.mort[,(2*countyID+1)]
+  
   GBD.local.white <- GBD.injury[,2:5] * 
     matrix(cbind(Pop.file.twoRaces[(9*countyID-8):(9*countyID-1),1],
                  Pop.file.twoRaces[(9*countyID-8):(9*countyID-1),2]),16,1)/ US.pop
+  
   GBD.local.Other <- GBD.injury[,2:5] * 
     matrix(cbind(Pop.file.twoRaces[(9*countyID-8):(9*countyID-1),3],
                  Pop.file.twoRaces[(9*countyID-8):(9*countyID-1),4]),16,1)/ US.pop
+  
+  GBD.local.white$deaths <- local.death.white
+  GBD.local.Other$deaths <- local.death.other
+  
+  for (i in 1:16){
+    if (GBD.local.white$deaths[i]>0){
+      GBD.local.white$daly[i] <- GBD.local.white$deaths[i]/GBD.injury$deaths[i]*GBD.injury$daly[i]
+    }
+    
+    if (GBD.local.Other$deaths[i]>0){
+      GBD.local.Other$daly[i] <- GBD.local.Other$deaths[i]/GBD.injury$deaths[i]*GBD.injury$daly[i]
+    }
+    
+  }
   
   return(list(
     injury.list = injury.list,
@@ -424,8 +447,7 @@ DFforFigure.injury <- function(barID,countyID,typeID){
 }
 
 # barID: 1-future years,2-Scenarios,3-customized
-# yaxisID: 1-Death total; 2-Death age.std; 3-serious injury total; 4-serious injury age.std
-# typeID : 1-raw,2-age.std
+# yaxisID: 1-Death total; 2-Death age.std; 3-DALYs total; 4-DALYs age.std
 plot.shiny.app.injury <- function(countyID, barID, yaxisID){
   
   if (countyID %in% c(1:6)) {
