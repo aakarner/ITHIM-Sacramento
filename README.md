@@ -1,8 +1,8 @@
 # ITHIM-Sacramento
 
-This repository contains code that implements the [Integrated Transport and Health Impact Model (ITHIM)](http://www.cedar.iph.cam.ac.uk/research/modelling/ithim/) for the six-county [Sacramento Area Council of Governments (SACOG)](http://www.sacog.org) region.
+This repository contains code that implements the [ITHIM-Sacramento Equity Analysis Tool](https://aakarner.shinyapps.io/06_equity_analysis/), which estimates the health effects of regional transportation plans in the six-county [Sacramento Area Council of Governments (SACOG)](http://www.sacog.org) region.  This tool is based on the [Integrated Transport and Health Impact Model (ITHIM)](http://www.cedar.iph.cam.ac.uk/research/modelling/ithim/).  
 
-Additional information regarding how the code can be used is available in the [documentation](https://github.com/aakarner/ITHIM-Sacramento/tree/master/02_Documentation) folder.
+Additional information regarding how the code can be used is available in the [documentation](https://github.com/aakarner/ITHIM-Sacramento/tree/master/02_Documentation) folder. 
 
 ## Source code ##
 
