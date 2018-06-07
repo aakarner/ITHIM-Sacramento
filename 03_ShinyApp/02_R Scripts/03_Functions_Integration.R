@@ -247,22 +247,22 @@ integrated.shiny.app <- function(countyID,barID,outcomeID,demogrID,yaxisID){
       
       if (yaxisID == 1){
         
-        plot.title <- "Region-Wide: Reduction in Total Deaths"
+        plot.title <- "Reduction in Total Deaths"
         ylabel <- "Reduction in deaths (total)"
         
       }else if (yaxisID == 2){
         
-        plot.title <- "Region-Wide: Reduction in Total Deaths\nStandardized by Age and Population"
+        plot.title <- "Reduction in Total Deaths\nStandardized by Age and Population"
         ylabel <- "Reduction in deaths\n(per 100,000 population)"
         
       }else if (yaxisID ==3 ){
         
-        plot.title <- "Region-Wide: Reduction in Total DALYs"
+        plot.title <- "Reduction in Total DALYs"
         ylabel <- "Reduction in DALYs (total)"
         
       }else if (yaxisID == 4){
         
-        plot.title <- "Region-Wide: Reduction in Total DALYs\nStandardized by Age and Population"
+        plot.title <- "Reduction in Total DALYs\nStandardized by Age and Population"
         ylabel <- "DALYs reduction rate\n(per 100,000 population)"
         
       }
@@ -352,7 +352,7 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
     
     df.integration.aggr <- rbind(df.PA.aggr,df.injury.aggr,df.result.integration.temp)
     
-    plot.title <- "Region-Wide: Reduction in Total Deaths"
+    plot.title <- "Reduction in Total Deaths"
     ylabel <- "Reduced deaths (total)"
     
   }else if (yaxisID == 2) { # death age.std
@@ -480,7 +480,7 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
     
     df.integration.aggr <- rbind(df.PA.aggr,df.injury.aggr,df.result.integration.temp)
     
-    plot.title <- "Region-Wide: Reduction in Total Deaths\nStandardized by Age and Population"
+    plot.title <- "Reduction in Total Deaths\nStandardized by Age and Population"
     ylabel <- "Deaths reduced\n(per 100,000 population)"
     
   }else if(yaxisID == 3) { # DALYs total
@@ -537,7 +537,7 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
     
     df.integration.aggr <- rbind(df.PA.aggr,df.injury.aggr,df.result.integration.temp)
     
-    plot.title <- "Region-Wide: Reduction in Total DALYs"
+    plot.title <- "Reduction in Total DALYs"
     ylabel <- "Reduction in DALYs (total)"
     
   }else if (yaxisID == 4) { # DALYs age.std
@@ -666,7 +666,7 @@ aggr.outcome.shiny.app <- function(barID,yaxisID){
     
     df.integration.aggr <- rbind(df.PA.aggr,df.injury.aggr,df.result.integration.temp)
     
-    plot.title <- "Region-Wide: Reduction in Total DALYs\nStandardized by Age and Population"
+    plot.title <- "Reduction in Total DALYs\nStandardized by Age and Population"
     ylabel <- "Reduction in DALYs\n(per 100,000 population)"
     
   }
